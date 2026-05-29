@@ -8,6 +8,7 @@ import { useAuth } from '@/stores/auth';
 import { Skeleton, PostSkeleton } from '@/components/ui/Skeleton';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { toast } from '@/components/ui/Toast';
+import { linkifyCaption } from '@/lib/linkify';
 
 interface Post {
   id: string;
@@ -136,7 +137,7 @@ export default function PostDetailPage() {
               <Link href={`/profile/${post.user.id}`} className="font-semibold hover:underline">
                 {post.user.username}
               </Link>{' '}
-              {post.caption}
+              {linkifyCaption(post.caption)}
             </p>
           )}
         </div>

@@ -2,19 +2,44 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 
+function parseTags(caption?: string): string[] {
+  if (!caption) return [];
+  const matches = caption.match(/#[\w]+/g);
+  if (!matches) return [];
+  return [...new Set(matches.map((t) => t.slice(1).toLowerCase()))];
+}
+
 @Injectable()
 export class PostsService {
   constructor(private prisma: PrismaService) {}
 
   async create(userId: string, dto: CreatePostDto) {
+    const tagNames = parseTags(dto.caption);
+
+    if (tagNames.length > 0) {
+      await Promise.all(
+        tagNames.map((name) =>
+          this.prisma.tag.upsert({
+            where: { name },
+            create: { name },
+            update: {},
+          }),
+        ),
+      );
+    }
+
     return this.prisma.post.create({
       data: {
         userId,
         imageUrl: dto.imageUrl,
         caption: dto.caption,
+        tags: {
+          connect: tagNames.map((name) => ({ name })),
+        },
       },
       include: {
         user: { select: { id: true, username: true, avatarUrl: true } },
+        tags: { select: { name: true } },
         _count: { select: { likes: true, comments: true } },
       },
     });
@@ -25,6 +50,7 @@ export class PostsService {
       where: { id },
       include: {
         user: { select: { id: true, username: true, avatarUrl: true } },
+        tags: { select: { name: true } },
         _count: { select: { likes: true, comments: true } },
       },
     });
@@ -58,6 +84,7 @@ export class PostsService {
         take: limit,
         include: {
           user: { select: { id: true, username: true, avatarUrl: true } },
+          tags: { select: { name: true } },
           _count: { select: { likes: true, comments: true } },
         },
       }),
@@ -79,6 +106,7 @@ export class PostsService {
         take: limit,
         include: {
           user: { select: { id: true, username: true, avatarUrl: true } },
+          tags: { select: { name: true } },
           _count: { select: { likes: true, comments: true } },
         },
       }),
@@ -98,6 +126,7 @@ export class PostsService {
         skip,
         take: limit,
         include: {
+          tags: { select: { name: true } },
           _count: { select: { likes: true, comments: true } },
         },
       }),

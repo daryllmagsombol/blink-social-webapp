@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
-import { GridSkeleton } from '@/components/ui/Skeleton';
+import { GridSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 
 interface Post {
@@ -13,12 +13,20 @@ interface Post {
   _count: { likes: number; comments: number };
 }
 
+interface TrendingTag {
+  id: string;
+  name: string;
+  _count: { posts: number };
+}
+
 export default function ExplorePage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [trending, setTrending] = useState<TrendingTag[]>([]);
+  const [trendingLoading, setTrendingLoading] = useState(true);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const loadPosts = async (pageNum: number) => {
@@ -37,6 +45,7 @@ export default function ExplorePage() {
 
   useEffect(() => {
     loadPosts(1);
+    api.get<TrendingTag[]>('/tags/trending').then(setTrending).catch(() => {}).finally(() => setTrendingLoading(false));
   }, []);
 
   useEffect(() => {
@@ -71,6 +80,24 @@ export default function ExplorePage() {
   return (
     <div className="mx-auto max-w-4xl py-8 px-4 pb-20">
       <h1 className="mb-6 text-xl font-bold">Explore</h1>
+
+      {trending.length > 0 && (
+        <div className="mb-6">
+          <h2 className="mb-3 text-sm font-semibold text-text-secondary uppercase tracking-wide">Trending tags</h2>
+          <div className="flex flex-wrap gap-2">
+            {trending.map((tag) => (
+              <Link
+                key={tag.id}
+                href={`/tags/${tag.name}`}
+                className="rounded-full bg-bg-secondary px-3 py-1.5 text-sm font-medium hover:bg-primary/10 hover:text-primary transition-colors"
+              >
+                #{tag.name}
+                <span className="ml-1 text-xs text-text-secondary">{tag._count.posts}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {posts.length === 0 ? (
         <EmptyState icon="🔍" title="No posts yet" description="Be the first to share something!" />

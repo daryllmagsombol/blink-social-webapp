@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth';
-import { Home, Search, PlusSquare, Heart, User, LogOut, MessageCircle } from 'lucide-react';
+import { Home, Search, PlusSquare, Heart, User, LogOut, MessageCircle, Hash } from 'lucide-react';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, user, logout, fetchMe } = useAuth();
@@ -39,7 +39,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   const navItems = [
     { href: '/feed', icon: Home, label: 'Feed' },
-    { href: '/explore', icon: Search, label: 'Explore' },
+    { href: '/search', icon: Search, label: 'Search' },
+    { href: '/explore', icon: Hash, label: 'Explore' },
     { href: '/create', icon: PlusSquare, label: 'Create' },
     { href: '/notifications', icon: Heart, label: 'Notifications' },
     { href: '/messages', icon: MessageCircle, label: 'Messages' },

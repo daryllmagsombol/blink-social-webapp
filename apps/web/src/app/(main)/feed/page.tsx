@@ -8,6 +8,7 @@ import { StoryViewer } from '@/components/story/StoryViewer';
 import { PostSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from '@/components/ui/Toast';
+import { linkifyCaption } from '@/lib/linkify';
 
 interface StoryUser {
   user: { id: string; username: string; avatarUrl: string | null };
@@ -202,7 +203,7 @@ export default function FeedPage() {
                       <Link href={`/profile/${post.user.id}`} className="font-semibold hover:underline">
                         {post.user.username}
                       </Link>{' '}
-                      {post.caption}
+                      {linkifyCaption(post.caption)}
                     </p>
                   )}
                   <Link href={`/posts/${post.id}`} className="text-xs text-text-secondary mt-1 block">
