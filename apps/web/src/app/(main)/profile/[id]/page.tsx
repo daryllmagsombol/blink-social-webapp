@@ -8,6 +8,7 @@ import { useAuth } from '@/stores/auth';
 import { ProfileSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from '@/components/ui/Toast';
+import { MessageCircle } from 'lucide-react';
 
 interface ProfileUser {
   id: string;
@@ -85,16 +86,25 @@ export default function UserProfilePage() {
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-bold">{profile.username}</h1>
             {!isOwn && currentUser && (
-              <button
-                onClick={toggleFollow}
-                className={`rounded px-4 py-1 text-xs font-semibold ${
-                  isFollowing
-                    ? 'border border-border bg-bg'
-                    : 'bg-primary text-white'
-                }`}
-              >
-                {isFollowing ? 'Following' : 'Follow'}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={toggleFollow}
+                  className={`rounded px-4 py-1 text-xs font-semibold ${
+                    isFollowing
+                      ? 'border border-border bg-bg'
+                      : 'bg-primary text-white'
+                  }`}
+                >
+                  {isFollowing ? 'Following' : 'Follow'}
+                </button>
+                <Link
+                  href={`/messages/${id}`}
+                  className="flex items-center gap-1 rounded border border-border px-3 py-1 text-xs font-semibold hover:bg-bg-secondary transition-colors"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  Message
+                </Link>
+              </div>
             )}
           </div>
           <div className="flex gap-6 mt-3 text-sm">
