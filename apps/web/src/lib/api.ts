@@ -59,7 +59,9 @@ async function request<T>(endpoint: string, options: ApiOptions = {}): Promise<T
     throw new Error(error.message || 'Request failed');
   }
 
-  return res.json();
+  const text = await res.text();
+  if (!text) return {} as T;
+  return JSON.parse(text);
 }
 
 async function tryRefresh(): Promise<boolean> {

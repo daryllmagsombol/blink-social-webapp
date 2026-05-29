@@ -71,6 +71,12 @@ export class UsersService {
     return user;
   }
 
+  async deleteAccount(userId: string) {
+    await this.prisma.notification.deleteMany({ where: { actorId: userId } });
+    await this.prisma.user.delete({ where: { id: userId } });
+    return { success: true };
+  }
+
   async updateAvatar(id: string, avatarUrl: string) {
     return this.prisma.user.update({
       where: { id },

@@ -58,12 +58,49 @@ export class PostsService {
     return post;
   }
 
+  async update(id: string, userId: string, caption?: string) {
+    const post = await this.prisma.post.findUnique({ where: { id } });
+    if (!post) throw new NotFoundException('Post not found');
+    if (post.userId !== userId) throw new NotFoundException('Post not found');
+
+    const tagNames = caption ? parseTags(caption) : [];
+
+    if (tagNames.length > 0) {
+      await Promise.all(
+        tagNames.map((name) =>
+          this.prisma.tag.upsert({
+            where: { name },
+            create: { name },
+            update: {},
+          }),
+        ),
+      );
+    }
+
+    return this.prisma.post.update({
+      where: { id },
+      data: {
+        ...(caption !== undefined && { caption }),
+        tags: {
+          set: [],
+          connect: tagNames.map((name) => ({ name })),
+        },
+      },
+      include: {
+        user: { select: { id: true, username: true, avatarUrl: true } },
+        tags: { select: { name: true } },
+        _count: { select: { likes: true, comments: true } },
+      },
+    });
+  }
+
   async delete(id: string, userId: string) {
     const post = await this.prisma.post.findUnique({ where: { id } });
     if (!post) throw new NotFoundException('Post not found');
     if (post.userId !== userId) throw new NotFoundException('Post not found');
 
     await this.prisma.post.delete({ where: { id } });
+    return { success: true };
   }
 
   async getFeed(userId: string, page = 1, limit = 10) {

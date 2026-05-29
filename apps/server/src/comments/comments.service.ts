@@ -49,11 +49,26 @@ export class CommentsService {
     return { data, total, page, limit, hasMore: skip + limit < total };
   }
 
+  async update(id: string, userId: string, content: string) {
+    const comment = await this.prisma.comment.findUnique({ where: { id } });
+    if (!comment) throw new NotFoundException('Comment not found');
+    if (comment.userId !== userId) throw new NotFoundException('Comment not found');
+
+    return this.prisma.comment.update({
+      where: { id },
+      data: { content },
+      include: {
+        user: { select: { id: true, username: true, avatarUrl: true } },
+      },
+    });
+  }
+
   async delete(id: string, userId: string) {
     const comment = await this.prisma.comment.findUnique({ where: { id } });
     if (!comment) throw new NotFoundException('Comment not found');
     if (comment.userId !== userId) throw new NotFoundException('Comment not found');
 
     await this.prisma.comment.delete({ where: { id } });
+    return { success: true };
   }
 }

@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
 import { ProfileSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from '@/components/ui/Toast';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Trash2 } from 'lucide-react';
 
 interface ProfileUser {
   id: string;
@@ -29,11 +29,14 @@ interface Post {
 
 export default function UserProfilePage() {
   const { id } = useParams<{ id: string }>();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, logout } = useAuth();
+  const router = useRouter();
   const [profile, setProfile] = useState<ProfileUser | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const isOwn = currentUser?.id === id;
 
@@ -69,6 +72,20 @@ export default function UserProfilePage() {
       }
     } catch {
       toast('Failed to update follow', 'error');
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      await api.delete('/users/me');
+      logout();
+      toast('Account deleted', 'success');
+      router.push('/register');
+    } catch {
+      toast('Failed to delete account', 'error');
+      setDeleting(false);
+      setConfirmDelete(false);
     }
   };
 
@@ -114,6 +131,39 @@ export default function UserProfilePage() {
           </div>
           {profile.displayName && <p className="text-sm font-semibold mt-2">{profile.displayName}</p>}
           {profile.bio && <p className="text-sm mt-1">{profile.bio}</p>}
+          {isOwn && (
+            <div className="mt-4 pt-4 border-t border-border">
+              {confirmDelete ? (
+                <div className="space-y-2">
+                  <p className="text-sm text-danger font-semibold">Delete your account and all data?</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={deleting}
+                      className="rounded bg-danger px-3 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                    >
+                      {deleting ? 'Deleting...' : 'Yes, delete'}
+                    </button>
+                    <button
+                      onClick={() => { setConfirmDelete(false); setDeleting(false); }}
+                      disabled={deleting}
+                      className="rounded border border-border px-3 py-1 text-xs font-semibold"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  className="flex items-center gap-1.5 text-xs text-danger hover:text-danger/80 transition-colors"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Delete account
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

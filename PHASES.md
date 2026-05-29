@@ -63,52 +63,51 @@ Search users/posts, hashtag parsing, trending tags.
 - Trending tags section on explore page
 - Message button on user profile pages
 
-## Phase 6: Bookmarks / Saved ⚠️
+## Phase 6: Bookmarks / Saved ✅
 
 SavedPost model, save/unsave, saved list page.
 
-| Task | Status |
-|------|--------|
-| SavedPost model (userId + postId unique) | Done |
-| Bookmark endpoints (save/unsave, list saved, check) | Done |
-| Save button on feed + post detail (lucide Bookmark icon) | Done |
-| `/bookmarks` page (3-col grid, infinite scroll) | Done |
-| Sidebar nav item + Saved link | Done |
+| Task                                                     | Status |
+| -------------------------------------------------------- | ------ |
+| SavedPost model (userId + postId unique)                 | Done   |
+| Bookmark endpoints (save/unsave, list saved, check)      | Done   |
+| Save button on feed + post detail (lucide Bookmark icon) | Done   |
+| `/bookmarks` page (3-col grid, infinite scroll)          | Done   |
+| Sidebar nav item + Saved link                            | Done   |
 
-**Known issue:** Bookmarks page shows empty state even when posts are saved. API returns data correctly (verified via curl). Frontend code logic appears correct. Debugging needed — suspect client-side state or data fetching issue.
+## Phase 7: Edit & Delete Features ✅
 
-## Phase 7: Edit & Delete Features
+Edit posts/comments, delete account.
 
-**Not started.** Edit posts/comments, delete account.
-
-| Task | Status |
-|------|--------|
-| Edit post caption endpoint | Pending |
-| Edit comment endpoint | Pending |
-| Delete account endpoint (cascade all data) | Pending |
-| Frontend edit UI for own posts/comments | Pending |
-| Account deletion UI in profile settings | Pending |
+| Task                                           | Status |
+| ---------------------------------------------- | ------ |
+| Edit post caption endpoint + tag re-parse      | Done   |
+| Edit comment endpoint                          | Done   |
+| Delete account endpoint (cascade all data)     | Done   |
+| Frontend edit caption UI on post detail        | Done   |
+| Frontend edit comment UI on post detail        | Done   |
+| Frontend delete account UI in profile settings | Done   |
 
 ## Phase 8: Blocking & Privacy
 
 **Not started.** Block users, private accounts, report content.
 
-| Task | Status |
-|------|--------|
-| Block model + endpoints | Pending |
-| Private account toggle | Pending |
-| Report model + endpoints | Pending |
+| Task                                  | Status  |
+| ------------------------------------- | ------- |
+| Block model + endpoints               | Pending |
+| Private account toggle                | Pending |
+| Report model + endpoints              | Pending |
 | Blocked user filtering in feed/search | Pending |
-| UI for block/report actions | Pending |
+| UI for block/report actions           | Pending |
 
 ## Phase 9: Auth Enhancements
 
 **Not started.** Email verification, password reset, OAuth.
 
-| Task | Status |
-|------|--------|
+| Task                                                  | Status  |
+| ----------------------------------------------------- | ------- |
 | Email verification flow (send email, verify endpoint) | Pending |
-| Password reset (request + confirm endpoints) | Pending |
-| OAuth (Google/GitHub) via Passport strategies | Pending |
-| Frontend email verify / reset password pages | Pending |
-| OAuth callback pages | Pending |
+| Password reset (request + confirm endpoints)          | Pending |
+| OAuth (Google/GitHub) via Passport strategies         | Pending |
+| Frontend email verify / reset password pages          | Pending |
+| OAuth callback pages                                  | Pending |

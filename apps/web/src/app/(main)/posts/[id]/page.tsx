@@ -39,6 +39,11 @@ export default function PostDetailPage() {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [editingCaption, setEditingCaption] = useState(false);
+  const [editCaptionText, setEditCaptionText] = useState('');
+  const [savingCaption, setSavingCaption] = useState(false);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentContent, setEditCommentContent] = useState('');
 
   useEffect(() => {
     setLoading(true);
@@ -104,6 +109,46 @@ export default function PostDetailPage() {
     }
   };
 
+  const saveCaption = async () => {
+    if (!editCaptionText.trim()) return;
+    setSavingCaption(true);
+    try {
+      const updated = await api.patch<Post>(`/posts/${id}`, { caption: editCaptionText });
+      setPost(updated);
+      setEditingCaption(false);
+      toast('Caption updated', 'success');
+    } catch {
+      toast('Failed to update caption', 'error');
+    } finally {
+      setSavingCaption(false);
+    }
+  };
+
+  const startEditComment = (commentId: string, content: string) => {
+    setEditingCommentId(commentId);
+    setEditCommentContent(content);
+  };
+
+  const saveComment = async (commentId: string) => {
+    if (!editCommentContent.trim()) return;
+    try {
+      const updated = await api.patch<Comment>(
+        `/posts/${id}/comments/${commentId}`,
+        { content: editCommentContent },
+      );
+      setComments((prev) => prev.map((c) => (c.id === commentId ? updated : c)));
+      setEditingCommentId(null);
+      toast('Comment updated', 'success');
+    } catch {
+      toast('Failed to update comment', 'error');
+    }
+  };
+
+  const cancelEditComment = () => {
+    setEditingCommentId(null);
+    setEditCommentContent('');
+  };
+
   if (loading) {
     return (
       <div className="mx-auto max-w-2xl py-8 px-4 pb-20">
@@ -148,27 +193,102 @@ export default function PostDetailPage() {
             </button>
           </div>
           <p className="text-sm font-semibold">{post._count.likes} likes</p>
-          {post.caption && (
-            <p className="text-sm mt-1">
-              <Link href={`/profile/${post.user.id}`} className="font-semibold hover:underline">
-                {post.user.username}
-              </Link>{' '}
-              {linkifyCaption(post.caption)}
-            </p>
+          {editingCaption ? (
+            <div className="mt-2 space-y-2">
+              <textarea
+                value={editCaptionText}
+                onChange={(e) => setEditCaptionText(e.target.value)}
+                maxLength={2200}
+                rows={3}
+                className="w-full rounded border border-border bg-bg p-2 text-sm outline-none resize-none"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={saveCaption}
+                  disabled={savingCaption || !editCaptionText.trim()}
+                  className="rounded bg-primary px-3 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                >
+                  {savingCaption ? 'Saving...' : 'Save'}
+                </button>
+                <button
+                  onClick={() => { setEditingCaption(false); setEditCaptionText(post.caption || ''); }}
+                  className="rounded border border-border px-3 py-1 text-xs font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (post.caption || currentUser?.id === post.userId) && (
+            <div className="flex items-start gap-2 mt-1">
+              <p className="text-sm flex-1">
+                <Link href={`/profile/${post.user.id}`} className="font-semibold hover:underline">
+                  {post.user.username}
+                </Link>{' '}
+                {linkifyCaption(post.caption || '')}
+              </p>
+              {currentUser?.id === post.userId && (
+                <button
+                  onClick={() => { setEditingCaption(true); setEditCaptionText(post.caption || ''); }}
+                  className="text-xs text-text-secondary hover:text-primary shrink-0 mt-0.5"
+                >
+                  {post.caption ? 'Edit' : 'Add caption'}
+                </button>
+              )}
+            </div>
           )}
         </div>
 
         <div className="border-t border-border">
           <div className="max-h-64 overflow-y-auto p-4 space-y-3">
-            {comments.length === 0 ? (
+              {comments.length === 0 ? (
               <p className="text-sm text-text-secondary">No comments yet.</p>
             ) : (
               comments.map((c) => (
                 <div key={c.id} className="text-sm">
-                  <Link href={`/profile/${c.user.id}`} className="font-semibold hover:underline">
-                    {c.user.username}
-                  </Link>{' '}
-                  {c.content}
+                  {editingCommentId === c.id ? (
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Link href={`/profile/${c.user.id}`} className="font-semibold hover:underline shrink-0">
+                          {c.user.username}
+                        </Link>
+                        <input
+                          type="text"
+                          value={editCommentContent}
+                          onChange={(e) => setEditCommentContent(e.target.value)}
+                          maxLength={500}
+                          className="flex-1 border-0 p-0 text-sm outline-none"
+                          autoFocus
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => saveComment(c.id)}
+                          disabled={!editCommentContent.trim()}
+                          className="text-xs font-semibold text-primary disabled:opacity-30"
+                        >
+                          Save
+                        </button>
+                        <button onClick={cancelEditComment} className="text-xs text-text-secondary">
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-start gap-2">
+                      <Link href={`/profile/${c.user.id}`} className="font-semibold hover:underline shrink-0">
+                        {c.user.username}
+                      </Link>
+                      <span className="flex-1">{c.content}</span>
+                      {currentUser?.id === c.user.id && (
+                        <button
+                          onClick={() => startEditComment(c.id, c.content)}
+                          className="text-xs text-text-secondary hover:text-primary shrink-0"
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))
             )}

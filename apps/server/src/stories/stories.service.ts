@@ -63,7 +63,7 @@ export class StoriesService {
     const existing = await this.prisma.storyView.findUnique({
       where: { storyId_viewerId: { storyId, viewerId } },
     });
-    if (existing) return;
+    if (existing) return { viewed: true };
 
     await this.prisma.storyView.create({
       data: { storyId, viewerId },
@@ -75,6 +75,7 @@ export class StoriesService {
     if (!story) throw new NotFoundException('Story not found');
     if (story.userId !== userId) throw new NotFoundException('Story not found');
     await this.prisma.story.delete({ where: { id } });
+    return { success: true };
   }
 
   async cleanupExpired() {
