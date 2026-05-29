@@ -4,6 +4,12 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth';
 import { api } from '@/lib/api';
+import { StoryViewer } from '@/components/story/StoryViewer';
+
+interface StoryUser {
+  user: { id: string; username: string; avatarUrl: string | null };
+  stories: { id: string; imageUrl: string; createdAt: string; viewed: boolean }[];
+}
 
 interface Post {
   id: string;
@@ -20,6 +26,8 @@ export default function FeedPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [storyUsers, setStoryUsers] = useState<StoryUser[]>([]);
+  const [storyViewer, setStoryViewer] = useState<{ stories: StoryUser[]; index: number } | null>(null);
 
   const loadFeed = useCallback(async () => {
     try {
@@ -44,7 +52,10 @@ export default function FeedPage() {
     }
   }, []);
 
-  useEffect(() => { loadFeed(); }, [loadFeed]);
+  useEffect(() => {
+    loadFeed();
+    api.get<StoryUser[]>('/stories/following').then(setStoryUsers).catch(() => {});
+  }, [loadFeed]);
 
   const toggleLike = async (postId: string) => {
     const liked = likedPosts.has(postId);
@@ -82,6 +93,31 @@ export default function FeedPage() {
           {user && <p className="text-sm text-text-secondary">{user.displayName || user.username}</p>}
         </div>
       </div>
+
+      {storyUsers.length > 0 && (
+        <div className="mb-4 flex gap-3 overflow-x-auto pb-2">
+          {storyUsers.map((su, i) => (
+            <button
+              key={su.user.id}
+              onClick={() => setStoryViewer({ stories: storyUsers, index: i })}
+              className="flex flex-col items-center gap-1 shrink-0"
+            >
+              <div className={`h-16 w-16 rounded-full p-0.5 ${su.stories.some((s) => !s.viewed) ? 'bg-gradient-to-br from-primary to-purple-500' : 'bg-border'}`}>
+                <div className="h-full w-full rounded-full bg-bg-secondary" />
+              </div>
+              <span className="text-xs text-text-secondary truncate w-16 text-center">{su.user.username}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {storyViewer && (
+        <StoryViewer
+          stories={storyViewer.stories}
+          initialIndex={storyViewer.index}
+          onClose={() => setStoryViewer(null)}
+        />
+      )}
 
       {posts.length === 0 ? (
         <div className="rounded border border-border bg-bg p-8 text-center">

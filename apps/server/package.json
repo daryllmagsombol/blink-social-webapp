@@ -12,6 +12,9 @@
   "dependencies": {
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.0",
+"@nestjs/platform-socket.io": "^11.0.0",
+"@nestjs/websockets": "^11.0.0",
+"socket.io": "^4.8.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.0",

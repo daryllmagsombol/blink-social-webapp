@@ -12,6 +12,7 @@ import { FollowsModule } from './follows/follows.module';
 import { StoriesModule } from './stories/stories.module';
 import { MessagesModule } from './messages/messages.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ChatModule } from './chat/chat.module';
 import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
@@ -32,6 +33,7 @@ import { UploadsModule } from './uploads/uploads.module';
     StoriesModule,
     MessagesModule,
     NotificationsModule,
+    ChatModule,
     UploadsModule,
   ],
 })
