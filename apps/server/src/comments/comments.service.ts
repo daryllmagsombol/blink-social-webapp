@@ -1,0 +1,59 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+
+@Injectable()
+export class CommentsService {
+  constructor(private prisma: PrismaService) {}
+
+  async create(userId: string, postId: string, content: string) {
+    const post = await this.prisma.post.findUnique({ where: { id: postId } });
+    if (!post) throw new NotFoundException('Post not found');
+
+    const comment = await this.prisma.comment.create({
+      data: { userId, postId, content },
+      include: {
+        user: { select: { id: true, username: true, avatarUrl: true } },
+      },
+    });
+
+    if (post.userId !== userId) {
+      await this.prisma.notification.create({
+        data: {
+          type: 'COMMENT',
+          userId: post.userId,
+          actorId: userId,
+          postId,
+        },
+      });
+    }
+
+    return comment;
+  }
+
+  async getPostComments(postId: string, page = 1, limit = 20) {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.comment.findMany({
+        where: { postId },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        include: {
+          user: { select: { id: true, username: true, avatarUrl: true } },
+        },
+      }),
+      this.prisma.comment.count({ where: { postId } }),
+    ]);
+
+    return { data, total, page, limit, hasMore: skip + limit < total };
+  }
+
+  async delete(id: string, userId: string) {
+    const comment = await this.prisma.comment.findUnique({ where: { id } });
+    if (!comment) throw new NotFoundException('Comment not found');
+    if (comment.userId !== userId) throw new NotFoundException('Comment not found');
+
+    await this.prisma.comment.delete({ where: { id } });
+  }
+}

@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: social-media-db
+    environment:
+      POSTGRES_USER: social_user
+      POSTGRES_PASSWORD: social_pass
+      POSTGRES_DB: social_media
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

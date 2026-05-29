@@ -1,0 +1,22 @@
+{
+  "name": "sample-social-media",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "db:generate": "pnpm --filter @social/database db:generate",
+    "db:push": "pnpm --filter @social/database db:push",
+    "db:migrate": "pnpm --filter @social/database db:migrate",
+    "db:studio": "pnpm --filter @social/database db:studio"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0",
+    "typescript": "^5.7.0"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20"
+  }
+}

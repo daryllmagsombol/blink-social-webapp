@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  email        String   @unique
+  password     String
+  displayName  String?
+  bio          String?
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  posts        Post[]
+  likes        Like[]
+  comments     Comment[]
+  followers    Follow[]      @relation("following")
+  following    Follow[]      @relation("follower")
+  stories      Story[]
+  storyViews   StoryView[]
+  sentMessages   Message[]   @relation("sender")
+  receivedMessages Message[] @relation("receiver")
+  notifications           Notification[] @relation("userNotifications")
+  notificationsAsActor    Notification[] @relation("actor")
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  caption   String?
+  imageUrl  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  likes         Like[]
+  comments      Comment[]
+  notifications Notification[] @relation("postNotifications")
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId String
+  postId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  postId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+
+  followerId  String
+  followingId String
+  follower    User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+}
+
+model Story {
+  id        String      @id @default(cuid())
+  imageUrl  String
+  createdAt DateTime    @default(now())
+  expiresAt DateTime
+
+  userId String
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  views  StoryView[]
+}
+
+model StoryView {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  storyId  String
+  viewerId String
+  story    Story @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  viewer   User  @relation(fields: [viewerId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, viewerId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  senderId   String
+  receiverId String
+  sender     User @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User @relation("receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  userId  String
+  actorId String
+  postId  String?
+
+  user  User  @relation("userNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  actor User  @relation("actor", fields: [actorId], references: [id])
+  post  Post? @relation("postNotifications", fields: [postId], references: [id], onDelete: SetNull)
+}
