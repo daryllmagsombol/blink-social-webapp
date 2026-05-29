@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth';
-import { Home, Search, PlusSquare, Heart, User, LogOut, MessageCircle, Hash } from 'lucide-react';
+import { Home, Search, PlusSquare, Heart, User, LogOut, MessageCircle, Hash, Bookmark } from 'lucide-react';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, user, logout, fetchMe } = useAuth();
@@ -44,6 +44,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     { href: '/create', icon: PlusSquare, label: 'Create' },
     { href: '/notifications', icon: Heart, label: 'Notifications' },
     { href: '/messages', icon: MessageCircle, label: 'Messages' },
+    { href: '/bookmarks', icon: Bookmark, label: 'Saved' },
     { href: user ? `/profile/${user.id}` : '/profile', icon: User, label: 'Profile' },
   ];
 

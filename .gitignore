@@ -8,3 +8,4 @@ dist
 uploads/*
 !uploads/.gitkeep
 packages/database/src/generated
+apps/server/uploads/*

@@ -63,16 +63,19 @@ Search users/posts, hashtag parsing, trending tags.
 - Trending tags section on explore page
 - Message button on user profile pages
 
-## Phase 6: Bookmarks / Saved
+## Phase 6: Bookmarks / Saved ⚠️
 
-**Not started.** Save posts, saved collection page.
+SavedPost model, save/unsave, saved list page.
 
 | Task | Status |
 |------|--------|
-| Bookmark model (userId + postId unique) | Pending |
-| Bookmark endpoints (save/unsave, list saved) | Pending |
-| Bookmark icon on feed/post detail | Pending |
-| `/bookmarks` page (3-col grid) | Pending |
+| SavedPost model (userId + postId unique) | Done |
+| Bookmark endpoints (save/unsave, list saved, check) | Done |
+| Save button on feed + post detail (lucide Bookmark icon) | Done |
+| `/bookmarks` page (3-col grid, infinite scroll) | Done |
+| Sidebar nav item + Saved link | Done |
+
+**Known issue:** Bookmarks page shows empty state even when posts are saved. API returns data correctly (verified via curl). Frontend code logic appears correct. Debugging needed — suspect client-side state or data fetching issue.
 
 ## Phase 7: Edit & Delete Features
 

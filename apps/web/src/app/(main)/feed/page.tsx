@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/stores/auth';
 import { api } from '@/lib/api';
 import { StoryViewer } from '@/components/story/StoryViewer';
+import { Bookmark } from 'lucide-react';
 import { PostSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from '@/components/ui/Toast';
@@ -35,6 +36,7 @@ export default function FeedPage() {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [storyUsers, setStoryUsers] = useState<StoryUser[]>([]);
   const [storyViewer, setStoryViewer] = useState<{ stories: StoryUser[]; index: number } | null>(null);
+  const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const loadFeed = useCallback(async (pageNum: number) => {
@@ -58,6 +60,22 @@ export default function FeedPage() {
       setLikedPosts((prev) => {
         const n = new Set(prev);
         liked.forEach((id) => n.add(id));
+        return n;
+      });
+      const saved = new Set<string>();
+      await Promise.all(
+        res.data.map(async (p) => {
+          try {
+            const { saved: isSaved } = await api.get<{ saved: boolean }>(
+              `/posts/${p.id}/bookmark/check`,
+            );
+            if (isSaved) saved.add(p.id);
+          } catch {}
+        }),
+      );
+      setSavedPosts((prev) => {
+        const n = new Set(prev);
+        saved.forEach((id) => n.add(id));
         return n;
       });
     } catch {
@@ -112,6 +130,19 @@ export default function FeedPage() {
       );
     } catch {
       toast('Failed to update like', 'error');
+    }
+  };
+
+  const toggleSave = async (postId: string) => {
+    try {
+      const { saved } = await api.post<{ saved: boolean }>(`/posts/${postId}/bookmark`);
+      setSavedPosts((prev) => {
+        const n = new Set(prev);
+        saved ? n.add(postId) : n.delete(postId);
+        return n;
+      });
+    } catch {
+      toast('Failed to update bookmark', 'error');
     }
   };
 
@@ -196,6 +227,9 @@ export default function FeedPage() {
                       {likedPosts.has(post.id) ? <span className="text-danger">♥</span> : <span className="text-text">♡</span>}
                     </button>
                     <Link href={`/posts/${post.id}`} className="text-xl text-text">💬</Link>
+                    <button onClick={() => toggleSave(post.id)} className="ml-auto transition-colors">
+                      <Bookmark className={`h-5 w-5 ${savedPosts.has(post.id) ? 'fill-primary text-primary' : 'text-text'}`} />
+                    </button>
                   </div>
                   <p className="text-sm font-semibold">{post._count.likes} likes</p>
                   {post.caption && (

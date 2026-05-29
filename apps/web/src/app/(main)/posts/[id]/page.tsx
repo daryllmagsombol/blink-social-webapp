@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
+import { Bookmark } from 'lucide-react';
 import { Skeleton, PostSkeleton } from '@/components/ui/Skeleton';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { toast } from '@/components/ui/Toast';
@@ -35,6 +36,7 @@ export default function PostDetailPage() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [liked, setLiked] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -45,11 +47,13 @@ export default function PostDetailPage() {
       api.get<Post>(`/posts/${id}`),
       api.get<{ data: Comment[] }>(`/posts/${id}/comments`),
       currentUser ? api.get<{ liked: boolean }>(`/posts/${id}/likes/check`) : Promise.resolve(null),
+      currentUser ? api.get<{ saved: boolean }>(`/posts/${id}/bookmark/check`) : Promise.resolve(null),
     ])
-      .then(([postRes, commentsRes, likeRes]) => {
+      .then(([postRes, commentsRes, likeRes, bookmarkRes]) => {
         setPost(postRes);
         setComments(commentsRes.data);
         if (likeRes) setLiked(likeRes.liked);
+        if (bookmarkRes) setSaved(bookmarkRes.saved);
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
@@ -91,6 +95,15 @@ export default function PostDetailPage() {
     }
   };
 
+  const toggleSave = async () => {
+    try {
+      const res = await api.post<{ saved: boolean }>(`/posts/${id}/bookmark`);
+      setSaved(res.saved);
+    } catch {
+      toast('Failed to update bookmark', 'error');
+    }
+  };
+
   if (loading) {
     return (
       <div className="mx-auto max-w-2xl py-8 px-4 pb-20">
@@ -129,6 +142,9 @@ export default function PostDetailPage() {
           <div className="flex items-center gap-4 mb-2">
             <button onClick={toggleLike} className="text-2xl transition-colors">
               {liked ? <span className="text-danger">♥</span> : <span>♡</span>}
+            </button>
+            <button onClick={toggleSave} className="ml-auto transition-colors">
+              <Bookmark className={`h-5 w-5 ${saved ? 'fill-primary text-primary' : 'text-text'}`} />
             </button>
           </div>
           <p className="text-sm font-semibold">{post._count.likes} likes</p>
