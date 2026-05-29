@@ -107,14 +107,18 @@ Block users, private accounts, report content.
 
 Email verification, password reset (OAuth pending — needs Google/GitHub API keys).
 
-| Task                                                      | Status  |
-| --------------------------------------------------------- | ------- |
-| Email verification flow (token gen, verify endpoint)      | Done    |
-| Password reset (forgot + reset endpoints with expiry)     | Done    |
-| Resend verification endpoint                              | Done    |
-| Frontend verify-email page                                | Done    |
-| Frontend forgot-password page                             | Done    |
-| Frontend reset-password page                              | Done    |
-| "Forgot password?" link on login page                     | Done    |
-| `emailVerified` field in JWT + auth store                 | Done    |
-| OAuth (Google/GitHub) via Passport strategies             | Done   |
+| Task                                                  | Status |
+| ----------------------------------------------------- | ------ |
+| Email verification flow (token gen, verify endpoint)  | Done   |
+| Password reset (forgot + reset endpoints with expiry) | Done   |
+| Resend verification endpoint                          | Done   |
+| Frontend verify-email page                            | Done   |
+| Frontend forgot-password page                         | Done   |
+| Frontend reset-password page                          | Done   |
+| "Forgot password?" link on login page                 | Done   |
+| `emailVerified` field in JWT + auth store             | Done   |
+| OAuth (Google/GitHub) via Passport strategies         | Done   |
+
+## What's next?
+
+Hmmm... Maybe a design system to work on, branding and enhance the UI/UX. I'll find one to publish this app in web.
