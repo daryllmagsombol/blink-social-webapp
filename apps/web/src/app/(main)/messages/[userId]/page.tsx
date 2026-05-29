@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { api } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
 import { getSocket, disconnectSocket } from '@/lib/socket';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 
 interface ChatMessage {
   id: string;
@@ -23,10 +25,13 @@ export default function ChatPage() {
   const [input, setInput] = useState('');
   const [otherUser, setOtherUser] = useState<{ username: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  const load = () => {
     if (!user) return;
+    setLoading(true);
+    setError(false);
 
     Promise.all([
       api.get<{ data: ChatMessage[] }>(`/messages/${otherId}`),
@@ -36,8 +41,13 @@ export default function ChatPage() {
         setMessages(msgRes.data);
         setOtherUser(userRes);
       })
-      .catch(() => router.push('/messages'))
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    load();
 
     const token = localStorage.getItem('accessToken');
     if (!token) return;
@@ -52,8 +62,9 @@ export default function ChatPage() {
 
     return () => {
       socket.off('new_message');
+      disconnectSocket();
     };
-  }, [user, otherId, router]);
+  }, [user, otherId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -70,8 +81,27 @@ export default function ChatPage() {
 
   if (loading || !user) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
+      <div className="mx-auto max-w-xl py-8 px-4 pb-20">
+        <div className="flex items-center gap-3 mb-4">
+          <Skeleton className="h-4 w-12" />
+          <Skeleton className="h-8 w-8 rounded-full" />
+          <Skeleton className="h-4 w-20" />
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className={`flex ${i % 2 === 0 ? 'justify-end' : 'justify-start'}`}>
+              <Skeleton className={`h-10 ${i % 2 === 0 ? 'w-32' : 'w-48'} rounded-xl`} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-xl py-20 px-4">
+        <ErrorDisplay message="Could not load conversation" onRetry={load} />
       </div>
     );
   }

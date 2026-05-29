@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+'use client';
+
+import { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth';
@@ -10,8 +12,12 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated) router.push('/feed');
+  }, [isAuthenticated, router]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -47,7 +53,8 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary"
+              autoFocus
+              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary transition-colors"
             />
             <input
               type="password"
@@ -55,21 +62,26 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary"
+              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary transition-colors"
             />
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded bg-primary py-2 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50"
+              className="w-full rounded bg-primary py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50 transition-colors"
             >
-              {loading ? 'Logging in...' : 'Log in'}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  Logging in...
+                </span>
+              ) : 'Log in'}
             </button>
           </form>
         </div>
 
         <div className="mt-2 rounded border border-border bg-bg p-4 text-center text-sm">
           Don&apos;t have an account?{' '}
-          <Link href="/register" className="font-semibold text-primary">
+          <Link href="/register" className="font-semibold text-primary hover:underline">
             Sign up
           </Link>
         </div>

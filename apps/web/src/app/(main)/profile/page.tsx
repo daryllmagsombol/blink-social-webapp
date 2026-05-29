@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth';
 import { api } from '@/lib/api';
+import { ProfileSkeleton, GridSkeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface Post {
   id: string;
@@ -32,11 +34,7 @@ export default function ProfilePage() {
   }, [user]);
 
   if (loading || !user) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   return (
@@ -65,19 +63,23 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-1">
-        {posts.map((post) => (
-          <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden">
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(http://localhost:4000${post.imageUrl})` }}
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-white text-sm">♥ {post._count.likes}</span>
-            </div>
-          </Link>
-        ))}
-      </div>
+      {posts.length === 0 ? (
+        <EmptyState icon="📷" title="No posts yet" action={{ label: 'Create your first post', href: '/create' }} />
+      ) : (
+        <div className="grid grid-cols-3 gap-1">
+          {posts.map((post) => (
+            <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden">
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(http://localhost:4000${post.imageUrl})` }}
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-white text-sm">♥ {post._count.likes}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

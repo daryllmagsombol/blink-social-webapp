@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { GridSkeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface Post {
   id: string;
@@ -14,24 +16,54 @@ interface Post {
 export default function ExplorePage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const loadPosts = async (pageNum: number) => {
+    if (pageNum === 1) setLoading(true);
+    else setLoadingMore(true);
+    try {
+      const res = await api.get<{ data: Post[]; hasMore: boolean }>(`/explore?page=${pageNum}&limit=12`);
+      setPosts((prev) => (pageNum === 1 ? res.data : [...prev, ...res.data]));
+      setHasMore(res.hasMore);
+    } catch {
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
-    api
-      .get<{ data: Post[]; hasMore: boolean }>(`/explore?page=${page}&limit=12`)
-      .then((res) => {
-        setPosts((prev) => (page === 1 ? res.data : [...prev, ...res.data]));
-        setHasMore(res.hasMore);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    loadPosts(1);
+  }, []);
+
+  useEffect(() => {
+    if (page === 1) return;
+    loadPosts(page);
   }, [page]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          setPage((p) => p + 1);
+        }
+      },
+      { threshold: 0.1 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
+      <div className="mx-auto max-w-4xl py-8 px-4 pb-20">
+        <div className="mb-6 h-7 w-24 animate-pulse rounded bg-bg-secondary" />
+        <GridSkeleton />
       </div>
     );
   }
@@ -41,9 +73,7 @@ export default function ExplorePage() {
       <h1 className="mb-6 text-xl font-bold">Explore</h1>
 
       {posts.length === 0 ? (
-        <div className="rounded border border-border bg-bg p-8 text-center">
-          <p className="text-text-secondary">No posts yet.</p>
-        </div>
+        <EmptyState icon="🔍" title="No posts yet" description="Be the first to share something!" />
       ) : (
         <>
           <div className="grid grid-cols-3 gap-1">
@@ -59,13 +89,11 @@ export default function ExplorePage() {
               </Link>
             ))}
           </div>
-          {hasMore && (
-            <button
-              onClick={() => setPage((p) => p + 1)}
-              className="mx-auto mt-6 block rounded bg-primary px-6 py-2 text-sm text-white"
-            >
-              Load more
-            </button>
+          <div ref={sentinelRef} className="h-4" />
+          {loadingMore && (
+            <div className="mt-4">
+              <GridSkeleton count={6} />
+            </div>
           )}
         </>
       )}

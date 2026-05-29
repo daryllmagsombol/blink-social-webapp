@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
+import { MessageSkeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface Convo {
   user: { id: string; username: string; avatarUrl: string | null };
@@ -24,8 +26,9 @@ export default function MessagesPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
+      <div className="mx-auto max-w-xl py-8 px-4 pb-20">
+        <div className="mb-6 h-7 w-24 animate-pulse rounded bg-bg-secondary" />
+        <MessageSkeleton />
       </div>
     );
   }
@@ -35,10 +38,11 @@ export default function MessagesPage() {
       <h1 className="mb-6 text-xl font-bold">Messages</h1>
 
       {convos.length === 0 ? (
-        <div className="rounded border border-border bg-bg p-8 text-center">
-          <p className="text-text-secondary">No messages yet.</p>
-          <p className="text-sm text-text-secondary mt-1">Go to someones profile and send a message.</p>
-        </div>
+        <EmptyState
+          icon="💬"
+          title="No messages yet"
+          description="Go to someone&apos;s profile and send a message."
+        />
       ) : (
         <div className="space-y-1">
           {convos.map((c) => (

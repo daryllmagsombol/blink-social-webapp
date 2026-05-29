@@ -5,6 +5,9 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
+import { ProfileSkeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { toast } from '@/components/ui/Toast';
 
 interface ProfileUser {
   id: string;
@@ -33,7 +36,8 @@ export default function UserProfilePage() {
 
   const isOwn = currentUser?.id === id;
 
-  useEffect(() => {
+  const load = () => {
+    setLoading(true);
     Promise.all([
       api.get<ProfileUser>(`/users/${id}`),
       api.get<{ data: Post[] }>(`/users/${id}/posts?limit=12`),
@@ -48,7 +52,9 @@ export default function UserProfilePage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [id, currentUser, isOwn]);
+  };
+
+  useEffect(load, [id, currentUser, isOwn]);
 
   const toggleFollow = async () => {
     try {
@@ -58,16 +64,15 @@ export default function UserProfilePage() {
       } else {
         await api.post(`/users/${id}/follow`);
         setIsFollowing(true);
+        toast('Followed successfully', 'success');
       }
-    } catch {}
+    } catch {
+      toast('Failed to update follow', 'error');
+    }
   };
 
   if (loading || !profile) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   return (
@@ -102,19 +107,23 @@ export default function UserProfilePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-1">
-        {posts.map((post) => (
-          <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden">
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(http://localhost:4000${post.imageUrl})` }}
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-white text-sm">♥ {post._count.likes}</span>
-            </div>
-          </Link>
-        ))}
-      </div>
+      {posts.length === 0 ? (
+        <EmptyState icon="📷" title="No posts yet" />
+      ) : (
+        <div className="grid grid-cols-3 gap-1">
+          {posts.map((post) => (
+            <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden">
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(http://localhost:4000${post.imageUrl})` }}
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-white text-sm">♥ {post._count.likes}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

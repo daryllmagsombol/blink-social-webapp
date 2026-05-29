@@ -5,6 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
+import { Skeleton, PostSkeleton } from '@/components/ui/Skeleton';
+import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
+import { toast } from '@/components/ui/Toast';
 
 interface Post {
   id: string;
@@ -32,8 +35,11 @@ export default function PostDetailPage() {
   const [newComment, setNewComment] = useState('');
   const [liked, setLiked] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
+    setError(false);
     Promise.all([
       api.get<Post>(`/posts/${id}`),
       api.get<{ data: Comment[] }>(`/posts/${id}/comments`),
@@ -44,9 +50,9 @@ export default function PostDetailPage() {
         setComments(commentsRes.data);
         if (likeRes) setLiked(likeRes.liked);
       })
-      .catch(() => router.push('/feed'))
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, [id, currentUser, router]);
+  }, [id, currentUser]);
 
   const toggleLike = async () => {
     try {
@@ -77,14 +83,25 @@ export default function PostDetailPage() {
     if (!confirm('Delete this post?')) return;
     try {
       await api.delete(`/posts/${id}`);
+      toast('Post deleted', 'success');
       router.push('/feed');
-    } catch {}
+    } catch {
+      toast('Failed to delete post', 'error');
+    }
   };
 
-  if (loading || !post) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
+      <div className="mx-auto max-w-2xl py-8 px-4 pb-20">
+        <PostSkeleton />
+      </div>
+    );
+  }
+
+  if (error || !post) {
+    return (
+      <div className="mx-auto max-w-2xl py-20 px-4">
+        <ErrorDisplay message="Could not load post" onRetry={() => window.location.reload()} />
       </div>
     );
   }

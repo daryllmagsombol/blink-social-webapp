@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { NotificationSkeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface Notification {
   id: string;
@@ -17,14 +19,14 @@ export default function NotificationsPage() {
   const [notifs, setNotifs] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const load = () => {
+  const load = useCallback(() => {
     api.get<{ data: Notification[] }>('/notifications')
       .then((res) => setNotifs(res.data))
       .catch(() => {})
       .finally(() => setLoading(false));
-  };
+  }, []);
 
-  useEffect(load, []);
+  useEffect(load, [load]);
 
   const markAllRead = async () => {
     await api.patch('/notifications/read-all');
@@ -33,8 +35,9 @@ export default function NotificationsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
+      <div className="mx-auto max-w-xl py-8 px-4 pb-20">
+        <div className="mb-6 h-7 w-32 animate-pulse rounded bg-bg-secondary" />
+        <NotificationSkeleton />
       </div>
     );
   }
@@ -64,9 +67,7 @@ export default function NotificationsPage() {
       </div>
 
       {notifs.length === 0 ? (
-        <div className="rounded border border-border bg-bg p-8 text-center">
-          <p className="text-text-secondary">No notifications yet.</p>
-        </div>
+        <EmptyState icon="🔔" title="No notifications yet" description="Activity from your posts and follows will appear here." />
       ) : (
         <div className="space-y-1">
           {notifs.map((n) => (

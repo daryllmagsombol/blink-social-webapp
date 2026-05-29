@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { toast } from '@/components/ui/Toast';
 
 export default function CreatePage() {
   const [file, setFile] = useState<File | null>(null);
@@ -37,9 +38,11 @@ export default function CreatePage() {
       const { url } = await api.upload<{ url: string }>('/upload', formData);
 
       await api.post('/posts', { imageUrl: url, caption: caption || undefined });
+      toast('Post created!', 'success');
       router.push('/feed');
     } catch (err: any) {
       setError(err.message);
+      toast('Failed to create post', 'error');
     } finally {
       setLoading(false);
     }
@@ -68,7 +71,7 @@ export default function CreatePage() {
         ) : (
           <div
             onClick={() => fileRef.current?.click()}
-            className="flex cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-border p-12 text-text-secondary hover:border-primary"
+            className="flex cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-border p-12 text-text-secondary hover:border-primary transition-colors"
           >
             <p className="text-lg mb-2">📷</p>
             <p className="text-sm">Click to upload photo</p>

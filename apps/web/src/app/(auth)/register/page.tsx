@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+'use client';
+
+import { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth';
@@ -14,8 +16,12 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, isAuthenticated } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated) router.push('/feed');
+  }, [isAuthenticated, router]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -64,7 +70,8 @@ export default function RegisterPage() {
               onChange={(e) => update('username', e.target.value)}
               required
               minLength={3}
-              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary"
+              autoFocus
+              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary transition-colors"
             />
             <input
               type="email"
@@ -72,7 +79,7 @@ export default function RegisterPage() {
               value={form.email}
               onChange={(e) => update('email', e.target.value)}
               required
-              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary"
+              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary transition-colors"
             />
             <input
               type="password"
@@ -81,28 +88,33 @@ export default function RegisterPage() {
               onChange={(e) => update('password', e.target.value)}
               required
               minLength={6}
-              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary"
+              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary transition-colors"
             />
             <input
               type="text"
               placeholder="Full name (optional)"
               value={form.displayName}
               onChange={(e) => update('displayName', e.target.value)}
-              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary"
+              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary transition-colors"
             />
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded bg-primary py-2 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50"
+              className="w-full rounded bg-primary py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50 transition-colors"
             >
-              {loading ? 'Creating account...' : 'Sign up'}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  Creating account...
+                </span>
+              ) : 'Sign up'}
             </button>
           </form>
         </div>
 
         <div className="mt-2 rounded border border-border bg-bg p-4 text-center text-sm">
           Have an account?{' '}
-          <Link href="/login" className="font-semibold text-primary">
+          <Link href="/login" className="font-semibold text-primary hover:underline">
             Log in
           </Link>
         </div>

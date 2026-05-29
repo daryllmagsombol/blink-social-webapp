@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface FollowUser {
   id: string;
@@ -28,11 +30,19 @@ export default function FollowingPage() {
     <div className="mx-auto max-w-xl py-8 px-4 pb-20">
       <h1 className="mb-6 text-xl font-bold">Following</h1>
       {loading ? (
-        <div className="flex justify-center py-8">
-          <div className="h-6 w-6 animate-spin rounded-full border-4 border-border border-t-primary" />
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-3 rounded border border-border bg-bg p-3">
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <div className="space-y-1">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : users.length === 0 ? (
-        <p className="text-sm text-text-secondary">Not following anyone yet.</p>
+        <EmptyState icon="👥" title="Not following anyone yet" description="Explore users to find people to follow." action={{ label: 'Explore', href: '/explore' }} />
       ) : (
         <div className="space-y-3">
           {users.map((u) => (
