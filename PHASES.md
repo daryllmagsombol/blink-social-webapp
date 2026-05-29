@@ -103,14 +103,18 @@ Block users, private accounts, report content.
 | Private account toggle UI in profile settings    | Done   |
 | Report button on post detail                     | Done   |
 
-## Phase 9: Auth Enhancements
+## Phase 9: Auth Enhancements ✅
 
-**Not started.** Email verification, password reset, OAuth.
+Email verification, password reset (OAuth pending — needs Google/GitHub API keys).
 
-| Task                                                  | Status  |
-| ----------------------------------------------------- | ------- |
-| Email verification flow (send email, verify endpoint) | Pending |
-| Password reset (request + confirm endpoints)          | Pending |
-| OAuth (Google/GitHub) via Passport strategies         | Pending |
-| Frontend email verify / reset password pages          | Pending |
-| OAuth callback pages                                  | Pending |
+| Task                                                      | Status  |
+| --------------------------------------------------------- | ------- |
+| Email verification flow (token gen, verify endpoint)      | Done    |
+| Password reset (forgot + reset endpoints with expiry)     | Done    |
+| Resend verification endpoint                              | Done    |
+| Frontend verify-email page                                | Done    |
+| Frontend forgot-password page                             | Done    |
+| Frontend reset-password page                              | Done    |
+| "Forgot password?" link on login page                     | Done    |
+| `emailVerified` field in JWT + auth store                 | Done    |
+| OAuth (Google/GitHub) via Passport strategies             | Pending |
