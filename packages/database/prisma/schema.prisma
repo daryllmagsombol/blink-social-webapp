@@ -16,6 +16,7 @@ model User {
   displayName  String?
   bio          String?
   avatarUrl    String?
+  isPrivate    Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -31,6 +32,10 @@ model User {
   receivedMessages Message[] @relation("receiver")
   notifications           Notification[] @relation("userNotifications")
   notificationsAsActor    Notification[] @relation("actor")
+  blocksMade   Block[]      @relation("blocker")
+  blocksReceived Block[]    @relation("blocked")
+  reports      Report[]     @relation("reporter")
+  reportsReceived Report[]  @relation("reportedUser")
 }
 
 model Tag {
@@ -55,6 +60,7 @@ model Post {
   comments      Comment[]
   tags          Tag[]
   savedBy       SavedPost[]
+  reports       Report[]
   notifications Notification[] @relation("postNotifications")
 }
 
@@ -92,6 +98,7 @@ model Comment {
   postId String
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reports Report[]
 }
 
 model Follow {
@@ -144,6 +151,33 @@ enum NotificationType {
   LIKE
   COMMENT
   FOLLOW
+}
+
+model Block {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  blockerId String
+  blockedId String
+  blocker   User @relation("blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked   User @relation("blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@unique([blockerId, blockedId])
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  reason    String
+  createdAt DateTime @default(now())
+
+  reporterId   String
+  targetUserId String?
+  postId       String?
+  commentId    String?
+  reporter     User   @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetUser   User?  @relation("reportedUser", fields: [targetUserId], references: [id], onDelete: SetNull)
+  post         Post?  @relation(fields: [postId], references: [id], onDelete: SetNull)
+  comment      Comment? @relation(fields: [commentId], references: [id], onDelete: SetNull)
 }
 
 model Notification {

@@ -173,8 +173,22 @@ export default function PostDetailPage() {
             <div className="h-8 w-8 rounded-full bg-primary/20" />
             <span className="text-sm font-semibold">{post.user.username}</span>
           </Link>
-          {currentUser?.id === post.userId && (
+          {currentUser?.id === post.userId ? (
             <button onClick={deletePost} className="text-sm text-danger">Delete</button>
+          ) : currentUser && (
+            <button
+              onClick={() => {
+                const reason = prompt('Reason for reporting this post:');
+                if (reason && reason.trim()) {
+                  api.post('/reports', { reason: reason.trim(), postId: id })
+                    .then(() => toast('Report submitted', 'success'))
+                    .catch(() => toast('Failed to submit report', 'error'));
+                }
+              }}
+              className="text-xs text-text-secondary hover:text-danger transition-colors"
+            >
+              Report
+            </button>
           )}
         </div>
 

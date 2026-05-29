@@ -88,17 +88,20 @@ Edit posts/comments, delete account.
 | Frontend edit comment UI on post detail        | Done   |
 | Frontend delete account UI in profile settings | Done   |
 
-## Phase 8: Blocking & Privacy
+## Phase 8: Blocking & Privacy ✅
 
-**Not started.** Block users, private accounts, report content.
+Block users, private accounts, report content.
 
-| Task                                  | Status  |
-| ------------------------------------- | ------- |
-| Block model + endpoints               | Pending |
-| Private account toggle                | Pending |
-| Report model + endpoints              | Pending |
-| Blocked user filtering in feed/search | Pending |
-| UI for block/report actions           | Pending |
+| Task                                             | Status |
+| ------------------------------------------------ | ------ |
+| Block model + CRUD endpoints                     | Done   |
+| Private account toggle (isPrivate field + PATCH) | Done   |
+| Report model + POST endpoint                     | Done   |
+| Blocked user filtering in feed + search          | Done   |
+| Private account post visibility in profile       | Done   |
+| Block/unblock UI on user profile                 | Done   |
+| Private account toggle UI in profile settings    | Done   |
+| Report button on post detail                     | Done   |
 
 ## Phase 9: Auth Enhancements
 

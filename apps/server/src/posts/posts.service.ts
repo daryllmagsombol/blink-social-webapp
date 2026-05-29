@@ -111,11 +111,20 @@ export class PostsService {
     const followingIds = following.map((f) => f.followingId);
     followingIds.push(userId);
 
+    const blocked = await this.prisma.block.findMany({
+      where: { blockerId: userId },
+      select: { blockedId: true },
+    });
+    const blockedIds = blocked.map((b) => b.blockedId);
+
     const skip = (page - 1) * limit;
 
     const [data, total] = await Promise.all([
       this.prisma.post.findMany({
-        where: { userId: { in: followingIds } },
+        where: {
+          userId: { in: followingIds },
+          NOT: blockedIds.length > 0 ? { userId: { in: blockedIds } } : undefined,
+        },
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
@@ -153,7 +162,25 @@ export class PostsService {
     return { data, total, page, limit, hasMore: skip + limit < total };
   }
 
-  async getUserPosts(userId: string, page = 1, limit = 12) {
+  async getUserPosts(userId: string, page = 1, limit = 12, viewerId?: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { isPrivate: true } });
+
+    let canView = true;
+    if (user?.isPrivate && viewerId !== userId) {
+      if (!viewerId) {
+        canView = false;
+      } else {
+        const follow = await this.prisma.follow.findUnique({
+          where: { followerId_followingId: { followerId: viewerId, followingId: userId } },
+        });
+        canView = !!follow;
+      }
+    }
+
+    if (!canView) {
+      return { data: [], total: 0, page, limit, hasMore: false };
+    }
+
     const skip = (page - 1) * limit;
 
     const [data, total] = await Promise.all([

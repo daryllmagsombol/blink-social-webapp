@@ -5,12 +5,21 @@ import { PrismaService } from '../prisma/prisma.service';
 export class SearchService {
   constructor(private prisma: PrismaService) {}
 
-  async search(q: string, type: string) {
+  async search(q: string, type: string, userId?: string) {
     if (!q || q.trim().length === 0) {
       return { users: [], posts: [] };
     }
 
     const term = q.trim();
+
+    let blockedIds: string[] = [];
+    if (userId) {
+      const blocked = await this.prisma.block.findMany({
+        where: { blockerId: userId },
+        select: { blockedId: true },
+      });
+      blockedIds = blocked.map((b) => b.blockedId);
+    }
 
     const results: { users?: any[]; posts?: any[] } = {};
 
@@ -21,6 +30,7 @@ export class SearchService {
             { username: { contains: term, mode: 'insensitive' } },
             { displayName: { contains: term, mode: 'insensitive' } },
           ],
+          NOT: blockedIds.length > 0 ? { id: { in: blockedIds } } : undefined,
         },
         select: {
           id: true,
@@ -37,6 +47,7 @@ export class SearchService {
       results.posts = await this.prisma.post.findMany({
         where: {
           caption: { contains: term, mode: 'insensitive' },
+          NOT: blockedIds.length > 0 ? { userId: { in: blockedIds } } : undefined,
         },
         orderBy: { createdAt: 'desc' },
         take: 20,

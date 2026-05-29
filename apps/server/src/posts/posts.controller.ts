@@ -3,6 +3,7 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @Controller()
@@ -51,12 +52,14 @@ export class PostsController {
     return this.posts.getExplore(Number(page) || 1, Number(limit) || 20);
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('users/:userId/posts')
   getUserPosts(
     @Param('userId') userId: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @CurrentUser('id') viewerId?: string,
   ) {
-    return this.posts.getUserPosts(userId, Number(page) || 1, Number(limit) || 12);
+    return this.posts.getUserPosts(userId, Number(page) || 1, Number(limit) || 12, viewerId);
   }
 }

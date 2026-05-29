@@ -25,6 +25,12 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Patch('me/privacy')
+  togglePrivacy(@CurrentUser('id') userId: string) {
+    return this.users.togglePrivacy(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Delete('me')
   deleteAccount(@CurrentUser('id') userId: string) {
     return this.users.deleteAccount(userId);

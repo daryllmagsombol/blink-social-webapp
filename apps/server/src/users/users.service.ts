@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -16,6 +16,7 @@ export class UsersService {
         displayName: true,
         bio: true,
         avatarUrl: true,
+        isPrivate: true,
         createdAt: true,
         _count: { select: { followers: true, following: true, posts: true } },
       },
@@ -40,6 +41,7 @@ export class UsersService {
         displayName: true,
         bio: true,
         avatarUrl: true,
+        isPrivate: true,
         createdAt: true,
         _count: { select: { followers: true, following: true, posts: true } },
       },
@@ -69,6 +71,17 @@ export class UsersService {
     });
 
     return user;
+  }
+
+  async togglePrivacy(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { isPrivate: !user.isPrivate },
+      select: { id: true, isPrivate: true },
+    });
   }
 
   async deleteAccount(userId: string) {

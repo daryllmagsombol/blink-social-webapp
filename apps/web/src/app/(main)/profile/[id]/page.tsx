@@ -8,7 +8,7 @@ import { useAuth } from '@/stores/auth';
 import { ProfileSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from '@/components/ui/Toast';
-import { MessageCircle, Trash2 } from 'lucide-react';
+import { MessageCircle, Trash2, Shield, ShieldOff, Lock, Unlock } from 'lucide-react';
 
 interface ProfileUser {
   id: string;
@@ -16,6 +16,7 @@ interface ProfileUser {
   displayName: string | null;
   bio: string | null;
   avatarUrl: string | null;
+  isPrivate: boolean;
   followersCount: number;
   followingCount: number;
   postsCount: number;
@@ -37,6 +38,9 @@ export default function UserProfilePage() {
   const [loading, setLoading] = useState(true);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [blocked, setBlocked] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [togglingPrivacy, setTogglingPrivacy] = useState(false);
 
   const isOwn = currentUser?.id === id;
 
@@ -48,11 +52,16 @@ export default function UserProfilePage() {
       currentUser && !isOwn
         ? api.get<{ following: boolean }>(`/users/${id}/follow/status`)
         : Promise.resolve(null),
+      currentUser && !isOwn
+        ? api.get<{ blocked: boolean }>(`/users/${id}/block/status`)
+        : Promise.resolve(null),
     ])
-      .then(([profileRes, postsRes, followRes]) => {
+      .then(([profileRes, postsRes, followRes, blockRes]) => {
         setProfile(profileRes);
+        setIsPrivate(profileRes.isPrivate);
         setPosts(postsRes.data);
         if (followRes) setIsFollowing(followRes.following);
+        if (blockRes) setBlocked(blockRes.blocked);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -72,6 +81,36 @@ export default function UserProfilePage() {
       }
     } catch {
       toast('Failed to update follow', 'error');
+    }
+  };
+
+  const toggleBlock = async () => {
+    try {
+      if (blocked) {
+        await api.delete(`/users/${id}/block`);
+        setBlocked(false);
+        toast('Unblocked', 'success');
+      } else {
+        await api.post(`/users/${id}/block`);
+        setBlocked(true);
+        setPosts([]);
+        toast('Blocked', 'success');
+      }
+    } catch {
+      toast('Failed to update block', 'error');
+    }
+  };
+
+  const togglePrivacy = async () => {
+    setTogglingPrivacy(true);
+    try {
+      const res = await api.patch<{ isPrivate: boolean }>('/users/me/privacy');
+      setIsPrivate(res.isPrivate);
+      toast(res.isPrivate ? 'Account set to private' : 'Account set to public', 'success');
+    } catch {
+      toast('Failed to update privacy', 'error');
+    } finally {
+      setTogglingPrivacy(false);
     }
   };
 
@@ -102,6 +141,9 @@ export default function UserProfilePage() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-bold">{profile.username}</h1>
+            {profile.isPrivate && (
+              <Lock className="h-4 w-4 text-text-secondary shrink-0" />
+            )}
             {!isOwn && currentUser && (
               <div className="flex items-center gap-2">
                 <button
@@ -121,6 +163,15 @@ export default function UserProfilePage() {
                   <MessageCircle className="h-3.5 w-3.5" />
                   Message
                 </Link>
+                <button
+                  onClick={toggleBlock}
+                  className={`flex items-center gap-1 rounded px-3 py-1 text-xs font-semibold border ${
+                    blocked ? 'border-danger text-danger' : 'border-border'
+                  }`}
+                >
+                  {blocked ? <ShieldOff className="h-3.5 w-3.5" /> : <Shield className="h-3.5 w-3.5" />}
+                  {blocked ? 'Blocked' : 'Block'}
+                </button>
               </div>
             )}
           </div>
@@ -132,7 +183,15 @@ export default function UserProfilePage() {
           {profile.displayName && <p className="text-sm font-semibold mt-2">{profile.displayName}</p>}
           {profile.bio && <p className="text-sm mt-1">{profile.bio}</p>}
           {isOwn && (
-            <div className="mt-4 pt-4 border-t border-border">
+            <div className="mt-4 pt-4 border-t border-border space-y-3">
+              <button
+                onClick={togglePrivacy}
+                disabled={togglingPrivacy}
+                className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-primary transition-colors"
+              >
+                {isPrivate ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
+                {togglingPrivacy ? 'Updating...' : isPrivate ? 'Private account (switch to public)' : 'Public account (switch to private)'}
+              </button>
               {confirmDelete ? (
                 <div className="space-y-2">
                   <p className="text-sm text-danger font-semibold">Delete your account and all data?</p>
@@ -168,7 +227,15 @@ export default function UserProfilePage() {
       </div>
 
       {posts.length === 0 ? (
-        <EmptyState icon="📷" title="No posts yet" />
+        !isOwn && profile.isPrivate && !isFollowing ? (
+          <div className="flex flex-col items-center justify-center rounded border border-border bg-bg p-12 text-center">
+            <Lock className="h-10 w-10 text-text-secondary mb-3" />
+            <p className="text-text-secondary font-medium">Private account</p>
+            <p className="mt-1 text-sm text-text-secondary">Follow this user to see their posts.</p>
+          </div>
+        ) : (
+          <EmptyState icon="📷" title="No posts yet" />
+        )
       ) : (
         <div className="grid grid-cols-3 gap-1">
           {posts.map((post) => (

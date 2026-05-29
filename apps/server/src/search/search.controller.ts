@@ -1,6 +1,7 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { SearchService } from './search.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @Controller()
 export class SearchController {
@@ -11,8 +12,9 @@ export class SearchController {
   search(
     @Query('q') q: string,
     @Query('type') type?: string,
+    @CurrentUser('id') userId?: string,
   ) {
-    return this.searchService.search(q, type || 'all');
+    return this.searchService.search(q, type || 'all', userId);
   }
 
   @Get('tags/trending')
