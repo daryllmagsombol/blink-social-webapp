@@ -19,10 +19,11 @@ import { SearchModule } from './search/search.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { BlocksModule } from './blocks/blocks.module';
 import { ReportsModule } from './reports/reports.module';
+import { OAuthModule } from './oauth/oauth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: join(cwd(), '.env') }),
     ServeStaticModule.forRoot({
       rootPath: join(cwd(), 'uploads'),
       serveRoot: '/uploads',
@@ -44,6 +45,7 @@ import { ReportsModule } from './reports/reports.module';
     BookmarksModule,
     BlocksModule,
     ReportsModule,
+    OAuthModule,
   ],
 })
 export class AppModule {}

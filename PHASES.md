@@ -117,4 +117,4 @@ Email verification, password reset (OAuth pending — needs Google/GitHub API ke
 | Frontend reset-password page                              | Done    |
 | "Forgot password?" link on login page                     | Done    |
 | `emailVerified` field in JWT + auth store                 | Done    |
-| OAuth (Google/GitHub) via Passport strategies             | Pending |
+| OAuth (Google/GitHub) via Passport strategies             | Done   |
