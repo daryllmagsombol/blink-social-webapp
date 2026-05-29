@@ -10,9 +10,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { randomUUID } from 'crypto';
+import { cwd } from 'process';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-const uploadsDir = join(__dirname, '..', '..', '..', 'uploads');
+const uploadsDir = join(cwd(), 'uploads');
 
 @Controller('upload')
 @UseGuards(JwtAuthGuard)
