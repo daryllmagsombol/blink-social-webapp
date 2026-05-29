@@ -15,11 +15,13 @@ function getTokens() {
 function setTokens(accessToken: string, refreshToken: string) {
   localStorage.setItem('accessToken', accessToken);
   localStorage.setItem('refreshToken', refreshToken);
+  document.cookie = `accessToken=${accessToken}; path=/; max-age=604800; SameSite=Lax`;
 }
 
 function clearTokens() {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
+  document.cookie = 'accessToken=; path=/; max-age=0';
 }
 
 async function request<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
