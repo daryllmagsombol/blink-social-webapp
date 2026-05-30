@@ -1,8 +1,9 @@
 'use client';
 
 import { create } from 'zustand';
+import { cn } from '@/lib/utils';
 
-type ToastType = 'success' | 'error' | 'info';
+export type ToastType = 'success' | 'error' | 'info' | 'brand';
 
 interface Toast {
   id: string;
@@ -32,6 +33,13 @@ export function toast(message: string, type?: ToastType) {
   useToastStore.getState().addToast(message, type);
 }
 
+const typeStyles: Record<ToastType, string> = {
+  success: 'bg-success',
+  error: 'bg-danger',
+  info: 'bg-text-secondary',
+  brand: 'bg-brand',
+};
+
 export function ToastContainer() {
   const { toasts, removeToast } = useToastStore();
 
@@ -43,13 +51,10 @@ export function ToastContainer() {
         <div
           key={t.id}
           onClick={() => removeToast(t.id)}
-          className={`cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium text-white shadow-lg backdrop-blur-sm ${
-            t.type === 'success'
-              ? 'bg-green-600'
-              : t.type === 'error'
-                ? 'bg-danger'
-                : 'bg-text-secondary'
-          }`}
+          className={cn(
+            'cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium text-white shadow-lg backdrop-blur-sm',
+            typeStyles[t.type],
+          )}
         >
           {t.message}
         </div>

@@ -178,7 +178,7 @@ export default function FeedPage() {
               onClick={() => setStoryViewer({ stories: storyUsers, index: i })}
               className="flex flex-col items-center gap-1 shrink-0"
             >
-              <div className={`h-16 w-16 rounded-full p-0.5 ${su.stories.some((s) => !s.viewed) ? 'bg-gradient-to-br from-primary to-purple-500' : 'bg-border'}`}>
+              <div className={`h-16 w-16 rounded-full p-0.5 ${su.stories.some((s) => !s.viewed) ? 'bg-gradient-to-br from-primary to-brand' : 'bg-border'}`}>
                 <div className="h-full w-full rounded-full bg-bg-secondary" />
               </div>
               <span className="text-xs text-text-secondary truncate w-16 text-center">{su.user.username}</span>

@@ -4,10 +4,13 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth';
-import { Home, Search, PlusSquare, Heart, User, LogOut, MessageCircle, Hash, Bookmark } from 'lucide-react';
+import { useTheme } from '@/components/ui/ThemeProvider';
+import { Spinner } from '@/components/ui/Spinner';
+import { Home, Search, PlusSquare, Heart, User, LogOut, MessageCircle, Hash, Bookmark, Sun, Moon } from 'lucide-react';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, user, logout, fetchMe } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -24,7 +27,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -76,7 +79,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
         <div className="mt-auto pt-8 border-t border-border">
           <Link href={user ? `/profile/${user.id}` : '/profile'} className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-bg-secondary transition-colors">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-purple-500 text-xs font-bold text-white">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-brand-dark text-xs font-bold text-white">
               {user?.username?.[0]?.toUpperCase() || '?'}
             </div>
             <div className="flex-1 min-w-0">
@@ -84,6 +87,13 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               <p className="text-xs text-text-secondary truncate">{user?.displayName || user?.email}</p>
             </div>
           </Link>
+          <button
+            onClick={toggleTheme}
+            className="mt-2 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-text-secondary hover:bg-bg-secondary transition-colors"
+          >
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+          </button>
           <button
             onClick={() => {
               logout();
@@ -115,6 +125,13 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             </Link>
           );
         })}
+        <button
+          onClick={toggleTheme}
+          className="flex flex-col items-center gap-0.5 px-3 py-1 text-text-secondary"
+        >
+          {theme === 'dark' ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
+          <span className="text-[10px]">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+        </button>
       </nav>
     </div>
   );

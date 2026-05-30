@@ -1,23 +1,26 @@
 'use client';
 
+import { Button } from './Button';
+
+interface ErrorDisplayProps {
+  message?: string;
+  onRetry?: () => void;
+  icon?: React.ReactNode;
+}
+
 export function ErrorDisplay({
   message = 'Something went wrong',
   onRetry,
-}: {
-  message?: string;
-  onRetry?: () => void;
-}) {
+  icon,
+}: ErrorDisplayProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded border border-border bg-bg p-12 text-center">
-      <span className="text-4xl mb-3">!</span>
-      <p className="text-text-secondary font-medium">{message}</p>
+    <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-bg p-12 text-center">
+      {icon ?? <span className="mb-3 text-4xl">!</span>}
+      <p className="font-medium text-text-secondary">{message}</p>
       {onRetry && (
-        <button
-          onClick={onRetry}
-          className="mt-4 rounded bg-primary px-4 py-1.5 text-sm font-semibold text-white"
-        >
+        <Button variant="primary" size="sm" onClick={onRetry} className="mt-4">
           Try again
-        </button>
+        </Button>
       )}
     </div>
   );

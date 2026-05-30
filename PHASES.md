@@ -119,6 +119,30 @@ Email verification, password reset (OAuth pending — needs Google/GitHub API ke
 | `emailVerified` field in JWT + auth store             | Done   |
 | OAuth (Google/GitHub) via Passport strategies         | Done   |
 
+## Phase 10: Design System & Component Library ✅
+
+Brand identity, dark mode, reusable component library.
+
+| Task                                                    | Status |
+| ------------------------------------------------------- | ------ |
+| Brand color tokens (Purple/Blue/Pink) + CSS variables   | Done   |
+| Dark mode via `.dark` class + CSS variable overrides     | Done   |
+| ThemeProvider with localStorage persistence + context    | Done   |
+| Dark mode toggle in sidebar + mobile nav                 | Done   |
+| Typography, spacing, radius, shadow scales               | Done   |
+| `cn()` utility + `Spinner` component                    | Done   |
+| `Button` (5 variants, 3 sizes, loading + icon)          | Done   |
+| `Input` / `Textarea` (label, error, helperText)         | Done   |
+| `Avatar` (5 sizes, fallback initials, online dot)       | Done   |
+| `Badge` (6 variants) + `Toggle` (switch)                | Done   |
+| `Card` (3 variants) + `Modal` (3 sizes, backdrop)       | Done   |
+| `Tabs` (underline + pill) + `DropdownMenu` + `Tooltip`  | Done   |
+| Upgraded `Skeleton`, `EmptyState`, `ErrorDisplay`, `Toast` | Done |
+| Migrated auth pages to use new components               | Done   |
+| Logo integration on auth pages                           | Done   |
+| `DESIGN-SYSTEM.md` documentation                        | Done   |
+| `<Image>` exclusion in middleware for `/images/`        | Done   |
+
 ## What's next?
 
-Hmmm... Maybe a design system to work on, branding and enhance the UI/UX. I'll find one to publish this app in web.
+Publish, deploy, or iterate on new features!

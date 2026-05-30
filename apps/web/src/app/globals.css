@@ -1,15 +1,81 @@
 @import "tailwindcss";
 
-@theme {
-  --color-primary: #0095f6;
-  --color-primary-dark: #0077cc;
-  --color-bg: #ffffff;
-  --color-bg-secondary: #fafafa;
-  --color-border: #dbdbdb;
-  --color-text: #262626;
-  --color-text-secondary: #8e8e8e;
-  --color-danger: #ed4956;
+:root {
+  --surface: #FFFFFF;
+  --surface-secondary: #F7F8FC;
+  --surface-tertiary: #F0F2F8;
+  --text-primary: #0F1226;
+  --text-tertiary: #8B8FA3;
+  --border-primary: #E2E5ED;
+  --brand: #8A2EFF;
+  --brand-light: #A24BFF;
+  --brand-dark: #6D1FCC;
+  --cta: #00B7FF;
+  --cta-dark: #0091D6;
+  --cta-light: #4FD3FF;
+  --accent: #FF2BA6;
+  --accent-dark: #D91A8C;
+  --accent-light: #FF4FC0;
 }
+
+.dark {
+  --surface: #0F1226;
+  --surface-secondary: #1A1E35;
+  --surface-tertiary: #252A45;
+  --text-primary: #F7F8FC;
+  --text-tertiary: #8B8FA3;
+  --border-primary: rgba(255, 255, 255, 0.08);
+  --brand: #A24BFF;
+  --brand-light: #C27EFF;
+  --brand-dark: #6D1FCC;
+  --cta: #4FD3FF;
+  --cta-light: #80E0FF;
+  --cta-dark: #0091D6;
+  --accent: #FF4FC0;
+  --accent-light: #FF70CC;
+  --accent-dark: #D91A8C;
+}
+
+@theme {
+  --color-bg: var(--surface);
+  --color-bg-secondary: var(--surface-secondary);
+  --color-bg-tertiary: var(--surface-tertiary);
+  --color-text: var(--text-primary);
+  --color-text-secondary: var(--text-tertiary);
+  --color-border: var(--border-primary);
+
+  --color-brand: var(--brand);
+  --color-brand-light: var(--brand-light);
+  --color-brand-dark: var(--brand-dark);
+
+  --color-primary: var(--cta);
+  --color-primary-dark: var(--cta-dark);
+  --color-primary-light: var(--cta-light);
+
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+  --color-accent-light: var(--accent-light);
+
+  --color-danger: #ED4956;
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+
+  --font-family-sans: Inter, system-ui, -apple-system, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-base: 0.875rem;
+  --font-size-lg: 1rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 @keyframes progress {
   from { width: 0%; }

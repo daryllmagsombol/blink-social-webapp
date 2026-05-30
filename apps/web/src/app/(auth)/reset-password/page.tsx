@@ -1,21 +1,21 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
-  const router = useRouter();
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
     if (!token) return;
     setError('');
     setLoading(true);
@@ -33,7 +33,7 @@ export default function ResetPasswordPage() {
   if (!token) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-bg-secondary px-4">
-        <div className="w-full max-w-sm rounded border border-border bg-bg p-8 text-center">
+        <div className="w-full max-w-sm rounded-lg border border-border bg-bg p-8 text-center">
           <p className="text-sm text-danger">Invalid reset link</p>
           <Link href="/forgot-password" className="mt-4 inline-block text-sm text-primary hover:underline">
             Request a new reset link
@@ -46,11 +46,14 @@ export default function ResetPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-secondary px-4">
       <div className="w-full max-w-sm">
-        <div className="rounded border border-border bg-bg p-8">
-          <h1 className="mb-6 text-center text-2xl font-bold">Set New Password</h1>
+        <div className="rounded-lg border border-border bg-bg p-8">
+          <div className="mb-6 flex justify-center">
+            <img src="/images/blink-social-logo.png" alt="Blink Social" className="h-16 w-auto" />
+          </div>
+          <h1 className="mb-6 text-center text-2xl font-bold text-brand">Set New Password</h1>
 
           {error && (
-            <div className="mb-4 rounded bg-danger/10 p-3 text-sm text-danger">{error}</div>
+            <div className="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger">{error}</div>
           )}
 
           {done ? (
@@ -62,7 +65,7 @@ export default function ResetPasswordPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              <input
+              <Input
                 type="password"
                 placeholder="New password"
                 value={password}
@@ -70,15 +73,10 @@ export default function ResetPasswordPage() {
                 required
                 minLength={6}
                 autoFocus
-                className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary transition-colors"
               />
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded bg-primary py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50 transition-colors"
-              >
-                {loading ? 'Resetting...' : 'Reset password'}
-              </button>
+              <Button type="submit" loading={loading} className="w-full" size="lg">
+                Reset password
+              </Button>
             </form>
           )}
         </div>

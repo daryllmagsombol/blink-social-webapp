@@ -1,11 +1,11 @@
 'use client';
 
-'use client';
-
 import { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -50,20 +50,22 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-secondary px-4">
       <div className="w-full max-w-sm">
-        <div className="rounded border border-border bg-bg p-8">
-          <h1 className="mb-6 text-center text-3xl font-bold">Blink Social</h1>
+        <div className="rounded-lg border border-border bg-bg p-8">
+          <div className="mb-6 flex justify-center">
+            <img src="/images/blink-social-logo.png" alt="Blink Social" className="h-16 w-auto" />
+          </div>
           <p className="mb-4 text-center text-sm text-text-secondary">
             Sign up to see photos from your friends.
           </p>
 
           {error && (
-            <div className="mb-4 rounded bg-danger/10 p-3 text-sm text-danger">
+            <div className="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <input
+            <Input
               type="text"
               placeholder="Username"
               value={form.username}
@@ -71,48 +73,35 @@ export default function RegisterPage() {
               required
               minLength={3}
               autoFocus
-              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary transition-colors"
             />
-            <input
+            <Input
               type="email"
               placeholder="Email"
               value={form.email}
               onChange={(e) => update('email', e.target.value)}
               required
-              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary transition-colors"
             />
-            <input
+            <Input
               type="password"
               placeholder="Password"
               value={form.password}
               onChange={(e) => update('password', e.target.value)}
               required
               minLength={6}
-              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary transition-colors"
             />
-            <input
+            <Input
               type="text"
               placeholder="Full name (optional)"
               value={form.displayName}
               onChange={(e) => update('displayName', e.target.value)}
-              className="w-full rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary transition-colors"
             />
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded bg-primary py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50 transition-colors"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  Creating account...
-                </span>
-              ) : 'Sign up'}
-            </button>
+            <Button type="submit" loading={loading} className="w-full" size="lg">
+              Sign up
+            </Button>
           </form>
         </div>
 
-        <div className="mt-2 rounded border border-border bg-bg p-4 text-center text-sm">
+        <div className="mt-2 rounded-lg border border-border bg-bg p-4 text-center text-sm">
           Have an account?{' '}
           <Link href="/login" className="font-semibold text-primary hover:underline">
             Log in
