@@ -46,30 +46,30 @@ pnpm dev
 
 ## Features
 
-| Feature                                  | Status     | Phase |
-| ---------------------------------------- | ---------- | ----- |
-| Auth (register, login, JWT refresh)      | ✅ Done    | 1     |
-| Posts (create, upload, captions, delete) | ✅ Done    | 2     |
-| Feed (chronological, followed users)     | ✅ Done    | 2     |
-| Explore (all posts, discover)            | ✅ Done    | 2     |
-| Like/unlike posts                        | ✅ Done    | 2     |
-| Comments on posts                        | ✅ Done    | 2     |
-| Follow/unfollow users                    | ✅ Done    | 2     |
-| Stories (24h disappearing)               | ✅ Done    | 3     |
-| Direct messages (real-time WebSocket)    | ✅ Done    | 3     |
-| Notifications (likes, comments, follows) | ✅ Done    | 3     |
-| Loading skeletons + error boundaries     | ✅ Done    | 4     |
-| Infinite scroll                          | ✅ Done    | 4     |
-| Empty states + toast notifications       | ✅ Done    | 4     |
-| Responsive sidebar + mobile nav          | ✅ Done    | 4     |
-| Search users & posts                     | ✅ Done    | 5     |
-| Hashtags (parsing, clickable, trending)  | ✅ Done    | 5     |
-| Bookmark / saved posts                   | ✅ Done    | 6     |
-| Edit posts / comments                    | ✅ Done    | 7     |
-| Blocking & privacy                       | ✅ Done    | 8     |
-| Auth enhancements (OAuth, reset)         | ✅ Done    | 9     |
-| Design system (brand tokens, dark mode)  | ✅ Done    | 10    |
-| Reusable UI components (18 components)   | ✅ Done    | 10    |
+| Feature                                  | Status  | Phase |
+| ---------------------------------------- | ------- | ----- |
+| Auth (register, login, JWT refresh)      | ✅ Done | 1     |
+| Posts (create, upload, captions, delete) | ✅ Done | 2     |
+| Feed (chronological, followed users)     | ✅ Done | 2     |
+| Explore (all posts, discover)            | ✅ Done | 2     |
+| Like/unlike posts                        | ✅ Done | 2     |
+| Comments on posts                        | ✅ Done | 2     |
+| Follow/unfollow users                    | ✅ Done | 2     |
+| Stories (24h disappearing)               | ✅ Done | 3     |
+| Direct messages (real-time WebSocket)    | ✅ Done | 3     |
+| Notifications (likes, comments, follows) | ✅ Done | 3     |
+| Loading skeletons + error boundaries     | ✅ Done | 4     |
+| Infinite scroll                          | ✅ Done | 4     |
+| Empty states + toast notifications       | ✅ Done | 4     |
+| Responsive sidebar + mobile nav          | ✅ Done | 4     |
+| Search users & posts                     | ✅ Done | 5     |
+| Hashtags (parsing, clickable, trending)  | ✅ Done | 5     |
+| Bookmark / saved posts                   | ✅ Done | 6     |
+| Edit posts / comments                    | ✅ Done | 7     |
+| Blocking & privacy                       | ✅ Done | 8     |
+| Auth enhancements (OAuth, reset)         | ✅ Done | 9     |
+| Design system (brand tokens, dark mode)  | ✅ Done | 10    |
+| Reusable UI components (18 components)   | ✅ Done | 10    |
 
 ## Architecture
 
@@ -92,7 +92,7 @@ Brand identity: **Purple** (`#8A2EFF`) primary, **Blue** (`#00B7FF`) CTA, **Pink
 - Semantic color tokens (light + dark) via CSS variables
 - Typography, spacing, border-radius, and shadow scales
 
-See [DESIGN-SYSTEM.md](./apps/web/DESIGN-SYSTEM.md) for full component API reference.
+See [DESIGN-SYSTEM.md](./DESIGN-SYSTEM.md) for full component API reference.
 
 ## Prisma shortcuts
 
