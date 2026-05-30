@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { api, UPLOADS_URL } from '@/lib/api';
+import { Badge } from '@/components/ui/Badge';
 import { GridSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -92,7 +93,7 @@ export default function ExplorePage() {
                 className="rounded-full bg-bg-secondary px-3 py-1.5 text-sm font-medium hover:bg-primary/10 hover:text-primary transition-colors"
               >
                 #{tag.name}
-                <span className="ml-1 text-xs text-text-secondary">{tag._count.posts}</span>
+                <Badge variant="default" size="sm" className="ml-1">{tag._count.posts}</Badge>
               </Link>
             ))}
           </div>

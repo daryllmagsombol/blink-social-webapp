@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
+import { Textarea } from '@/components/ui/Textarea';
 import { toast } from '@/components/ui/Toast';
 
 export default function CreatePage() {
@@ -89,13 +90,12 @@ export default function CreatePage() {
           className="hidden"
         />
 
-        <textarea
+        <Textarea
           placeholder="Write a caption..."
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           maxLength={2200}
           rows={3}
-          className="w-full resize-none rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary"
         />
 
         <Button

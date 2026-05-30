@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { api, UPLOADS_URL } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
 import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ProfileSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -147,7 +148,7 @@ export default function UserProfilePage() {
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-bold">{profile.username}</h1>
             {profile.isPrivate && (
-              <Lock className="h-4 w-4 text-text-secondary shrink-0" />
+              <Badge variant="warning" size="sm"><Lock className="h-3 w-3 mr-0.5 inline" />Private</Badge>
             )}
             {!isOwn && currentUser && (
               <div className="flex items-center gap-2">

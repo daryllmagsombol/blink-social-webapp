@@ -7,6 +7,7 @@ import { api, UPLOADS_URL } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { Textarea } from '@/components/ui/Textarea';
 import { Bookmark } from 'lucide-react';
 import { Skeleton, PostSkeleton } from '@/components/ui/Skeleton';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
@@ -220,12 +221,11 @@ export default function PostDetailPage() {
           <p className="text-sm font-semibold">{post._count.likes} likes</p>
           {editingCaption ? (
             <div className="mt-2 space-y-2">
-              <textarea
+              <Textarea
                 value={editCaptionText}
                 onChange={(e) => setEditCaptionText(e.target.value)}
                 maxLength={2200}
                 rows={3}
-                className="w-full rounded border border-border bg-bg p-2 text-sm outline-none resize-none"
               />
               <div className="flex gap-2">
                 <Button
