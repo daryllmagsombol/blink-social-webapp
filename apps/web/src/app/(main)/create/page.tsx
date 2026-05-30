@@ -61,13 +61,15 @@ export default function CreatePage() {
         {preview ? (
           <div className="relative">
             <img src={preview} alt="preview" className="max-h-96 w-full rounded object-contain bg-bg-secondary" />
-            <button
+            <Button
               type="button"
               onClick={() => { setFile(null); setPreview(null); }}
-              className="absolute top-2 right-2 rounded-full bg-bg/80 px-2 py-1 text-sm"
+              variant="secondary"
+              size="sm"
+              className="absolute top-2 right-2"
             >
               ✕
-            </button>
+            </Button>
           </div>
         ) : (
           <div

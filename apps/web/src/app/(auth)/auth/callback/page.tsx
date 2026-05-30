@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { setTokens } from '@/lib/api';
+import { Spinner } from '@/components/ui/Spinner';
 
 export default function AuthCallbackPage() {
   const searchParams = useSearchParams();
@@ -22,7 +23,7 @@ export default function AuthCallbackPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-secondary">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
+      <Spinner size="md" />
     </div>
   );
 }

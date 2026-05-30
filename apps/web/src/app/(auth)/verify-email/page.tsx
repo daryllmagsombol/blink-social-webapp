@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { Spinner } from '@/components/ui/Spinner';
 import { CheckCircle, XCircle } from 'lucide-react';
 
 export default function VerifyEmailPage() {
@@ -35,7 +36,7 @@ export default function VerifyEmailPage() {
       <div className="w-full max-w-sm rounded border border-border bg-bg p-8 text-center">
         {status === 'loading' && (
           <div className="flex flex-col items-center gap-3">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
+            <Spinner size="md" />
             <p className="text-sm text-text-secondary">Verifying your email...</p>
           </div>
         )}

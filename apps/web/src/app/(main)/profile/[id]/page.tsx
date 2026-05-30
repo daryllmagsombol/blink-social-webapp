@@ -186,14 +186,16 @@ export default function UserProfilePage() {
           {profile.bio && <p className="text-sm mt-1">{profile.bio}</p>}
           {isOwn && (
             <div className="mt-4 pt-4 border-t border-border space-y-3">
-              <button
+              <Button
                 onClick={togglePrivacy}
                 disabled={togglingPrivacy}
-                className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-primary transition-colors"
+                variant="ghost"
+                size="sm"
+                icon={isPrivate ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
+                className="text-text-secondary"
               >
-                {isPrivate ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
                 {togglingPrivacy ? 'Updating...' : isPrivate ? 'Private account (switch to public)' : 'Public account (switch to private)'}
-              </button>
+              </Button>
               {confirmDelete ? (
                 <div className="space-y-2">
                   <p className="text-sm text-danger font-semibold">Delete your account and all data?</p>
