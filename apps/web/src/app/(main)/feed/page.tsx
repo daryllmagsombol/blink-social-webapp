@@ -170,8 +170,6 @@ export default function FeedPage() {
     );
   }
 
-  const hasOwnStory = user && storyUsers.some((su) => su.user.id === user.id);
-
   return (
     <div className="mx-auto max-w-xl px-4 py-8 pb-20">
       <div className="mb-6 flex items-center justify-between">
@@ -184,14 +182,7 @@ export default function FeedPage() {
       <div className="mb-4 flex gap-3 overflow-x-auto pb-2">
         {user && (
           <button
-            onClick={() => {
-              if (hasOwnStory) {
-                const idx = storyUsers.findIndex((su) => su.user.id === user.id);
-                setStoryViewer({ stories: storyUsers, index: idx });
-              } else {
-                setShowCreator(true);
-              }
-            }}
+            onClick={() => setShowCreator(true)}
             className="flex shrink-0 flex-col items-center gap-1"
           >
             <div className="relative">
@@ -201,37 +192,30 @@ export default function FeedPage() {
                 size="lg"
                 fallback={user.username[0]?.toUpperCase()}
               />
-              {!hasOwnStory && (
-                <div className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white shadow">
-                  <Plus className="h-3 w-3" />
-                </div>
-              )}
+              <div className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white shadow">
+                <Plus className="h-3 w-3" />
+              </div>
             </div>
-            <span className="w-16 truncate text-center text-xs text-text-secondary">
-              {hasOwnStory ? 'Your story' : 'Add story'}
-            </span>
+            <span className="w-16 truncate text-center text-xs text-text-secondary">Add story</span>
           </button>
         )}
-        {storyUsers.map((su, i) => {
-          if (user && su.user.id === user.id) return null;
-          return (
-            <button
-              key={su.user.id}
-              onClick={() => setStoryViewer({ stories: storyUsers, index: i })}
-              className="flex shrink-0 flex-col items-center gap-1"
-            >
-              <div className={`rounded-full p-0.5 ${su.stories.some((s) => !s.viewed) ? 'bg-gradient-to-br from-primary to-brand' : 'bg-border'}`}>
-                <Avatar
-                  src={su.user.avatarUrl ? `${UPLOADS_URL}${su.user.avatarUrl}` : undefined}
-                  alt={su.user.username}
-                  size="lg"
-                  fallback={su.user.username[0]?.toUpperCase()}
-                />
-              </div>
-              <span className="w-16 truncate text-center text-xs text-text-secondary">{su.user.username}</span>
-            </button>
-          );
-        })}
+        {storyUsers.map((su, i) => (
+          <button
+            key={su.user.id}
+            onClick={() => setStoryViewer({ stories: storyUsers, index: i })}
+            className="flex shrink-0 flex-col items-center gap-1"
+          >
+            <div className={`rounded-full p-0.5 ${su.stories.some((s) => !s.viewed) ? 'bg-gradient-to-br from-primary to-brand' : 'bg-border'}`}>
+              <Avatar
+                src={su.user.avatarUrl ? `${UPLOADS_URL}${su.user.avatarUrl}` : undefined}
+                alt={su.user.username}
+                size="lg"
+                fallback={su.user.username[0]?.toUpperCase()}
+              />
+            </div>
+            <span className="w-16 truncate text-center text-xs text-text-secondary">{su.user.username}</span>
+          </button>
+        ))}
       </div>
 
       {storyViewer && (

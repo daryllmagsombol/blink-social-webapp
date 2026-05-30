@@ -70,10 +70,10 @@ export function StoryViewer({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black" onClick={onClose}>
-      <div className="relative w-full max-w-sm max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
-        <div className="absolute left-0 right-0 top-0 z-10 flex gap-1 p-2">
+      <div className="relative h-full w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
+        <div className="absolute left-0 right-0 top-0 z-20 flex gap-1 p-3">
           {current.stories.map((_, i) => (
-            <div key={i} className="h-0.5 flex-1 overflow-hidden rounded-full bg-white/30">
+            <div key={i} className="h-1 flex-1 overflow-hidden rounded-full bg-white/30">
               <div
                 className={`h-full bg-white transition-all ${i === storyIdx ? 'animate-progress' : i < storyIdx ? 'w-full' : 'w-0'}`}
               />
@@ -81,26 +81,28 @@ export function StoryViewer({
           ))}
         </div>
 
-        <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
+        <div className="absolute left-0 right-0 top-0 z-10 h-32 bg-gradient-to-b from-black/60 to-transparent" />
+
+        <div className="absolute left-4 top-8 z-20 flex items-center gap-3">
           <Avatar
             src={current.user.avatarUrl ? `${UPLOADS_URL}${current.user.avatarUrl}` : undefined}
             alt={current.user.username}
             size="sm"
             fallback={current.user.username[0]?.toUpperCase()}
           />
-          <span className="text-sm font-semibold text-white">{current.user.username}</span>
+          <span className="text-base font-bold text-white drop-shadow-lg">{current.user.username}</span>
         </div>
 
         <img
           src={`${UPLOADS_URL}${story.imageUrl}`}
           alt="story"
-          className="h-full w-full rounded object-contain"
+          className="h-full w-full object-cover"
         />
 
         <div className="absolute inset-y-0 left-0 z-10 w-1/3" onClick={goPrev} />
         <div className="absolute inset-y-0 right-0 z-10 w-1/3" onClick={goNext} />
 
-        <button onClick={onClose} className="absolute right-3 top-3 z-10 text-2xl text-white">✕</button>
+        <button onClick={onClose} className="absolute right-4 top-8 z-20 text-3xl text-white drop-shadow-lg">✕</button>
       </div>
     </div>
   );
