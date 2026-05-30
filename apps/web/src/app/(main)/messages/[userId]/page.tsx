@@ -3,9 +3,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import { api, UPLOADS_URL } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
 import { getSocket, disconnectSocket } from '@/lib/socket';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 
@@ -110,9 +112,12 @@ export default function ChatPage() {
     <div className="mx-auto flex max-w-xl flex-col py-8 px-4 pb-20" style={{ height: 'calc(100vh - 5rem)' }}>
       <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border">
         <Link href="/messages" className="text-sm text-primary">← Back</Link>
-        <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold">
-          {otherUser?.username?.[0]?.toUpperCase() || '?'}
-        </div>
+        <Avatar
+            src={undefined}
+            alt={otherUser?.username || '?'}
+            size="sm"
+            fallback={otherUser?.username?.[0]?.toUpperCase() || '?'}
+          />
         <span className="text-sm font-semibold">{otherUser?.username || '...'}</span>
       </div>
 
@@ -145,13 +150,15 @@ export default function ChatPage() {
           placeholder="Message..."
           className="flex-1 rounded-full border border-border bg-bg-secondary px-4 py-2 text-sm outline-none focus:border-text-secondary"
         />
-        <button
+        <Button
           type="submit"
           disabled={!input.trim()}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          variant="primary"
+          size="md"
+          className="rounded-full px-6"
         >
           Send
-        </button>
+        </Button>
       </form>
     </div>
   );

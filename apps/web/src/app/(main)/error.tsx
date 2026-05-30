@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/Button';
+
 export default function MainError({
   error,
   reset,
@@ -13,12 +15,9 @@ export default function MainError({
         <span className="text-4xl mb-3">!</span>
         <p className="text-text-secondary font-medium">Something went wrong</p>
         <p className="mt-1 text-sm text-text-secondary">{error.message}</p>
-        <button
-          onClick={reset}
-          className="mt-4 rounded bg-primary px-4 py-1.5 text-sm font-semibold text-white"
-        >
+        <Button onClick={reset} size="sm" className="mt-4">
           Try again
-        </button>
+        </Button>
       </div>
     </div>
   );

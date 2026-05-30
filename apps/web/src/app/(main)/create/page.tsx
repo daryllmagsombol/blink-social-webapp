@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
 import { toast } from '@/components/ui/Toast';
 
 export default function CreatePage() {
@@ -95,13 +96,15 @@ export default function CreatePage() {
           className="w-full resize-none rounded border border-border bg-bg-secondary px-3 py-2 text-sm outline-none focus:border-text-secondary"
         />
 
-        <button
+        <Button
           type="submit"
           disabled={loading || !file}
-          className="w-full rounded bg-primary py-2 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50"
+          loading={loading}
+          className="w-full"
+          size="lg"
         >
           {loading ? 'Posting...' : 'Share'}
-        </button>
+        </Button>
       </form>
     </div>
   );

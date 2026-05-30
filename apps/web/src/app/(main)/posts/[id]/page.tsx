@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api, UPLOADS_URL } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
 import { Bookmark } from 'lucide-react';
 import { Skeleton, PostSkeleton } from '@/components/ui/Skeleton';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
@@ -170,13 +172,20 @@ export default function PostDetailPage() {
       <div className="rounded border border-border bg-bg overflow-hidden">
         <div className="flex items-center justify-between p-4">
           <Link href={`/profile/${post.user.id}`} className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-primary/20" />
+            <Avatar
+                src={post.user.avatarUrl ? `${UPLOADS_URL}${post.user.avatarUrl}` : undefined}
+                alt={post.user.username}
+                size="sm"
+                fallback={post.user.username[0]?.toUpperCase()}
+              />
             <span className="text-sm font-semibold">{post.user.username}</span>
           </Link>
           {currentUser?.id === post.userId ? (
-            <button onClick={deletePost} className="text-sm text-danger">Delete</button>
+            <Button onClick={deletePost} variant="ghost" size="sm" className="text-danger hover:text-danger/80">
+              Delete
+            </Button>
           ) : currentUser && (
-            <button
+            <Button
               onClick={() => {
                 const reason = prompt('Reason for reporting this post:');
                 if (reason && reason.trim()) {
@@ -185,10 +194,12 @@ export default function PostDetailPage() {
                     .catch(() => toast('Failed to submit report', 'error'));
                 }
               }}
-              className="text-xs text-text-secondary hover:text-danger transition-colors"
+              variant="ghost"
+              size="sm"
+              className="text-text-secondary hover:text-danger"
             >
               Report
-            </button>
+            </Button>
           )}
         </div>
 
@@ -217,19 +228,21 @@ export default function PostDetailPage() {
                 className="w-full rounded border border-border bg-bg p-2 text-sm outline-none resize-none"
               />
               <div className="flex gap-2">
-                <button
+                <Button
                   onClick={saveCaption}
                   disabled={savingCaption || !editCaptionText.trim()}
-                  className="rounded bg-primary px-3 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                  size="sm"
+                  loading={savingCaption}
                 >
                   {savingCaption ? 'Saving...' : 'Save'}
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => { setEditingCaption(false); setEditCaptionText(post.caption || ''); }}
-                  className="rounded border border-border px-3 py-1 text-xs font-semibold"
+                  variant="secondary"
+                  size="sm"
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </div>
           ) : (post.caption || currentUser?.id === post.userId) && (
@@ -241,12 +254,14 @@ export default function PostDetailPage() {
                 {linkifyCaption(post.caption || '')}
               </p>
               {currentUser?.id === post.userId && (
-                <button
+                <Button
                   onClick={() => { setEditingCaption(true); setEditCaptionText(post.caption || ''); }}
-                  className="text-xs text-text-secondary hover:text-primary shrink-0 mt-0.5"
+                  variant="ghost"
+                  size="sm"
+                  className="shrink-0 mt-0.5"
                 >
                   {post.caption ? 'Edit' : 'Add caption'}
-                </button>
+                </Button>
               )}
             </div>
           )}
@@ -275,16 +290,18 @@ export default function PostDetailPage() {
                         />
                       </div>
                       <div className="flex gap-2">
-                        <button
+                        <Button
                           onClick={() => saveComment(c.id)}
                           disabled={!editCommentContent.trim()}
-                          className="text-xs font-semibold text-primary disabled:opacity-30"
+                          variant="ghost"
+                          size="sm"
+                          className="text-primary"
                         >
                           Save
-                        </button>
-                        <button onClick={cancelEditComment} className="text-xs text-text-secondary">
+                        </Button>
+                        <Button onClick={cancelEditComment} variant="ghost" size="sm">
                           Cancel
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ) : (
@@ -294,12 +311,14 @@ export default function PostDetailPage() {
                       </Link>
                       <span className="flex-1">{c.content}</span>
                       {currentUser?.id === c.user.id && (
-                        <button
+                        <Button
                           onClick={() => startEditComment(c.id, c.content)}
-                          className="text-xs text-text-secondary hover:text-primary shrink-0"
+                          variant="ghost"
+                          size="sm"
+                          className="shrink-0"
                         >
                           Edit
-                        </button>
+                        </Button>
                       )}
                     </div>
                   )}
@@ -318,13 +337,15 @@ export default function PostDetailPage() {
                 maxLength={500}
                 className="flex-1 border-0 px-4 py-3 text-sm outline-none"
               />
-              <button
+              <Button
                 type="submit"
                 disabled={!newComment.trim()}
-                className="px-4 py-3 text-sm font-semibold text-primary disabled:opacity-30"
+                variant="ghost"
+                size="md"
+                className="shrink-0 px-4"
               >
                 Post
-              </button>
+              </Button>
             </form>
           )}
         </div>

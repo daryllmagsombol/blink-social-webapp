@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { api, UPLOADS_URL } from '@/lib/api';
+import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { GridSkeleton } from '@/components/ui/Skeleton';
@@ -99,9 +100,12 @@ export default function SearchPage() {
                       href={`/profile/${u.id}`}
                       className="flex items-center gap-3 rounded-lg p-2 hover:bg-bg-secondary transition-colors"
                     >
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
-                        {u.username[0].toUpperCase()}
-                      </div>
+                      <Avatar
+                          src={u.avatarUrl ? `${UPLOADS_URL}${u.avatarUrl}` : undefined}
+                          alt={u.username}
+                          size="md"
+                          fallback={u.username[0]?.toUpperCase()}
+                        />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold truncate">{u.username}</p>
                         <p className="text-xs text-text-secondary truncate">

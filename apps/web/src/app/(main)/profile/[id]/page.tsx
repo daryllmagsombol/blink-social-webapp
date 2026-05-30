@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api, UPLOADS_URL } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
 import { ProfileSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from '@/components/ui/Toast';
@@ -135,9 +137,12 @@ export default function UserProfilePage() {
   return (
     <div className="mx-auto max-w-4xl py-8 px-4 pb-20">
       <div className="flex items-center gap-6 mb-8">
-        <div className="h-20 w-20 shrink-0 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
-          {profile.username[0].toUpperCase()}
-        </div>
+        <Avatar
+            src={profile.avatarUrl ? `${UPLOADS_URL}${profile.avatarUrl}` : undefined}
+            alt={profile.username}
+            size="xl"
+            fallback={profile.username[0]?.toUpperCase()}
+          />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-bold">{profile.username}</h1>
@@ -146,32 +151,29 @@ export default function UserProfilePage() {
             )}
             {!isOwn && currentUser && (
               <div className="flex items-center gap-2">
-                <button
+                <Button
                   onClick={toggleFollow}
-                  className={`rounded px-4 py-1 text-xs font-semibold ${
-                    isFollowing
-                      ? 'border border-border bg-bg'
-                      : 'bg-primary text-white'
-                  }`}
+                  variant={isFollowing ? 'secondary' : 'primary'}
+                  size="sm"
                 >
                   {isFollowing ? 'Following' : 'Follow'}
-                </button>
-                <Link
-                  href={`/messages/${id}`}
-                  className="flex items-center gap-1 rounded border border-border px-3 py-1 text-xs font-semibold hover:bg-bg-secondary transition-colors"
+                </Button>
+                <Button
+                  onClick={() => router.push(`/messages/${id}`)}
+                  variant="secondary"
+                  size="sm"
+                  icon={<MessageCircle className="h-3.5 w-3.5" />}
                 >
-                  <MessageCircle className="h-3.5 w-3.5" />
                   Message
-                </Link>
-                <button
+                </Button>
+                <Button
                   onClick={toggleBlock}
-                  className={`flex items-center gap-1 rounded px-3 py-1 text-xs font-semibold border ${
-                    blocked ? 'border-danger text-danger' : 'border-border'
-                  }`}
+                  variant={blocked ? 'danger' : 'secondary'}
+                  size="sm"
+                  icon={blocked ? <ShieldOff className="h-3.5 w-3.5" /> : <Shield className="h-3.5 w-3.5" />}
                 >
-                  {blocked ? <ShieldOff className="h-3.5 w-3.5" /> : <Shield className="h-3.5 w-3.5" />}
                   {blocked ? 'Blocked' : 'Block'}
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -196,30 +198,35 @@ export default function UserProfilePage() {
                 <div className="space-y-2">
                   <p className="text-sm text-danger font-semibold">Delete your account and all data?</p>
                   <div className="flex gap-2">
-                    <button
+<Button
                       onClick={handleDeleteAccount}
                       disabled={deleting}
-                      className="rounded bg-danger px-3 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                      variant="danger"
+                      size="sm"
+                      loading={deleting}
                     >
                       {deleting ? 'Deleting...' : 'Yes, delete'}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => { setConfirmDelete(false); setDeleting(false); }}
                       disabled={deleting}
-                      className="rounded border border-border px-3 py-1 text-xs font-semibold"
+                      variant="secondary"
+                      size="sm"
                     >
                       Cancel
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ) : (
-                <button
+                <Button
                   onClick={() => setConfirmDelete(true)}
-                  className="flex items-center gap-1.5 text-xs text-danger hover:text-danger/80 transition-colors"
+                  variant="ghost"
+                  size="sm"
+                  icon={<Trash2 className="h-3.5 w-3.5" />}
+                  className="text-danger hover:text-danger/80"
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
                   Delete account
-                </button>
+                </Button>
               )}
             </div>
           )}

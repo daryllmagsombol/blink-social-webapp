@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth';
 import { api, UPLOADS_URL } from '@/lib/api';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
 import { ProfileSkeleton, GridSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -40,18 +42,22 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-4xl py-8 px-4 pb-20">
       <div className="flex items-center gap-6 mb-8">
-        <div className="h-20 w-20 shrink-0 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
-          {user.username[0].toUpperCase()}
-        </div>
+        <Avatar
+            src={user.avatarUrl ? `${UPLOADS_URL}${user.avatarUrl}` : undefined}
+            alt={user.username}
+            size="xl"
+            fallback={user.username[0]?.toUpperCase()}
+          />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-bold">{user.username}</h1>
-            <button
+            <Button
               onClick={() => { logout(); window.location.href = '/login'; }}
-              className="rounded border border-border px-3 py-1 text-xs font-semibold"
+              variant="secondary"
+              size="sm"
             >
               Log out
-            </button>
+            </Button>
           </div>
           <div className="flex gap-6 mt-3 text-sm">
             <span><strong>{stats.postsCount}</strong> posts</span>

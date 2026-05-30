@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import { api, UPLOADS_URL } from '@/lib/api';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
 import { NotificationSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -60,9 +62,9 @@ export default function NotificationsPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold">Notifications</h1>
         {notifs.some((n) => !n.read) && (
-          <button onClick={markAllRead} className="text-sm text-primary font-semibold">
+          <Button onClick={markAllRead} variant="ghost" size="sm" className="text-primary">
             Mark all read
-          </button>
+          </Button>
         )}
       </div>
 
@@ -76,9 +78,12 @@ export default function NotificationsPage() {
               href={typeLink(n)}
               className={`flex items-center gap-3 rounded p-3 transition-colors ${n.read ? '' : 'bg-primary/5'} hover:bg-bg-secondary`}
             >
-              <div className="h-10 w-10 shrink-0 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold">
-                {n.actor.username[0].toUpperCase()}
-              </div>
+              <Avatar
+                src={n.actor.avatarUrl ? `${UPLOADS_URL}${n.actor.avatarUrl}` : undefined}
+                alt={n.actor.username}
+                size="md"
+                fallback={n.actor.username[0]?.toUpperCase()}
+              />
               <div className="flex-1 min-w-0">
                 <p className="text-sm">
                   <span className="font-semibold">{n.actor.username}</span>{' '}

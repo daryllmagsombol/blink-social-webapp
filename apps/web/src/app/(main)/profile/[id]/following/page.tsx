@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import { api, UPLOADS_URL } from '@/lib/api';
+import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -47,9 +48,12 @@ export default function FollowingPage() {
         <div className="space-y-3">
           {users.map((u) => (
             <Link key={u.id} href={`/profile/${u.id}`} className="flex items-center gap-3 rounded border border-border bg-bg p-3 hover:bg-bg-secondary">
-              <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold">
-                {u.username[0].toUpperCase()}
-              </div>
+              <Avatar
+                src={u.avatarUrl ? `${UPLOADS_URL}${u.avatarUrl}` : undefined}
+                alt={u.username}
+                size="md"
+                fallback={u.username[0]?.toUpperCase()}
+              />
               <div>
                 <p className="text-sm font-semibold">{u.username}</p>
                 {u.displayName && <p className="text-xs text-text-secondary">{u.displayName}</p>}

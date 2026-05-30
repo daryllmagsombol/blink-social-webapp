@@ -5,6 +5,9 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth';
 import { useTheme } from '@/components/ui/ThemeProvider';
+import { UPLOADS_URL } from '@/lib/api';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { Home, Search, PlusSquare, Heart, User, LogOut, MessageCircle, Hash, Bookmark, Sun, Moon } from 'lucide-react';
 
@@ -79,31 +82,35 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
         <div className="mt-auto pt-8 border-t border-border">
           <Link href={user ? `/profile/${user.id}` : '/profile'} className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-bg-secondary transition-colors">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-brand-dark text-xs font-bold text-white">
-              {user?.username?.[0]?.toUpperCase() || '?'}
-            </div>
+            <Avatar
+              src={user?.avatarUrl ? `${UPLOADS_URL}${user.avatarUrl}` : undefined}
+              alt={user?.username || '?'}
+              size="sm"
+              fallback={user?.username?.[0]?.toUpperCase() || '?'}
+            />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{user?.username}</p>
               <p className="text-xs text-text-secondary truncate">{user?.displayName || user?.email}</p>
             </div>
           </Link>
-          <button
+          <Button
             onClick={toggleTheme}
-            className="mt-2 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-text-secondary hover:bg-bg-secondary transition-colors"
+            variant="ghost"
+            size="md"
+            icon={theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            className="mt-2 w-full justify-start gap-3 px-3 py-2.5 text-sm text-text-secondary"
           >
-            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             {theme === 'dark' ? 'Light mode' : 'Dark mode'}
-          </button>
-          <button
-            onClick={() => {
-              logout();
-              router.push('/login');
-            }}
-            className="mt-2 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-text-secondary hover:bg-bg-secondary transition-colors"
+          </Button>
+          <Button
+            onClick={() => { logout(); router.push('/login'); }}
+            variant="ghost"
+            size="md"
+            icon={<LogOut className="h-5 w-5" />}
+            className="mt-2 w-full justify-start gap-3 px-3 py-2.5 text-sm text-text-secondary"
           >
-            <LogOut className="h-5 w-5" />
             Log out
-          </button>
+          </Button>
         </div>
       </aside>
 
@@ -125,13 +132,15 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             </Link>
           );
         })}
-        <button
+        <Button
           onClick={toggleTheme}
-          className="flex flex-col items-center gap-0.5 px-3 py-1 text-text-secondary"
+          variant="ghost"
+          size="sm"
+          icon={theme === 'dark' ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
+          className="flex-col gap-0.5 px-3 py-1 text-text-secondary h-auto"
         >
-          {theme === 'dark' ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
           <span className="text-[10px]">{theme === 'dark' ? 'Light' : 'Dark'}</span>
-        </button>
+        </Button>
       </nav>
     </div>
   );

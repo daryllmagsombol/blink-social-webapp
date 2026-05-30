@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import { api, UPLOADS_URL } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
+import { Avatar } from '@/components/ui/Avatar';
 import { MessageSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -51,9 +52,12 @@ export default function MessagesPage() {
               href={`/messages/${c.user.id}`}
               className="flex items-center gap-3 rounded p-3 hover:bg-bg-secondary transition-colors"
             >
-              <div className="h-12 w-12 shrink-0 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold">
-                {c.user.username[0].toUpperCase()}
-              </div>
+              <Avatar
+                src={c.user.avatarUrl ? `${UPLOADS_URL}${c.user.avatarUrl}` : undefined}
+                alt={c.user.username}
+                size="md"
+                fallback={c.user.username[0]?.toUpperCase()}
+              />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold">{c.user.username}</p>
                 <p className="text-xs text-text-secondary truncate">{c.lastMessage.content}</p>
