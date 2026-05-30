@@ -9,6 +9,7 @@ import { StoryCreator } from '@/components/story/StoryCreator';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Tooltip } from '@/components/ui/Tooltip';
 import { Bookmark, Plus } from 'lucide-react';
 import { PostSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -269,13 +270,17 @@ export default function FeedPage() {
                 </Link>
                 <div className="p-4">
                   <div className="mb-2 flex items-center gap-4">
+                    <Tooltip content={likedPosts.has(post.id) ? 'Unlike' : 'Like'}>
                     <button onClick={() => toggleLike(post.id)} className="text-xl transition-colors">
                       {likedPosts.has(post.id) ? <span className="text-danger">♥</span> : <span className="text-text">♡</span>}
                     </button>
+                    </Tooltip>
                     <Link href={`/posts/${post.id}`} className="text-xl text-text">💬</Link>
+                    <Tooltip content={savedPosts.has(post.id) ? 'Saved' : 'Save'}>
                     <button onClick={() => toggleSave(post.id)} className="ml-auto transition-colors">
                       <Bookmark className={`h-5 w-5 ${savedPosts.has(post.id) ? 'fill-primary text-primary' : 'text-text'}`} />
                     </button>
+                    </Tooltip>
                   </div>
                   <p className="text-sm font-semibold">{post._count.likes} likes</p>
                   {post.caption && (

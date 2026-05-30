@@ -8,6 +8,7 @@ import { useAuth } from '@/stores/auth';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Toggle } from '@/components/ui/Toggle';
 import { ProfileSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from '@/components/ui/Toast';
@@ -187,16 +188,12 @@ export default function UserProfilePage() {
           {profile.bio && <p className="text-sm mt-1">{profile.bio}</p>}
           {isOwn && (
             <div className="mt-4 pt-4 border-t border-border space-y-3">
-              <Button
-                onClick={togglePrivacy}
+              <Toggle
+                checked={!isPrivate}
+                onChange={togglePrivacy}
                 disabled={togglingPrivacy}
-                variant="ghost"
-                size="sm"
-                icon={isPrivate ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
-                className="text-text-secondary"
-              >
-                {togglingPrivacy ? 'Updating...' : isPrivate ? 'Private account (switch to public)' : 'Public account (switch to private)'}
-              </Button>
+                label={isPrivate ? 'Private account' : 'Public account'}
+              />
               {confirmDelete ? (
                 <div className="space-y-2">
                   <p className="text-sm text-danger font-semibold">Delete your account and all data?</p>

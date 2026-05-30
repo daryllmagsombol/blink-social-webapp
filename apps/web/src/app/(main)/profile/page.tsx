@@ -6,6 +6,7 @@ import { useAuth } from '@/stores/auth';
 import { api, UPLOADS_URL } from '@/lib/api';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { Tabs } from '@/components/ui/Tabs';
 import { ProfileSkeleton, GridSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -18,11 +19,15 @@ interface Post {
 export default function ProfilePage() {
   const { user, logout } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [stats, setStats] = useState({ followersCount: 0, followingCount: 0, postsCount: 0 });
+  const [tab, setTab] = useState('posts');
   const [loading, setLoading] = useState(true);
+  const [savedLoading, setSavedLoading] = useState(false);
 
   useEffect(() => {
     if (!user) return;
+    setLoading(true);
     Promise.all([
       api.get<{ data: Post[]; total: number }>(`/users/${user.id}/posts?limit=12`),
       api.get<{ followersCount: number; followingCount: number; postsCount: number }>(`/users/${user.id}`),
@@ -35,9 +40,31 @@ export default function ProfilePage() {
       .finally(() => setLoading(false));
   }, [user]);
 
+  const loadSaved = async () => {
+    setSavedLoading(true);
+    try {
+      const res = await api.get<{ data: Post[] }>('/bookmarks?limit=12');
+      setSavedPosts(res.data);
+    } catch {}
+    setSavedLoading(false);
+  };
+
+  const handleTabChange = (value: string) => {
+    setTab(value);
+    if (value === 'saved' && savedPosts.length === 0 && !savedLoading) {
+      loadSaved();
+    }
+  };
+
   if (loading || !user) {
     return <ProfileSkeleton />;
   }
+
+  const currentPosts = tab === 'posts' ? posts : savedPosts;
+  const currentLoading = tab === 'posts' ? false : savedLoading;
+  const emptyIcon = tab === 'posts' ? '📷' : '🔖';
+  const emptyTitle = tab === 'posts' ? 'No posts yet' : 'No saved posts';
+  const emptyAction = tab === 'posts' ? { label: 'Create your first post', href: '/create' as const } : undefined;
 
   return (
     <div className="mx-auto max-w-4xl py-8 px-4 pb-20">
@@ -69,11 +96,25 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {posts.length === 0 ? (
-        <EmptyState icon="📷" title="No posts yet" action={{ label: 'Create your first post', href: '/create' }} />
+      <div className="mb-6">
+        <Tabs
+          tabs={[
+            { label: `Posts (${stats.postsCount})`, value: 'posts' },
+            { label: `Saved (${savedPosts.length})`, value: 'saved' },
+          ]}
+          value={tab}
+          onChange={handleTabChange}
+          variant="underline"
+        />
+      </div>
+
+      {currentLoading ? (
+        <GridSkeleton />
+      ) : currentPosts.length === 0 ? (
+        <EmptyState icon={emptyIcon} title={emptyTitle} action={emptyAction} />
       ) : (
         <div className="grid grid-cols-3 gap-1">
-          {posts.map((post) => (
+          {currentPosts.map((post) => (
             <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden">
               <div
                 className="absolute inset-0 bg-cover bg-center"

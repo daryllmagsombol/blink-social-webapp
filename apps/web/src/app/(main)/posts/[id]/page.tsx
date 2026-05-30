@@ -7,8 +7,11 @@ import { api, UPLOADS_URL } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { DropdownMenu, DropdownItem } from '@/components/ui/DropdownMenu';
 import { Textarea } from '@/components/ui/Textarea';
-import { Bookmark } from 'lucide-react';
+import { Tooltip } from '@/components/ui/Tooltip';
+import { Bookmark, MoreVertical } from 'lucide-react';
 import { Skeleton, PostSkeleton } from '@/components/ui/Skeleton';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { toast } from '@/components/ui/Toast';
@@ -170,7 +173,7 @@ export default function PostDetailPage() {
 
   return (
     <div className="mx-auto max-w-2xl py-8 px-4 pb-20">
-      <div className="rounded border border-border bg-bg overflow-hidden">
+      <Card className="overflow-hidden">
         <div className="flex items-center justify-between p-4">
           <Link href={`/profile/${post.user.id}`} className="flex items-center gap-3">
             <Avatar
@@ -181,26 +184,28 @@ export default function PostDetailPage() {
               />
             <span className="text-sm font-semibold">{post.user.username}</span>
           </Link>
-          {currentUser?.id === post.userId ? (
-            <Button onClick={deletePost} variant="ghost" size="sm" className="text-danger hover:text-danger/80">
-              Delete
-            </Button>
-          ) : currentUser && (
-            <Button
-              onClick={() => {
-                const reason = prompt('Reason for reporting this post:');
-                if (reason && reason.trim()) {
-                  api.post('/reports', { reason: reason.trim(), postId: id })
-                    .then(() => toast('Report submitted', 'success'))
-                    .catch(() => toast('Failed to submit report', 'error'));
-                }
-              }}
-              variant="ghost"
-              size="sm"
-              className="text-text-secondary hover:text-danger"
+          {(currentUser?.id === post.userId || currentUser) && (
+            <DropdownMenu
+              trigger={
+                <Button variant="ghost" size="sm" icon={<MoreVertical className="h-4 w-4" />} />
+              }
+              align="right"
             >
-              Report
-            </Button>
+              {currentUser?.id === post.userId ? (
+                <DropdownItem onClick={deletePost} danger>Delete</DropdownItem>
+              ) : (
+                <DropdownItem onClick={() => {
+                  const reason = prompt('Reason for reporting this post:');
+                  if (reason && reason.trim()) {
+                    api.post('/reports', { reason: reason.trim(), postId: id })
+                      .then(() => toast('Report submitted', 'success'))
+                      .catch(() => toast('Failed to submit report', 'error'));
+                  }
+                }}>
+                  Report
+                </DropdownItem>
+              )}
+            </DropdownMenu>
           )}
         </div>
 
@@ -211,12 +216,16 @@ export default function PostDetailPage() {
 
         <div className="p-4">
           <div className="flex items-center gap-4 mb-2">
+            <Tooltip content={liked ? 'Unlike' : 'Like'}>
             <button onClick={toggleLike} className="text-2xl transition-colors">
               {liked ? <span className="text-danger">♥</span> : <span>♡</span>}
             </button>
+            </Tooltip>
+            <Tooltip content={saved ? 'Saved' : 'Save'}>
             <button onClick={toggleSave} className="ml-auto transition-colors">
               <Bookmark className={`h-5 w-5 ${saved ? 'fill-primary text-primary' : 'text-text'}`} />
             </button>
+            </Tooltip>
           </div>
           <p className="text-sm font-semibold">{post._count.likes} likes</p>
           {editingCaption ? (
@@ -349,7 +358,7 @@ export default function PostDetailPage() {
             </form>
           )}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
