@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import { api, UPLOADS_URL } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
 import { Bookmark } from 'lucide-react';
 import { Skeleton, PostSkeleton } from '@/components/ui/Skeleton';
@@ -194,7 +194,7 @@ export default function PostDetailPage() {
 
         <div
           className="aspect-square bg-bg-secondary bg-cover bg-center"
-          style={{ backgroundImage: `url(http://localhost:4000${post.imageUrl})` }}
+          style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}
         />
 
         <div className="p-4">

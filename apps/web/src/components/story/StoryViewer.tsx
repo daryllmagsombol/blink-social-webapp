@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { api } from '@/lib/api';
+import { api, UPLOADS_URL } from '@/lib/api';
+import { Avatar } from '@/components/ui/Avatar';
 
 interface StoryUser {
   user: {
@@ -69,10 +70,10 @@ export function StoryViewer({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black" onClick={onClose}>
-      <div className="relative max-h-[90vh] max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
-        <div className="absolute top-0 left-0 right-0 z-10 p-2 flex gap-1">
+      <div className="relative w-full max-w-sm max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+        <div className="absolute left-0 right-0 top-0 z-10 flex gap-1 p-2">
           {current.stories.map((_, i) => (
-            <div key={i} className="flex-1 h-0.5 rounded-full bg-white/30 overflow-hidden">
+            <div key={i} className="h-0.5 flex-1 overflow-hidden rounded-full bg-white/30">
               <div
                 className={`h-full bg-white transition-all ${i === storyIdx ? 'animate-progress' : i < storyIdx ? 'w-full' : 'w-0'}`}
               />
@@ -80,21 +81,26 @@ export function StoryViewer({
           ))}
         </div>
 
-        <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-white/20" />
-          <span className="text-white text-sm font-semibold">{current.user.username}</span>
+        <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
+          <Avatar
+            src={current.user.avatarUrl ? `${UPLOADS_URL}${current.user.avatarUrl}` : undefined}
+            alt={current.user.username}
+            size="sm"
+            fallback={current.user.username[0]?.toUpperCase()}
+          />
+          <span className="text-sm font-semibold text-white">{current.user.username}</span>
         </div>
 
         <img
-          src={`http://localhost:4000${story.imageUrl}`}
+          src={`${UPLOADS_URL}${story.imageUrl}`}
           alt="story"
-          className="h-full w-full object-contain rounded"
+          className="h-full w-full rounded object-contain"
         />
 
-        <div className="absolute inset-y-0 left-0 w-1/3 z-10" onClick={goPrev} />
-        <div className="absolute inset-y-0 right-0 w-1/3 z-10" onClick={goNext} />
+        <div className="absolute inset-y-0 left-0 z-10 w-1/3" onClick={goPrev} />
+        <div className="absolute inset-y-0 right-0 z-10 w-1/3" onClick={goNext} />
 
-        <button onClick={onClose} className="absolute top-3 right-3 z-10 text-white text-2xl">✕</button>
+        <button onClick={onClose} className="absolute right-3 top-3 z-10 text-2xl text-white">✕</button>
       </div>
     </div>
   );

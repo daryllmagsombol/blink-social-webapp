@@ -3,9 +3,13 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth';
-import { api } from '@/lib/api';
+import { api, UPLOADS_URL } from '@/lib/api';
 import { StoryViewer } from '@/components/story/StoryViewer';
-import { Bookmark } from 'lucide-react';
+import { StoryCreator } from '@/components/story/StoryCreator';
+import { Avatar } from '@/components/ui/Avatar';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Bookmark, Plus } from 'lucide-react';
 import { PostSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from '@/components/ui/Toast';
@@ -36,6 +40,7 @@ export default function FeedPage() {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [storyUsers, setStoryUsers] = useState<StoryUser[]>([]);
   const [storyViewer, setStoryViewer] = useState<{ stories: StoryUser[]; index: number } | null>(null);
+  const [showCreator, setShowCreator] = useState(false);
   const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -86,10 +91,14 @@ export default function FeedPage() {
     }
   }, []);
 
+  const loadStories = useCallback(() => {
+    api.get<StoryUser[]>('/stories/following').then(setStoryUsers).catch(() => {});
+  }, []);
+
   useEffect(() => {
     loadFeed(1);
-    api.get<StoryUser[]>('/stories/following').then(setStoryUsers).catch(() => {});
-  }, [loadFeed]);
+    loadStories();
+  }, [loadFeed, loadStories]);
 
   useEffect(() => {
     if (page === 1) return;
@@ -148,7 +157,7 @@ export default function FeedPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-xl py-8 px-4 pb-20">
+      <div className="mx-auto max-w-xl px-4 py-8 pb-20">
         <div className="mb-6">
           <div className="h-7 w-16 animate-pulse rounded bg-bg-secondary" />
         </div>
@@ -161,8 +170,10 @@ export default function FeedPage() {
     );
   }
 
+  const hasOwnStory = user && storyUsers.some((su) => su.user.id === user.id);
+
   return (
-    <div className="mx-auto max-w-xl py-8 px-4 pb-20">
+    <div className="mx-auto max-w-xl px-4 py-8 pb-20">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">Feed</h1>
@@ -170,28 +181,74 @@ export default function FeedPage() {
         </div>
       </div>
 
-      {storyUsers.length > 0 && (
-        <div className="mb-4 flex gap-3 overflow-x-auto pb-2">
-          {storyUsers.map((su, i) => (
+      <div className="mb-4 flex gap-3 overflow-x-auto pb-2">
+        {user && (
+          <button
+            onClick={() => {
+              if (hasOwnStory) {
+                const idx = storyUsers.findIndex((su) => su.user.id === user.id);
+                setStoryViewer({ stories: storyUsers, index: idx });
+              } else {
+                setShowCreator(true);
+              }
+            }}
+            className="flex shrink-0 flex-col items-center gap-1"
+          >
+            <div className="relative">
+              <Avatar
+                src={user.avatarUrl ? `${UPLOADS_URL}${user.avatarUrl}` : undefined}
+                alt={user.username}
+                size="lg"
+                fallback={user.username[0]?.toUpperCase()}
+              />
+              {!hasOwnStory && (
+                <div className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white shadow">
+                  <Plus className="h-3 w-3" />
+                </div>
+              )}
+            </div>
+            <span className="w-16 truncate text-center text-xs text-text-secondary">
+              {hasOwnStory ? 'Your story' : 'Add story'}
+            </span>
+          </button>
+        )}
+        {storyUsers.map((su, i) => {
+          if (user && su.user.id === user.id) return null;
+          return (
             <button
               key={su.user.id}
               onClick={() => setStoryViewer({ stories: storyUsers, index: i })}
-              className="flex flex-col items-center gap-1 shrink-0"
+              className="flex shrink-0 flex-col items-center gap-1"
             >
-              <div className={`h-16 w-16 rounded-full p-0.5 ${su.stories.some((s) => !s.viewed) ? 'bg-gradient-to-br from-primary to-brand' : 'bg-border'}`}>
-                <div className="h-full w-full rounded-full bg-bg-secondary" />
+              <div className={`rounded-full p-0.5 ${su.stories.some((s) => !s.viewed) ? 'bg-gradient-to-br from-primary to-brand' : 'bg-border'}`}>
+                <Avatar
+                  src={su.user.avatarUrl ? `${UPLOADS_URL}${su.user.avatarUrl}` : undefined}
+                  alt={su.user.username}
+                  size="lg"
+                  fallback={su.user.username[0]?.toUpperCase()}
+                />
               </div>
-              <span className="text-xs text-text-secondary truncate w-16 text-center">{su.user.username}</span>
+              <span className="w-16 truncate text-center text-xs text-text-secondary">{su.user.username}</span>
             </button>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
 
       {storyViewer && (
         <StoryViewer
           stories={storyViewer.stories}
           initialIndex={storyViewer.index}
           onClose={() => setStoryViewer(null)}
+        />
+      )}
+
+      {showCreator && (
+        <StoryCreator
+          onClose={() => setShowCreator(false)}
+          onCreated={() => {
+            setShowCreator(false);
+            loadStories();
+          }}
         />
       )}
 
@@ -206,10 +263,15 @@ export default function FeedPage() {
         <>
           <div className="space-y-6">
             {posts.map((post) => (
-              <div key={post.id} className="rounded border border-border bg-bg">
+              <Card key={post.id}>
                 <div className="flex items-center gap-3 p-4">
                   <Link href={`/profile/${post.user.id}`}>
-                    <div className="h-8 w-8 rounded-full bg-primary/20" />
+                    <Avatar
+                      src={post.user.avatarUrl ? `${UPLOADS_URL}${post.user.avatarUrl}` : undefined}
+                      alt={post.user.username}
+                      size="sm"
+                      fallback={post.user.username[0]?.toUpperCase()}
+                    />
                   </Link>
                   <Link href={`/profile/${post.user.id}`} className="text-sm font-semibold hover:underline">
                     {post.user.username}
@@ -218,11 +280,11 @@ export default function FeedPage() {
                 <Link href={`/posts/${post.id}`}>
                   <div
                     className="aspect-square bg-bg-secondary bg-cover bg-center"
-                    style={{ backgroundImage: `url(http://localhost:4000${post.imageUrl})` }}
+                    style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}
                   />
                 </Link>
                 <div className="p-4">
-                  <div className="flex items-center gap-4 mb-2">
+                  <div className="mb-2 flex items-center gap-4">
                     <button onClick={() => toggleLike(post.id)} className="text-xl transition-colors">
                       {likedPosts.has(post.id) ? <span className="text-danger">♥</span> : <span className="text-text">♡</span>}
                     </button>
@@ -233,24 +295,24 @@ export default function FeedPage() {
                   </div>
                   <p className="text-sm font-semibold">{post._count.likes} likes</p>
                   {post.caption && (
-                    <p className="text-sm mt-1">
+                    <p className="mt-1 text-sm">
                       <Link href={`/profile/${post.user.id}`} className="font-semibold hover:underline">
                         {post.user.username}
                       </Link>{' '}
                       {linkifyCaption(post.caption)}
                     </p>
                   )}
-                  <Link href={`/posts/${post.id}`} className="text-xs text-text-secondary mt-1 block">
+                  <Link href={`/posts/${post.id}`} className="mt-1 block text-xs text-text-secondary">
                     View all {post._count.comments} comments
                   </Link>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
 
           <div ref={sentinelRef} className="h-4" />
           {loadingMore && (
-            <div className="space-y-6 mt-6">
+            <div className="mt-6 space-y-6">
               <PostSkeleton />
             </div>
           )}

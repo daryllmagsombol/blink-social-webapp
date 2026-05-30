@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import { api, UPLOADS_URL } from '@/lib/api';
 import { GridSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -53,7 +53,7 @@ export default function TagPage() {
             <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden">
               <div
                 className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(http://localhost:4000${post.imageUrl})` }}
+                style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
                 <span className="text-white text-sm font-semibold">♥ {post._count.likes}</span>

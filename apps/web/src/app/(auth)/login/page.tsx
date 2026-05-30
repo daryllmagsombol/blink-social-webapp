@@ -4,6 +4,7 @@ import { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth';
+import { API_URL } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
@@ -86,7 +87,7 @@ export default function LoginPage() {
 
           <div className="space-y-2">
             <a
-              href="http://localhost:4000/api/auth/google"
+              href={`${API_URL}/api/auth/google`}
               className="flex w-full items-center justify-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:bg-bg-secondary transition-colors"
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24">
@@ -110,7 +111,7 @@ export default function LoginPage() {
               Continue with Google
             </a>
             <a
-              href="http://localhost:4000/api/auth/github"
+              href={`${API_URL}/api/auth/github`}
               className="flex w-full items-center justify-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:bg-bg-secondary transition-colors"
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
