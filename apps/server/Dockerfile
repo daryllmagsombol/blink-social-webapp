@@ -13,6 +13,8 @@ RUN --mount=type=cache,target=/pnpm/store \
 
 FROM deps AS build
 COPY . .
+RUN --mount=type=cache,target=/pnpm/store \
+    pnpm install --frozen-lockfile --store-dir=/pnpm/store
 RUN pnpm build
 
 FROM base AS runner
