@@ -1,0 +1,9 @@
+.git
+node_modules
+dist
+.next
+coverage
+.env
+.env.*
+.blink-build.log
+.blink-build.exit

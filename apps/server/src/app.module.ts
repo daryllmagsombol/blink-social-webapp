@@ -24,8 +24,9 @@ import { OAuthModule } from './oauth/oauth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: join(cwd(), '.env') }),
+    // Keep uploads on a configurable path so the VM can mount a persistent volume.
     ServeStaticModule.forRoot({
-      rootPath: join(cwd(), 'uploads'),
+      rootPath: join(cwd(), process.env.UPLOADS_DIR ?? 'uploads'),
       serveRoot: '/uploads',
       serveStaticOptions: { index: false },
     }),

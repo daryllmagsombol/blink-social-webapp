@@ -10,15 +10,22 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     config: ConfigService,
     private prisma: PrismaService,
   ) {
+    const appUrl = config.getOrThrow<string>('APP_URL').replace(/\/$/, '');
+
     super({
       clientID: config.getOrThrow<string>('GITHUB_CLIENT_ID'),
       clientSecret: config.getOrThrow<string>('GITHUB_CLIENT_SECRET'),
-      callbackURL: 'http://localhost:4000/api/auth/github/callback',
+      callbackURL: `${appUrl}/api/auth/github/callback`,
       scope: ['user:email'],
     });
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: Profile, done: (error?: any, user?: any) => void) {
+  async validate(
+    accessToken: string,
+    refreshToken: string,
+    profile: Profile,
+    done: (error?: any, user?: any) => void,
+  ) {
     const email = profile.emails?.[0]?.value || profile.username;
     if (!email) return done(new Error('No email from GitHub'), undefined);
 
