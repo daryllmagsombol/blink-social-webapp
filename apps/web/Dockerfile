@@ -9,7 +9,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/server/package.json apps/web/package.json ./apps/
 COPY packages/database/package.json packages/shared/package.json ./packages/
 RUN --mount=type=cache,target=/pnpm/store \
-    pnpm install --frozen-lockfile --config.workspace-concurrency=1
+    pnpm install --frozen-lockfile --store-dir=/pnpm/store --config.workspace-concurrency=3
 
 FROM deps AS build
 ARG NEXT_PUBLIC_API_URL=http://localhost:4000
