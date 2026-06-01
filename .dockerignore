@@ -7,3 +7,8 @@ coverage
 .env.*
 .blink-build.log
 .blink-build.exit
+**/.turbo
+.github/
+deploy/
+images/
+uploads/

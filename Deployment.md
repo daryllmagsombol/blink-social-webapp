@@ -21,8 +21,10 @@ Target: one Azure Linux VM running both apps with Docker Compose, PostgreSQL in 
 ## VM Runbook
 
 1. Provision Ubuntu LTS VM in Azure.
+   - **Minimum SKU**: `Standard_B2s` (2 vCPU, 4 GB RAM).
+   - `B1s` (1 GB RAM) is insufficient — `pnpm install` will exhaust memory and hang.
 2. Open NSG for `22` from your IP only, `80` and `443` from Internet.
-3. Install Docker.
+3. Install Docker (v24+ with BuildKit — required for cache mounts).
 4. Install Docker Compose plugin, git, and nginx tooling.
 5. Create `.env` or `.env.prod` from `deploy/azure-vm/.env.example`.
 6. Start PostgreSQL first, then run Prisma migrations.
@@ -30,6 +32,14 @@ Target: one Azure Linux VM running both apps with Docker Compose, PostgreSQL in 
 8. Put nginx in front and verify both domains.
 9. Set Cloudflare SSL mode to `Full (strict)`.
 10. Check logs with `docker compose logs -f`.
+
+### Troubleshooting
+
+**Build hangs during `pnpm install`**
+- Verify VM memory: `free -h` (need ≥ 4 GB total).
+- Ensure Docker BuildKit is enabled: `docker buildx ls` should show a default builder.
+- The Dockerfiles use `--mount=type=cache,target=/pnpm/store` so the pnpm store is cached on disk across rebuilds. The first build will be slow; subsequent builds will be much faster (cache hits → `reused` > 0).
+- If the VM is still struggling, lower concurrency further by editing the Dockerfiles: change `--config.workspace-concurrency=1` to `--config.workspace-concurrency=1 --config.network-concurrency=2`.
 
 ## GitHub Trigger
 
