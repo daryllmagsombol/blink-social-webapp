@@ -1,21 +1,43 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api, UPLOADS_URL } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { DropdownMenu, DropdownItem } from '@/components/ui/DropdownMenu';
 import { Textarea } from '@/components/ui/Textarea';
-import { Tooltip } from '@/components/ui/Tooltip';
-import { Heart, Bookmark, MoreVertical } from 'lucide-react';
-import { Skeleton, PostSkeleton } from '@/components/ui/Skeleton';
+import { PostSkeleton } from '@/components/ui/Skeleton';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { toast } from '@/components/ui/Toast';
 import { linkifyCaption } from '@/lib/linkify';
+
+function MatIcon({ icon, filled = false, className = '' }: { icon: string; filled?: boolean; className?: string }) {
+  return (
+    <span
+      className={`material-symbols-outlined text-[22px] ${className}`}
+      style={{ fontVariationSettings: `'FILL' ${filled ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24` }}
+    >
+      {icon}
+    </span>
+  );
+}
+
+function timeAgo(dateStr: string): string {
+  const now = Date.now();
+  const date = new Date(dateStr).getTime();
+  const seconds = Math.floor((now - date) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(dateStr).toLocaleDateString();
+}
 
 interface Post {
   id: string;
@@ -51,6 +73,10 @@ export default function PostDetailPage() {
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editCommentContent, setEditCommentContent] = useState('');
   const [animatingHeart, setAnimatingHeart] = useState(false);
+  const [showFloatingHeart, setShowFloatingHeart] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const lastTapRef = useRef<number>(0);
 
   useEffect(() => {
     setLoading(true);
@@ -87,15 +113,31 @@ export default function PostDetailPage() {
     } catch {}
   };
 
+  // Double-tap to like on image
+  const handleImageClick = () => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      // Double tap
+      if (!liked) {
+        toggleLike();
+      }
+      setShowFloatingHeart(true);
+      setTimeout(() => setShowFloatingHeart(false), 800);
+    }
+    lastTapRef.current = now;
+  };
+
   const addComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
+    setSubmitting(true);
     try {
       const comment = await api.post<Comment>(`/posts/${id}/comments`, { content: newComment });
       setComments((prev) => [comment, ...prev]);
       setNewComment('');
       setPost((p) => p ? { ...p, _count: { ...p._count, comments: p._count.comments + 1 } } : p);
     } catch {}
+    setSubmitting(false);
   };
 
   const deletePost = async () => {
@@ -175,193 +217,317 @@ export default function PostDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl py-8 px-4 pb-20 animate-fade-in">
-      <Card className="overflow-hidden">
-        <div className="flex items-center justify-between p-4">
-          <Link href={`/profile/${post.user.id}`} className="flex items-center gap-3">
-            <Avatar
-                src={post.user.avatarUrl ? `${UPLOADS_URL}${post.user.avatarUrl}` : undefined}
-                alt={post.user.username}
-                size="sm"
-                fallback={post.user.username[0]?.toUpperCase()}
-              />
-            <span className="text-sm font-semibold">{post.user.username}</span>
-          </Link>
-          {(currentUser?.id === post.userId || currentUser) && (
-            <DropdownMenu
-              trigger={
-                <Button variant="ghost" size="sm" icon={<MoreVertical className="h-4 w-4" />} />
-              }
-              align="right"
-            >
-              {currentUser?.id === post.userId ? (
-                <DropdownItem onClick={deletePost} danger>Delete</DropdownItem>
-              ) : (
-                <DropdownItem onClick={() => {
-                  const reason = prompt('Reason for reporting this post:');
-                  if (reason && reason.trim()) {
-                    api.post('/reports', { reason: reason.trim(), postId: id })
-                      .then(() => toast('Report submitted', 'success'))
-                      .catch(() => toast('Failed to submit report', 'error'));
-                  }
-                }}>
-                  Report
-                </DropdownItem>
-              )}
-            </DropdownMenu>
-          )}
-        </div>
-
+    <div className="mx-auto max-w-[935px] py-8 px-4 pb-20 animate-fade-in">
+      {/* Desktop: Side-by-side layout */}
+      <div className="flex flex-col md:flex-row rounded-xl border border-border bg-bg overflow-hidden">
+        {/* Image Section */}
         <div
-          className="aspect-square bg-bg-secondary bg-cover bg-center"
-          style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}
-        />
-
-        <div className="p-4">
-          <div className="flex items-center gap-4 mb-2">
-            <Tooltip content={liked ? 'Unlike' : 'Like'}>
-            <button onClick={toggleLike} className="transition-colors">
-              <Heart className={`h-5 w-5 ${animatingHeart ? 'animate-heart-beat' : ''} ${liked ? 'fill-accent text-accent' : 'text-text'}`} />
-            </button>
-            </Tooltip>
-            <Tooltip content={saved ? 'Saved' : 'Save'}>
-            <button onClick={toggleSave} className="ml-auto transition-colors">
-              <Bookmark className={`h-5 w-5 ${saved ? 'fill-primary text-primary' : 'text-text'}`} />
-            </button>
-            </Tooltip>
-          </div>
-          <p className="text-sm font-semibold">{post._count.likes} likes</p>
-          {editingCaption ? (
-            <div className="mt-2 space-y-2">
-              <Textarea
-                value={editCaptionText}
-                onChange={(e) => setEditCaptionText(e.target.value)}
-                maxLength={2200}
-                rows={3}
-              />
-              <div className="flex gap-2">
-                <Button
-                  onClick={saveCaption}
-                  disabled={savingCaption || !editCaptionText.trim()}
-                  size="sm"
-                  loading={savingCaption}
-                >
-                  {savingCaption ? 'Saving...' : 'Save'}
-                </Button>
-                <Button
-                  onClick={() => { setEditingCaption(false); setEditCaptionText(post.caption || ''); }}
-                  variant="secondary"
-                  size="sm"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (post.caption || currentUser?.id === post.userId) && (
-            <div className="flex items-start gap-2 mt-1">
-              <p className="text-sm flex-1">
-                <Link href={`/profile/${post.user.id}`} className="font-semibold hover:underline">
-                  {post.user.username}
-                </Link>{' '}
-                {linkifyCaption(post.caption || '')}
-              </p>
-              {currentUser?.id === post.userId && (
-                <Button
-                  onClick={() => { setEditingCaption(true); setEditCaptionText(post.caption || ''); }}
-                  variant="ghost"
-                  size="sm"
-                  className="shrink-0 mt-0.5"
-                >
-                  {post.caption ? 'Edit' : 'Add caption'}
-                </Button>
-              )}
+          ref={imageRef}
+          className="relative md:flex-1 bg-black flex items-center justify-center cursor-pointer select-none"
+          onClick={handleImageClick}
+        >
+          <div
+            className="w-full aspect-square md:aspect-auto md:h-full min-h-[400px] bg-cover bg-center"
+            style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}
+          />
+          {/* Floating heart on double-tap */}
+          {showFloatingHeart && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <span
+                className="material-symbols-outlined text-white animate-heart-beat"
+                style={{
+                  fontSize: '100px',
+                  fontVariationSettings: `'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48`,
+                  filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))',
+                }}
+              >
+                favorite
+              </span>
             </div>
           )}
         </div>
 
-        <div className="border-t border-border">
-          <div className="max-h-64 overflow-y-auto p-4 space-y-3">
-              {comments.length === 0 ? (
-              <p className="text-sm text-text-secondary">No comments yet.</p>
-            ) : (
-              comments.map((c) => (
-                <div key={c.id} className="text-sm">
-                  {editingCommentId === c.id ? (
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Link href={`/profile/${c.user.id}`} className="font-semibold hover:underline shrink-0">
-                          {c.user.username}
-                        </Link>
-                        <input
-                          type="text"
-                          value={editCommentContent}
-                          onChange={(e) => setEditCommentContent(e.target.value)}
-                          maxLength={500}
-                          className="flex-1 border-0 p-0 text-sm outline-none"
-                          autoFocus
-                        />
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => saveComment(c.id)}
-                          disabled={!editCommentContent.trim()}
-                          variant="ghost"
-                          size="sm"
-                          className="text-primary"
-                        >
-                          Save
-                        </Button>
-                        <Button onClick={cancelEditComment} variant="ghost" size="sm">
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-start gap-2">
-                      <Link href={`/profile/${c.user.id}`} className="font-semibold hover:underline shrink-0">
-                        {c.user.username}
-                      </Link>
-                      <span className="flex-1">{c.content}</span>
-                      {currentUser?.id === c.user.id && (
-                        <Button
-                          onClick={() => startEditComment(c.id, c.content)}
-                          variant="ghost"
-                          size="sm"
-                          className="shrink-0"
-                        >
-                          Edit
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))
+        {/* Right Sidebar: Comments & Interactions */}
+        <div className="md:w-[400px] flex flex-col">
+          {/* Post Author Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <div className="flex items-center gap-3">
+              <Link href={`/profile/${post.user.id}`}>
+                <Avatar
+                  src={post.user.avatarUrl ? `${UPLOADS_URL}${post.user.avatarUrl}` : undefined}
+                  alt={post.user.username}
+                  size="sm"
+                  fallback={post.user.username[0]?.toUpperCase()}
+                />
+              </Link>
+              <Link
+                href={`/profile/${post.user.id}`}
+                className="text-[13px] font-semibold text-text hover:underline"
+              >
+                {post.user.username}
+              </Link>
+            </div>
+            {(currentUser?.id === post.userId || currentUser) && (
+              <DropdownMenu
+                trigger={
+                  <button className="text-text-secondary hover:text-text transition-colors">
+                    <MatIcon icon="more_horiz" />
+                  </button>
+                }
+                align="right"
+              >
+                {currentUser?.id === post.userId ? (
+                  <DropdownItem onClick={deletePost} danger>Delete</DropdownItem>
+                ) : (
+                  <DropdownItem onClick={() => {
+                    const reason = prompt('Reason for reporting this post:');
+                    if (reason && reason.trim()) {
+                      api.post('/reports', { reason: reason.trim(), postId: id })
+                        .then(() => toast('Report submitted', 'success'))
+                        .catch(() => toast('Failed to submit report', 'error'));
+                    }
+                  }}>
+                    Report
+                  </DropdownItem>
+                )}
+              </DropdownMenu>
             )}
           </div>
 
+          {/* Comments Area */}
+          <div className="flex-1 overflow-y-auto max-h-[320px] md:max-h-[420px]">
+            {/* Caption as first "comment" */}
+            <div className="px-4 pt-3 pb-2 flex gap-3">
+              <Link href={`/profile/${post.user.id}`} className="shrink-0">
+                <Avatar
+                  src={post.user.avatarUrl ? `${UPLOADS_URL}${post.user.avatarUrl}` : undefined}
+                  alt={post.user.username}
+                  size="sm"
+                  fallback={post.user.username[0]?.toUpperCase()}
+                />
+              </Link>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] leading-[18px]">
+                  <Link
+                    href={`/profile/${post.user.id}`}
+                    className="font-semibold text-text hover:underline"
+                  >
+                    {post.user.username}
+                  </Link>{' '}
+                  <span className="text-text">{linkifyCaption(post.caption || '')}</span>
+                </p>
+                {post.caption && (
+                  <p className="text-[10px] text-text-secondary uppercase tracking-wide mt-1">
+                    {timeAgo(post.createdAt)}
+                  </p>
+                )}
+              </div>
+              {currentUser?.id === post.userId && (
+                <button
+                  onClick={() => { setEditingCaption(true); setEditCaptionText(post.caption || ''); }}
+                  className="text-text-secondary hover:text-text transition-colors shrink-0 self-start"
+                >
+                  <MatIcon icon="edit" className="text-[16px]" />
+                </button>
+              )}
+            </div>
+
+            {/* Edit Caption */}
+            {editingCaption && (
+              <div className="px-4 pb-3 space-y-2">
+                <Textarea
+                  value={editCaptionText}
+                  onChange={(e) => setEditCaptionText(e.target.value)}
+                  maxLength={2200}
+                  rows={3}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    onClick={saveCaption}
+                    disabled={savingCaption || !editCaptionText.trim()}
+                    size="sm"
+                    loading={savingCaption}
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    onClick={() => { setEditingCaption(false); setEditCaptionText(post.caption || ''); }}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Comments */}
+            <div className="px-4 pb-3 space-y-3">
+              {comments.length === 0 ? (
+                <p className="text-[13px] text-text-secondary py-3">No comments yet. Add one below!</p>
+              ) : (
+                comments.map((c) => (
+                  <div key={c.id} className="flex gap-3">
+                    <Link href={`/profile/${c.user.id}`} className="shrink-0 mt-0.5">
+                      <Avatar
+                        src={c.user.avatarUrl ? `${UPLOADS_URL}${c.user.avatarUrl}` : undefined}
+                        alt={c.user.username}
+                        size="xs"
+                        fallback={c.user.username[0]?.toUpperCase()}
+                      />
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      {editingCommentId === c.id ? (
+                        <div className="space-y-1">
+                          <input
+                            type="text"
+                            value={editCommentContent}
+                            onChange={(e) => setEditCommentContent(e.target.value)}
+                            maxLength={500}
+                            className="w-full border border-border rounded-lg px-3 py-1.5 text-[13px] outline-none"
+                            autoFocus
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => saveComment(c.id)}
+                              disabled={!editCommentContent.trim()}
+                              className="text-[12px] font-semibold text-primary disabled:opacity-40"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={cancelEditComment}
+                              className="text-[12px] font-semibold text-text-secondary"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-[13px] leading-[18px]">
+                            <Link
+                              href={`/profile/${c.user.id}`}
+                              className="font-semibold text-text hover:underline"
+                            >
+                              {c.user.username}
+                            </Link>{' '}
+                            <span className="text-text">{c.content}</span>
+                          </p>
+                          <div className="flex items-center gap-3 mt-0.5">
+                            <span className="text-[10px] text-text-secondary uppercase tracking-wide">
+                              {timeAgo(c.createdAt)}
+                            </span>
+                            {currentUser?.id === c.user.id && (
+                              <button
+                                onClick={() => startEditComment(c.id, c.content)}
+                                className="text-[10px] text-text-secondary hover:text-text"
+                              >
+                                Edit
+                              </button>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Actions Footer */}
+          <div className="border-t border-border px-4 py-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={toggleLike}
+                  className="transition-all duration-150 active:scale-125"
+                >
+                  <span
+                    className={`material-symbols-outlined text-[26px] transition-all duration-150 ${
+                      animatingHeart ? 'animate-heart-beat' : ''
+                    } ${liked ? 'text-[#ED4956]' : 'text-text'}`}
+                    style={{
+                      fontVariationSettings: `'FILL' ${liked ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24`,
+                    }}
+                  >
+                    favorite
+                  </span>
+                </button>
+                <button className="transition-all duration-150 hover:scale-110">
+                  <span
+                    className="material-symbols-outlined text-[26px] text-text"
+                    style={{ fontVariationSettings: `'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24` }}
+                  >
+                    chat_bubble
+                  </span>
+                </button>
+                <button className="transition-all duration-150 hover:scale-110">
+                  <span
+                    className="material-symbols-outlined text-[26px] text-text"
+                    style={{ fontVariationSettings: `'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24` }}
+                  >
+                    send
+                  </span>
+                </button>
+              </div>
+              <button
+                onClick={toggleSave}
+                className="transition-all duration-150 hover:scale-110"
+              >
+                <span
+                  className="material-symbols-outlined text-[26px]"
+                  style={{
+                    fontVariationSettings: `'FILL' ${saved ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24`,
+                  }}
+                >
+                  bookmark
+                </span>
+              </button>
+            </div>
+
+            <p className="mt-1 text-[13px] font-semibold text-text">
+              {post._count.likes.toLocaleString()} likes
+            </p>
+            <p className="mt-0.5 text-[10px] text-text-secondary uppercase tracking-wide">
+              {timeAgo(post.createdAt)}
+            </p>
+          </div>
+
+          {/* Comment Input */}
           {currentUser && (
-            <form onSubmit={addComment} className="flex border-t border-border">
+            <form onSubmit={addComment} className="flex items-center border-t border-border px-4 py-2.5">
+              <button
+                type="button"
+                className="mr-2 text-text-secondary hover:text-text transition-colors"
+              >
+                <span
+                  className="material-symbols-outlined text-[22px]"
+                  style={{ fontVariationSettings: `'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24` }}
+                >
+                  mood
+                </span>
+              </button>
               <input
                 type="text"
                 placeholder="Add a comment..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 maxLength={500}
-                className="flex-1 border-0 px-4 py-3 text-sm outline-none"
+                className="flex-1 border-0 bg-transparent text-[13px] outline-none placeholder:text-text-secondary"
               />
-              <Button
+              <button
                 type="submit"
-                disabled={!newComment.trim()}
-                variant="ghost"
-                size="md"
-                className="shrink-0 px-4"
+                disabled={!newComment.trim() || submitting}
+                className="text-[13px] font-semibold text-primary disabled:opacity-40 hover:text-primary-dark transition-colors"
               >
-                Post
-              </Button>
+                {submitting ? '...' : 'Post'}
+              </button>
             </form>
           )}
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

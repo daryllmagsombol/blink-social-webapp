@@ -8,7 +8,8 @@ export function getSocket(token: string): Socket {
   if (!socket?.connected) {
     socket = io(`${SOCKET_URL}/chat`, {
       auth: { token },
-      transports: ['websocket', 'polling']      path: '/api/socket.io',
+      transports: ['websocket', 'polling'],
+      path: '/api/socket.io',
     });
   }
   return socket;
