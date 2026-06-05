@@ -49,59 +49,60 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-secondary px-4">
-      <div className="w-full max-w-sm">
-        <div className="rounded-lg border border-border bg-bg p-8">
-          <div className="mb-6 flex justify-center">
-            <img src="/images/blink-social-logo.png" alt="Blink Social" className="h-16 w-auto" />
+      <div className="w-full max-w-sm animate-scale-in">
+        <div className="rounded-lg border border-border bg-bg shadow-lg overflow-hidden">
+          {/* Brand gradient header */}
+          <div className="bg-gradient-to-r from-[#FF2BA6] via-[#8A2EFF] to-[#00B7FF] px-8 py-6 text-center">
+            <h1 className="text-xl font-bold text-white">Blink Social</h1>
+            <p className="mt-1 text-sm text-white/80">Share your world in a blink</p>
           </div>
-          <p className="mb-4 text-center text-sm text-text-secondary">
-            Sign up to see photos from your friends.
-          </p>
 
-          {error && (
-            <div className="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger">
-              {error}
-            </div>
-          )}
+          <div className="p-8">
+            {error && (
+              <div className="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger">
+                {error}
+              </div>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              type="text"
-              placeholder="Username"
-              value={form.username}
-              onChange={(e) => update('username', e.target.value)}
-              required
-              minLength={3}
-              autoFocus
-            />
-            <Input
-              type="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={(e) => update('email', e.target.value)}
-              required
-            />
-            <Input
-              type="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={(e) => update('password', e.target.value)}
-              required
-              minLength={6}
-            />
-            <Input
-              type="text"
-              placeholder="Full name (optional)"
-              value={form.displayName}
-              onChange={(e) => update('displayName', e.target.value)}
-            />
-            <Button type="submit" loading={loading} className="w-full" size="lg">
-              Sign up
-            </Button>
-          </form>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Input
+                type="text"
+                placeholder="Username"
+                value={form.username}
+                onChange={(e) => update('username', e.target.value)}
+                required
+                minLength={3}
+                autoFocus
+              />
+              <Input
+                type="email"
+                placeholder="Email"
+                value={form.email}
+                onChange={(e) => update('email', e.target.value)}
+                required
+              />
+              <Input
+                type="password"
+                placeholder="Password"
+                value={form.password}
+                onChange={(e) => update('password', e.target.value)}
+                required
+                minLength={6}
+              />
+              <Input
+                type="text"
+                placeholder="Full name (optional)"
+                value={form.displayName}
+                onChange={(e) => update('displayName', e.target.value)}
+              />
+              <Button type="submit" loading={loading} className="w-full" size="lg">
+                Sign up
+              </Button>
+            </form>
+          </div>
         </div>
 
-        <div className="mt-2 rounded-lg border border-border bg-bg p-4 text-center text-sm">
+        <div className="mt-3 rounded-lg border border-border bg-bg p-4 text-center text-sm shadow-sm">
           Have an account?{' '}
           <Link href="/login" className="font-semibold text-primary hover:underline">
             Log in

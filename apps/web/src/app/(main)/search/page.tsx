@@ -7,6 +7,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { GridSkeleton } from '@/components/ui/Skeleton';
+import { Search } from 'lucide-react';
 
 interface SearchUser {
   id: string;
@@ -61,17 +62,20 @@ export default function SearchPage() {
   }, [query]);
 
   return (
-    <div className="mx-auto max-w-xl py-8 px-4 pb-20">
+    <div className="mx-auto max-w-xl py-8 px-4 pb-20 animate-fade-in">
       <h1 className="mb-4 text-xl font-bold">Search</h1>
 
-      <input
-        ref={inputRef}
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search users and posts..."
-        className="w-full rounded-full border border-border bg-bg-secondary px-4 py-2.5 text-sm outline-none focus:border-text-secondary transition-colors"
-      />
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
+        <input
+          ref={inputRef}
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search users and posts..."
+          className="w-full rounded-full border border-border bg-bg-secondary pl-10 pr-4 py-2.5 text-sm outline-none focus:border-text-secondary transition-colors"
+        />
+      </div>
 
       <div className="mt-6">
         {loading ? (
@@ -94,11 +98,12 @@ export default function SearchPage() {
               <div className="mb-8">
                 <h2 className="mb-3 text-sm font-semibold text-text-secondary uppercase tracking-wide">People</h2>
                 <div className="space-y-2">
-                  {users.map((u) => (
+                  {users.map((u, idx) => (
                     <Link
                       key={u.id}
                       href={`/profile/${u.id}`}
-                      className="flex items-center gap-3 rounded-lg p-2 hover:bg-bg-secondary transition-colors"
+                      className="flex items-center gap-3 rounded-lg p-2 hover:bg-bg-secondary hover:scale-[1.01] transition-all duration-150 animate-fade-in"
+                      style={{ animationDelay: `${idx * 50}ms` }}
                     >
                       <Avatar
                           src={u.avatarUrl ? `${UPLOADS_URL}${u.avatarUrl}` : undefined}
@@ -122,8 +127,8 @@ export default function SearchPage() {
               <div>
                 <h2 className="mb-3 text-sm font-semibold text-text-secondary uppercase tracking-wide">Posts</h2>
                 <div className="grid grid-cols-3 gap-1">
-                  {posts.map((post) => (
-                    <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden">
+                  {posts.map((post, idx) => (
+                    <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden transition-all duration-150 hover:scale-[1.02]" style={{ animationDelay: `${idx * 30}ms` }}>
                       <div
                         className="absolute inset-0 bg-cover bg-center"
                         style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}

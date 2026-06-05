@@ -10,12 +10,12 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     config: ConfigService,
     private prisma: PrismaService,
   ) {
-    const appUrl = config.getOrThrow<string>('APP_URL').replace(/\/$/, '');
+    const backendUrl = (config.get<string>('BACKEND_URL') || config.getOrThrow<string>('APP_URL')).replace(/\/$/, '');
 
     super({
       clientID: config.getOrThrow<string>('GOOGLE_CLIENT_ID'),
       clientSecret: config.getOrThrow<string>('GOOGLE_CLIENT_SECRET'),
-      callbackURL: `${appUrl}/api/auth/google/callback`,
+      callbackURL: `${backendUrl}/api/auth/google/callback`,
       scope: ['email', 'profile'],
     });
   }

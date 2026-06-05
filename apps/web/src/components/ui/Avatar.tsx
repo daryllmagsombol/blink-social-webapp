@@ -41,7 +41,7 @@ export function Avatar({ src, alt, size = 'md', fallback, online, className }: A
 
   if (!src || error) {
     return (
-      <div className={cn('relative shrink-0', className)}>
+      <div className={cn('relative shrink-0', className)} role="img" aria-label={alt}>
         <div
           className={cn(
             'flex items-center justify-center rounded-full bg-brand/20 font-bold text-brand',
@@ -52,6 +52,7 @@ export function Avatar({ src, alt, size = 'md', fallback, online, className }: A
         </div>
         {online && (
           <span
+            aria-hidden="true"
             className={cn(
               'absolute bottom-0 right-0 rounded-full border-2 border-bg bg-success',
               dotSizes[size],
@@ -72,6 +73,7 @@ export function Avatar({ src, alt, size = 'md', fallback, online, className }: A
       />
       {online && (
         <span
+          aria-hidden="true"
           className={cn(
             'absolute bottom-0 right-0 rounded-full border-2 border-bg bg-success',
             dotSizes[size],

@@ -10,12 +10,12 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     config: ConfigService,
     private prisma: PrismaService,
   ) {
-    const appUrl = config.getOrThrow<string>('APP_URL').replace(/\/$/, '');
+    const backendUrl = (config.get<string>('BACKEND_URL') || config.getOrThrow<string>('APP_URL')).replace(/\/$/, '');
 
     super({
       clientID: config.getOrThrow<string>('GITHUB_CLIENT_ID'),
       clientSecret: config.getOrThrow<string>('GITHUB_CLIENT_SECRET'),
-      callbackURL: `${appUrl}/api/auth/github/callback`,
+      callbackURL: `${backendUrl}/api/auth/github/callback`,
       scope: ['user:email'],
     });
   }

@@ -24,6 +24,7 @@ const sizeStyles = {
 export function Badge({ variant = 'default', size = 'md', children, className }: BadgeProps) {
   return (
     <span
+      role="status"
       className={cn(
         'inline-flex items-center rounded-full font-medium',
         variantStyles[variant],

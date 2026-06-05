@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { resolve, join } from 'path';
 import { cwd } from 'process';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -26,7 +26,7 @@ import { OAuthModule } from './oauth/oauth.module';
     ConfigModule.forRoot({ isGlobal: true, envFilePath: join(cwd(), '.env') }),
     // Keep uploads on a configurable path so the VM can mount a persistent volume.
     ServeStaticModule.forRoot({
-      rootPath: join(cwd(), process.env.UPLOADS_DIR ?? 'uploads'),
+      rootPath: resolve(cwd(), process.env.UPLOADS_DIR ?? 'uploads'),
       serveRoot: '/uploads',
       serveStaticOptions: { index: false },
     }),

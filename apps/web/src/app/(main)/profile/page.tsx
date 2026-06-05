@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/Button';
 import { Tabs } from '@/components/ui/Tabs';
 import { ProfileSkeleton, GridSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Edit } from 'lucide-react';
+import { toast } from '@/components/ui/Toast';
 
 interface Post {
   id: string;
@@ -67,7 +69,7 @@ export default function ProfilePage() {
   const emptyAction = tab === 'posts' ? { label: 'Create your first post', href: '/create' as const } : undefined;
 
   return (
-    <div className="mx-auto max-w-4xl py-8 px-4 pb-20">
+    <div className="mx-auto max-w-4xl py-8 px-4 pb-20 animate-fade-in">
       <div className="flex items-center gap-6 mb-8">
         <Avatar
             src={user.avatarUrl ? `${UPLOADS_URL}${user.avatarUrl}` : undefined}
@@ -76,16 +78,25 @@ export default function ProfilePage() {
             fallback={user.username[0]?.toUpperCase()}
           />
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold">{user.username}</h1>
-            <Button
-              onClick={() => { logout(); window.location.href = '/login'; }}
-              variant="secondary"
-              size="sm"
-            >
-              Log out
-            </Button>
-          </div>
+            <div className="flex items-center gap-4">
+              <h1 className="text-xl font-bold">{user.username}</h1>
+              <Button
+                onClick={() => toast('Edit profile coming soon', 'info')}
+                variant="ghost"
+                size="sm"
+                icon={<Edit className="h-4 w-4" />}
+                className="text-text-secondary opacity-60 hover:opacity-100 transition-opacity"
+              >
+                Edit
+              </Button>
+              <Button
+                onClick={() => { logout(); window.location.href = '/login'; }}
+                variant="secondary"
+                size="sm"
+              >
+                Log out
+              </Button>
+            </div>
           <div className="flex gap-6 mt-3 text-sm">
             <span><strong>{stats.postsCount}</strong> posts</span>
             <Link href={`/profile/${user.id}/followers`}><strong>{stats.followersCount}</strong> followers</Link>
@@ -104,7 +115,7 @@ export default function ProfilePage() {
           ]}
           value={tab}
           onChange={handleTabChange}
-          variant="underline"
+          variant="pill"
         />
       </div>
 
@@ -114,8 +125,8 @@ export default function ProfilePage() {
         <EmptyState icon={emptyIcon} title={emptyTitle} action={emptyAction} />
       ) : (
         <div className="grid grid-cols-3 gap-1">
-          {currentPosts.map((post) => (
-            <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden">
+          {currentPosts.map((post, index) => (
+            <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden transition-all duration-150 hover:scale-[1.02]" style={{ animationDelay: `${index * 30}ms` }}>
               <div
                 className="absolute inset-0 bg-cover bg-center"
                 style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}

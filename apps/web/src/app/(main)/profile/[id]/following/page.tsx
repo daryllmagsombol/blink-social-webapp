@@ -28,7 +28,7 @@ export default function FollowingPage() {
   }, [id]);
 
   return (
-    <div className="mx-auto max-w-xl py-8 px-4 pb-20">
+    <div className="mx-auto max-w-xl py-8 px-4 pb-20 animate-fade-in">
       <h1 className="mb-6 text-xl font-bold">Following</h1>
       {loading ? (
         <div className="space-y-3">
@@ -46,8 +46,8 @@ export default function FollowingPage() {
         <EmptyState icon="👥" title="Not following anyone yet" description="Explore users to find people to follow." action={{ label: 'Explore', href: '/explore' }} />
       ) : (
         <div className="space-y-3">
-          {users.map((u) => (
-            <Link key={u.id} href={`/profile/${u.id}`} className="flex items-center gap-3 rounded border border-border bg-bg p-3 hover:bg-bg-secondary">
+          {users.map((u, index) => (
+            <Link key={u.id} href={`/profile/${u.id}`} className="flex items-center gap-3 rounded-lg border border-border bg-bg p-3 hover:bg-bg-secondary hover:scale-[1.01] transition-all duration-150 animate-fade-in" style={{ animationDelay: `${index * 40}ms` }}>
               <Avatar
                 src={u.avatarUrl ? `${UPLOADS_URL}${u.avatarUrl}` : undefined}
                 alt={u.username}

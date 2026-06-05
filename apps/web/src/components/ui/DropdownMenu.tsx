@@ -26,11 +26,21 @@ export function DropdownMenu({ trigger, children, align = 'left', className }: D
 
   return (
     <div ref={ref} className={cn('relative inline-block', className)}>
-      <div onClick={() => setOpen(!open)}>{trigger}</div>
+      <div
+        onClick={() => setOpen(!open)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(!open); } }}
+        role="button"
+        tabIndex={0}
+        aria-expanded={open}
+        aria-haspopup="menu"
+      >
+        {trigger}
+      </div>
       {open && (
         <div
+          role="menu"
           className={cn(
-            'absolute z-50 mt-1 min-w-[180px] rounded-lg border border-border bg-bg py-1 shadow-lg',
+            'absolute z-50 mt-1 min-w-[180px] rounded-lg border border-border bg-bg py-1 shadow-lg animate-fade-in',
             align === 'right' ? 'right-0' : 'left-0',
           )}
           onClick={() => setOpen(false)}
@@ -52,9 +62,10 @@ interface DropdownItemProps {
 export function DropdownItem({ children, onClick, danger, className }: DropdownItemProps) {
   return (
     <button
+      role="menuitem"
       onClick={onClick}
       className={cn(
-        'flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors',
+        'flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none',
         danger
           ? 'text-danger hover:bg-danger/5'
           : 'text-text hover:bg-bg-secondary',

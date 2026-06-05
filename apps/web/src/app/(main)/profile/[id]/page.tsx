@@ -137,7 +137,7 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl py-8 px-4 pb-20">
+    <div className="mx-auto max-w-4xl py-8 px-4 pb-20 animate-fade-in">
       <div className="flex items-center gap-6 mb-8">
         <Avatar
             src={profile.avatarUrl ? `${UPLOADS_URL}${profile.avatarUrl}` : undefined}
@@ -152,7 +152,7 @@ export default function UserProfilePage() {
               <Badge variant="warning" size="sm"><Lock className="h-3 w-3 mr-0.5 inline" />Private</Badge>
             )}
             {!isOwn && currentUser && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <Button
                   onClick={toggleFollow}
                   variant={isFollowing ? 'secondary' : 'primary'}
@@ -245,8 +245,8 @@ export default function UserProfilePage() {
         )
       ) : (
         <div className="grid grid-cols-3 gap-1">
-          {posts.map((post) => (
-            <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden">
+          {posts.map((post, index) => (
+            <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden transition-all duration-150 hover:scale-[1.02]" style={{ animationDelay: `${index * 30}ms` }}>
               <div
                 className="absolute inset-0 bg-cover bg-center"
                 style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}

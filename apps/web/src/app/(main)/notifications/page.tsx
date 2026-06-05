@@ -58,7 +58,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-xl py-8 px-4 pb-20">
+    <div className="mx-auto max-w-xl py-8 px-4 pb-20 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold">Notifications</h1>
         {notifs.some((n) => !n.read) && (
@@ -72,11 +72,12 @@ export default function NotificationsPage() {
         <EmptyState icon="🔔" title="No notifications yet" description="Activity from your posts and follows will appear here." />
       ) : (
         <div className="space-y-1">
-          {notifs.map((n) => (
+          {notifs.map((n, index) => (
             <Link
               key={n.id}
               href={typeLink(n)}
-              className={`flex items-center gap-3 rounded p-3 transition-colors ${n.read ? '' : 'bg-primary/5'} hover:bg-bg-secondary`}
+              className={`flex items-center gap-3 rounded-lg p-3 transition-all duration-150 hover:scale-[1.01] hover:bg-bg-secondary animate-fade-in ${n.read ? '' : 'bg-primary/5'}`}
+              style={{ animationDelay: `${index * 40}ms` }}
             >
               <Avatar
                 src={n.actor.avatarUrl ? `${UPLOADS_URL}${n.actor.avatarUrl}` : undefined}
@@ -91,7 +92,7 @@ export default function NotificationsPage() {
                 </p>
                 <p className="text-xs text-text-secondary">{formatTime(n.createdAt)}</p>
               </div>
-              {!n.read && <div className="h-2 w-2 rounded-full bg-primary shrink-0" />}
+              {!n.read && <div className="h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_6px_rgba(138,43,226,0.5)] shrink-0" />}
             </Link>
           ))}
         </div>

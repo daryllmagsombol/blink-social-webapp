@@ -11,7 +11,7 @@ export function Skeleton({ className, variant = 'rectangular' }: SkeletonProps) 
   return (
     <div
       className={cn(
-        'animate-pulse bg-bg-secondary',
+        'bg-gradient-to-r from-bg-secondary via-bg-tertiary to-bg-secondary animate-shimmer bg-[length:200%_100%]',
         variant === 'circular' && 'rounded-full',
         variant === 'text' && 'h-4 rounded',
         variant === 'rectangular' && 'rounded',

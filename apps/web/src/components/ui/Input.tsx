@@ -12,6 +12,9 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, helperText, error, className, id, ...props }, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
+    const errorId = error ? `${inputId}-error` : undefined;
+    const helperId = helperText && !error ? `${inputId}-helper` : undefined;
+    const descriptionId = errorId || helperId;
 
     return (
       <div className="space-y-1.5">
@@ -23,8 +26,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           id={inputId}
+          aria-invalid={error ? 'true' : undefined}
+          aria-describedby={descriptionId}
           className={cn(
-            'w-full rounded-lg border bg-bg-secondary px-3 py-2 text-sm text-text outline-none transition-colors placeholder:text-text-secondary',
+            'w-full rounded-lg border bg-bg-secondary px-3 py-2 text-sm text-text outline-none transition-all duration-150 placeholder:text-text-secondary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
             error
               ? 'border-danger focus:border-danger'
               : 'border-border focus:border-text-secondary',
@@ -32,9 +37,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
           {...props}
         />
-        {error && <p className="text-xs text-danger">{error}</p>}
+        {error && <p id={errorId} className="text-xs text-danger" role="alert">{error}</p>}
         {helperText && !error && (
-          <p className="text-xs text-text-secondary">{helperText}</p>
+          <p id={helperId} className="text-xs text-text-secondary">{helperText}</p>
         )}
       </div>
     );

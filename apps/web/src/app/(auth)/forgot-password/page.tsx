@@ -29,47 +29,52 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-secondary px-4">
-      <div className="w-full max-w-sm">
-        <div className="rounded-lg border border-border bg-bg p-8">
-          <div className="mb-6 flex justify-center">
-            <img src="/images/blink-social-logo.png" alt="Blink Social" className="h-16 w-auto" />
+      <div className="w-full max-w-sm animate-scale-in">
+        <div className="rounded-lg border border-border bg-bg shadow-lg overflow-hidden">
+          {/* Brand gradient header */}
+          <div className="bg-gradient-to-r from-[#FF2BA6] via-[#8A2EFF] to-[#00B7FF] px-8 py-6 text-center">
+            <h1 className="text-xl font-bold text-white">Blink Social</h1>
+            <p className="mt-1 text-sm text-white/80">Share your world in a blink</p>
           </div>
-          <h1 className="mb-2 text-center text-2xl font-bold text-brand">Reset Password</h1>
-          <p className="mb-6 text-center text-sm text-text-secondary">
-            Enter your email and we&apos;ll send you a reset link.
-          </p>
 
-          {error && (
-            <div className="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger">{error}</div>
-          )}
+          <div className="p-8">
+            <h2 className="mb-2 text-center text-2xl font-bold text-brand">Reset Password</h2>
+            <p className="mb-6 text-center text-sm text-text-secondary">
+              Enter your email and we&apos;ll send you a reset link.
+            </p>
 
-          {sent ? (
-            <div className="text-center">
-              <p className="mb-4 text-sm text-text-secondary">
-                If an account with that email exists, a reset link has been sent. Check the server console for the link (dev mode).
-              </p>
-              <Link href="/login" className="text-sm font-semibold text-primary hover:underline">
-                Back to login
-              </Link>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <Input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoFocus
-              />
-              <Button type="submit" loading={loading} className="w-full" size="lg">
-                Send reset link
-              </Button>
-            </form>
-          )}
+            {error && (
+              <div className="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger">{error}</div>
+            )}
+
+            {sent ? (
+              <div className="text-center">
+                <p className="mb-4 text-sm text-text-secondary">
+                  If an account with that email exists, a reset link has been sent. Check the server console for the link (dev mode).
+                </p>
+                <Link href="/login" className="text-sm font-semibold text-primary hover:underline">
+                  Back to login
+                </Link>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoFocus
+                />
+                <Button type="submit" loading={loading} className="w-full" size="lg">
+                  Send reset link
+                </Button>
+              </form>
+            )}
+          </div>
         </div>
 
-        <div className="mt-2 rounded-lg border border-border bg-bg p-4 text-center text-sm">
+        <div className="mt-3 rounded-lg border border-border bg-bg p-4 text-center text-sm shadow-sm">
           <Link href="/login" className="font-semibold text-primary hover:underline">
             Back to login
           </Link>

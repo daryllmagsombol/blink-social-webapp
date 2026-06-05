@@ -23,6 +23,7 @@ services:
     environment:
       PORT: 4000
       APP_URL: ${BLINK_APP_URL}
+      BACKEND_URL: ${BLINK_BACKEND_URL}
       FRONTEND_ORIGIN: ${BLINK_APP_URL}
       CORS_ORIGIN: ${BLINK_APP_URL}
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/blink_social?schema=public

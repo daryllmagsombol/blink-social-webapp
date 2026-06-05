@@ -35,7 +35,7 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl py-8 px-4 pb-20">
+    <div className="mx-auto max-w-xl py-8 px-4 pb-20 animate-fade-in">
       <h1 className="mb-6 text-xl font-bold">Messages</h1>
 
       {convos.length === 0 ? (
@@ -46,11 +46,12 @@ export default function MessagesPage() {
         />
       ) : (
         <div className="space-y-1">
-          {convos.map((c) => (
+          {convos.map((c, index) => (
             <Link
               key={c.user.id}
               href={`/messages/${c.user.id}`}
-              className="flex items-center gap-3 rounded p-3 hover:bg-bg-secondary transition-colors"
+              className="flex items-center gap-3 rounded-lg p-3 hover:bg-bg-secondary hover:scale-[1.01] transition-all duration-150 animate-fade-in"
+              style={{ animationDelay: `${index * 40}ms` }}
             >
               <Avatar
                 src={c.user.avatarUrl ? `${UPLOADS_URL}${c.user.avatarUrl}` : undefined}

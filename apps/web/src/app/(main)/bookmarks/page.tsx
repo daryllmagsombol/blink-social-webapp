@@ -6,6 +6,7 @@ import { api, UPLOADS_URL } from '@/lib/api';
 import { GridSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from '@/components/ui/Toast';
+import { Heart } from 'lucide-react';
 
 interface Post {
   id: string;
@@ -74,7 +75,7 @@ export default function BookmarksPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl py-8 px-4 pb-20">
+    <div className="mx-auto max-w-4xl py-8 px-4 pb-20 animate-fade-in">
       <h1 className="mb-6 text-xl font-bold">Saved</h1>
 
       {posts.length === 0 ? (
@@ -82,14 +83,14 @@ export default function BookmarksPage() {
       ) : (
         <>
           <div className="grid grid-cols-3 gap-1">
-            {posts.map((post) => (
-              <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden">
+            {posts.map((post, index) => (
+              <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden transition-all duration-150 hover:scale-[1.02]" style={{ animationDelay: `${index * 30}ms` }}>
                 <div
                   className="absolute inset-0 bg-cover bg-center"
                   style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-white text-sm font-semibold">♥ {post._count.likes}</span>
+                  <span className="text-white text-sm font-semibold flex items-center gap-1"><Heart className="h-3.5 w-3.5" /> {post._count.likes}</span>
                 </div>
               </Link>
             ))}

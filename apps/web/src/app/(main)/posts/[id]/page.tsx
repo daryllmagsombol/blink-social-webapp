@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/Card';
 import { DropdownMenu, DropdownItem } from '@/components/ui/DropdownMenu';
 import { Textarea } from '@/components/ui/Textarea';
 import { Tooltip } from '@/components/ui/Tooltip';
-import { Bookmark, MoreVertical } from 'lucide-react';
+import { Heart, Bookmark, MoreVertical } from 'lucide-react';
 import { Skeleton, PostSkeleton } from '@/components/ui/Skeleton';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { toast } from '@/components/ui/Toast';
@@ -50,6 +50,7 @@ export default function PostDetailPage() {
   const [savingCaption, setSavingCaption] = useState(false);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editCommentContent, setEditCommentContent] = useState('');
+  const [animatingHeart, setAnimatingHeart] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -71,6 +72,8 @@ export default function PostDetailPage() {
   }, [id, currentUser]);
 
   const toggleLike = async () => {
+    setAnimatingHeart(true);
+    setTimeout(() => setAnimatingHeart(false), 300);
     try {
       if (liked) {
         await api.delete(`/posts/${id}/likes`);
@@ -172,7 +175,7 @@ export default function PostDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl py-8 px-4 pb-20">
+    <div className="mx-auto max-w-2xl py-8 px-4 pb-20 animate-fade-in">
       <Card className="overflow-hidden">
         <div className="flex items-center justify-between p-4">
           <Link href={`/profile/${post.user.id}`} className="flex items-center gap-3">
@@ -217,8 +220,8 @@ export default function PostDetailPage() {
         <div className="p-4">
           <div className="flex items-center gap-4 mb-2">
             <Tooltip content={liked ? 'Unlike' : 'Like'}>
-            <button onClick={toggleLike} className="text-2xl transition-colors">
-              {liked ? <span className="text-danger">♥</span> : <span>♡</span>}
+            <button onClick={toggleLike} className="transition-colors">
+              <Heart className={`h-5 w-5 ${animatingHeart ? 'animate-heart-beat' : ''} ${liked ? 'fill-accent text-accent' : 'text-text'}`} />
             </button>
             </Tooltip>
             <Tooltip content={saved ? 'Saved' : 'Save'}>

@@ -46,13 +46,14 @@ export function ToastContainer() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-20 left-1/2 z-50 flex -translate-x-1/2 flex-col gap-2 md:bottom-6">
+    <div className="fixed bottom-28 left-1/2 z-[60] flex -translate-x-1/2 flex-col gap-2 md:bottom-6">
       {toasts.map((t) => (
         <div
           key={t.id}
+          role="alert"
           onClick={() => removeToast(t.id)}
           className={cn(
-            'cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium text-white shadow-lg backdrop-blur-sm',
+            'cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium text-white shadow-lg backdrop-blur-sm animate-slide-in-bottom',
             typeStyles[t.type],
           )}
         >

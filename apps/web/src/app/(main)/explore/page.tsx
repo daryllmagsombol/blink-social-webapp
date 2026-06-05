@@ -79,18 +79,19 @@ export default function ExplorePage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl py-8 px-4 pb-20">
+    <div className="mx-auto max-w-4xl py-8 px-4 pb-20 animate-fade-in">
       <h1 className="mb-6 text-xl font-bold">Explore</h1>
 
       {trending.length > 0 && (
         <div className="mb-6">
           <h2 className="mb-3 text-sm font-semibold text-text-secondary uppercase tracking-wide">Trending tags</h2>
           <div className="flex flex-wrap gap-2">
-            {trending.map((tag) => (
+            {trending.map((tag, i) => (
               <Link
                 key={tag.id}
                 href={`/tags/${tag.name}`}
-                className="rounded-full bg-bg-secondary px-3 py-1.5 text-sm font-medium hover:bg-primary/10 hover:text-primary transition-colors"
+                className="animate-fade-in rounded-full border border-border bg-bg-secondary px-3 py-1.5 text-sm font-medium shadow-sm hover:border-primary/30 hover:bg-primary/10 hover:text-primary transition-all duration-150"
+                style={{ animationDelay: `${i * 50}ms` }}
               >
                 #{tag.name}
                 <Badge variant="default" size="sm" className="ml-1">{tag._count.posts}</Badge>
@@ -105,8 +106,8 @@ export default function ExplorePage() {
       ) : (
         <>
           <div className="grid grid-cols-3 gap-1">
-            {posts.map((post) => (
-              <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden">
+            {posts.map((post, index) => (
+              <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden transition-all duration-150 hover:scale-[1.02]" style={{ animationDelay: `${index * 30}ms` }}>
                 <div
                   className="absolute inset-0 bg-cover bg-center"
                   style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}

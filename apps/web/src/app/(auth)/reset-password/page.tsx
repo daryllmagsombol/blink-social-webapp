@@ -33,11 +33,13 @@ export default function ResetPasswordPage() {
   if (!token) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-bg-secondary px-4">
-        <div className="w-full max-w-sm rounded-lg border border-border bg-bg p-8 text-center">
-          <p className="text-sm text-danger">Invalid reset link</p>
-          <Link href="/forgot-password" className="mt-4 inline-block text-sm text-primary hover:underline">
-            Request a new reset link
-          </Link>
+        <div className="w-full max-w-sm animate-scale-in">
+          <div className="rounded-lg border border-border bg-bg p-8 text-center shadow-lg">
+            <p className="text-sm text-danger">Invalid reset link</p>
+            <Link href="/forgot-password" className="mt-4 inline-block text-sm text-primary hover:underline">
+              Request a new reset link
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -45,40 +47,45 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-secondary px-4">
-      <div className="w-full max-w-sm">
-        <div className="rounded-lg border border-border bg-bg p-8">
-          <div className="mb-6 flex justify-center">
-            <img src="/images/blink-social-logo.png" alt="Blink Social" className="h-16 w-auto" />
+      <div className="w-full max-w-sm animate-scale-in">
+        <div className="rounded-lg border border-border bg-bg shadow-lg overflow-hidden">
+          {/* Brand gradient header */}
+          <div className="bg-gradient-to-r from-[#FF2BA6] via-[#8A2EFF] to-[#00B7FF] px-8 py-6 text-center">
+            <h1 className="text-xl font-bold text-white">Blink Social</h1>
+            <p className="mt-1 text-sm text-white/80">Share your world in a blink</p>
           </div>
-          <h1 className="mb-6 text-center text-2xl font-bold text-brand">Set New Password</h1>
 
-          {error && (
-            <div className="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger">{error}</div>
-          )}
+          <div className="p-8">
+            <h2 className="mb-6 text-center text-2xl font-bold text-brand">Set New Password</h2>
 
-          {done ? (
-            <div className="text-center">
-              <p className="mb-4 text-sm text-text-secondary">Password reset successfully</p>
-              <Link href="/login" className="text-sm font-semibold text-primary hover:underline">
-                Log in
-              </Link>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <Input
-                type="password"
-                placeholder="New password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                autoFocus
-              />
-              <Button type="submit" loading={loading} className="w-full" size="lg">
-                Reset password
-              </Button>
-            </form>
-          )}
+            {error && (
+              <div className="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger">{error}</div>
+            )}
+
+            {done ? (
+              <div className="text-center">
+                <p className="mb-4 text-sm text-text-secondary">Password reset successfully</p>
+                <Link href="/login" className="text-sm font-semibold text-primary hover:underline">
+                  Log in
+                </Link>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <Input
+                  type="password"
+                  placeholder="New password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  autoFocus
+                />
+                <Button type="submit" loading={loading} className="w-full" size="lg">
+                  Reset password
+                </Button>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     </div>

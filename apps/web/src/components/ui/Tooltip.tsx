@@ -32,12 +32,19 @@ export function Tooltip({ content, children, position = 'top', delay = 300 }: To
   };
 
   return (
-    <div className="relative inline-flex" onMouseEnter={show} onMouseLeave={hide}>
+    <div
+      className="relative inline-flex"
+      onMouseEnter={show}
+      onMouseLeave={hide}
+      onFocus={show}
+      onBlur={hide}
+    >
       {children}
       {visible && (
         <div
+          role="tooltip"
           className={cn(
-            'pointer-events-none absolute z-50 whitespace-nowrap rounded-md bg-text px-2.5 py-1.5 text-xs text-bg shadow-lg',
+            'pointer-events-none absolute z-50 whitespace-nowrap rounded-md bg-text px-2.5 py-1.5 text-xs text-bg shadow-lg animate-fade-in',
             positionStyles[position],
           )}
         >

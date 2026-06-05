@@ -39,18 +39,18 @@ export default function TagPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl py-8 px-4 pb-20">
-      <div className="mb-6">
+    <div className="mx-auto max-w-4xl py-8 px-4 pb-20 animate-fade-in">
+      <div className="mb-6 rounded-lg border border-border bg-bg p-4">
         <h1 className="text-xl font-bold">#{tag}</h1>
-        <p className="text-sm text-text-secondary">{posts.length} posts</p>
+        <p className="text-sm text-text-secondary mt-1">{posts.length} posts</p>
       </div>
 
       {posts.length === 0 ? (
         <EmptyState icon="🏷️" title="No posts with this tag" description="Be the first to use #tag!" />
       ) : (
         <div className="grid grid-cols-3 gap-1">
-          {posts.map((post) => (
-            <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden">
+          {posts.map((post, index) => (
+            <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden transition-all duration-150 hover:scale-[1.02]" style={{ animationDelay: `${index * 30}ms` }}>
               <div
                 className="absolute inset-0 bg-cover bg-center"
                 style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}

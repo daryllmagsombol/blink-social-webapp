@@ -41,8 +41,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         disabled={disabled || loading}
+        aria-disabled={disabled || loading}
         className={cn(
-          'inline-flex items-center justify-center rounded-lg font-semibold transition-colors',
+          'inline-flex items-center justify-center rounded-lg font-semibold transition-all duration-150 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
           variantStyles[variant],
           sizeStyles[size],
           className,
