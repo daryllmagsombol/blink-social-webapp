@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { MessagesService } from '../messages/messages.service';
 
 @WebSocketGateway({
+  path: '/api/socket.io',
   cors: {
     origin: process.env.APP_URL?.replace(/\/$/, '') || 'http://localhost:3000',
     credentials: true,
