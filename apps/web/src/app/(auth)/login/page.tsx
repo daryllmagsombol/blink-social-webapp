@@ -106,9 +106,9 @@ export default function LoginPage() {
               Log In
             </span>
             <Link href="/register">
-              <Button size="sm" className="rounded-full px-5">
+              <span className="cursor-pointer rounded-full bg-primary px-5 py-1.5 text-sm font-semibold text-white transition-opacity hover:opacity-90">
                 Sign Up
-              </Button>
+              </span>
             </Link>
           </div>
         </div>
