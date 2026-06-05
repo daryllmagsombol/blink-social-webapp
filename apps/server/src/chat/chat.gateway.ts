@@ -11,7 +11,10 @@ import { ConfigService } from '@nestjs/config';
 import { MessagesService } from '../messages/messages.service';
 
 @WebSocketGateway({
-  cors: { origin: ['http://localhost:3000'], credentials: true },
+  cors: {
+    origin: process.env.APP_URL?.replace(/\/$/, '') || 'http://localhost:3000',
+    credentials: true,
+  },
   namespace: '/chat',
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {

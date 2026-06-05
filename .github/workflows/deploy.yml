@@ -41,8 +41,7 @@ jobs:
           VM_USER: ${{ secrets.AZURE_VM_USER }}
           VM_HOST: ${{ secrets.AZURE_VM_HOST }}
           VM_PORT: ${{ secrets.AZURE_VM_PORT }}
-        run: |
-          ssh -p "${VM_PORT:-22}" "${VM_USER}@${VM_HOST}" <<EOF
+        run: ssh -p "${VM_PORT:-22}" "${VM_USER}@${VM_HOST}" <<'EOF'
           set -euo pipefail
           cd "${DEPLOY_ROOT}/blink-social-media"
           git pull --ff-only
