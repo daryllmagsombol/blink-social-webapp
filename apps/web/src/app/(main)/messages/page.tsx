@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { api, UPLOADS_URL } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
 import { getSocket, disconnectSocket } from '@/lib/socket';
@@ -481,11 +482,23 @@ function ChatPanel({
 
 export default function MessagesPage() {
   const { user } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialUserId = searchParams.get('user');
   const [convos, setConvos] = useState<Convo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [search, setSearch] = useState('');
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(initialUserId);
+
+  // Clean up the ?user= query param from the URL after reading it once,
+  // so page refreshes don't always reselect the same conversation.
+  const hasInitialParam = useRef(!!initialUserId);
+  useEffect(() => {
+    if (hasInitialParam.current) {
+      router.replace('/messages', { scroll: false });
+    }
+  }, [router]);
 
   const loadConvos = () => {
     setLoading(true);
