@@ -21,7 +21,13 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: {
+        policy: process.env.NODE_ENV === 'production' ? 'same-origin' : 'cross-origin',
+      },
+    }),
+  );
 
   // Required for Passport OAuth state parameter (Google, etc.)
   app.use(
