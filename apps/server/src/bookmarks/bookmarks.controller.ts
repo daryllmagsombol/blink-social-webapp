@@ -19,7 +19,7 @@ export class BookmarksController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    return this.bookmarks.findByUser(userId, Number(page) || 1, Number(limit) || 12);
+    return this.bookmarks.findByUser(userId, Math.max(1, Number(page) || 1), Math.min(Number(limit) || 12, 100));
   }
 
   @Get('posts/:postId/bookmark/check')

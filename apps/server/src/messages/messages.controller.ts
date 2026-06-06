@@ -30,6 +30,6 @@ export class MessagesController {
     @Param('userId') otherUserId: string,
     @Query('page') page?: string,
   ) {
-    return this.messages.getConversation(currentUserId, otherUserId, Number(page) || 1);
+    return this.messages.getConversation(currentUserId, otherUserId, Math.max(1, Number(page) || 1));
   }
 }

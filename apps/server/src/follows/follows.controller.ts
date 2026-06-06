@@ -21,12 +21,12 @@ export class FollowsController {
 
   @Get('followers')
   getFollowers(@Param('userId') userId: string, @Query('page') page?: string) {
-    return this.follows.getFollowers(userId, Number(page) || 1);
+    return this.follows.getFollowers(userId, Math.max(1, Number(page) || 1));
   }
 
   @Get('following')
   getFollowing(@Param('userId') userId: string, @Query('page') page?: string) {
-    return this.follows.getFollowing(userId, Number(page) || 1);
+    return this.follows.getFollowing(userId, Math.max(1, Number(page) || 1));
   }
 
   @UseGuards(JwtAuthGuard)

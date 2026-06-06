@@ -19,7 +19,7 @@ export class CommentsController {
 
   @Get()
   list(@Param('postId') postId: string, @Query('page') page?: string) {
-    return this.comments.getPostComments(postId, Number(page) || 1);
+    return this.comments.getPostComments(postId, Math.max(1, Number(page) || 1));
   }
 
   @UseGuards(JwtAuthGuard)

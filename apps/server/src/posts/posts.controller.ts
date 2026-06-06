@@ -44,12 +44,12 @@ export class PostsController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    return this.posts.getFeed(userId, Number(page) || 1, Number(limit) || 10);
+    return this.posts.getFeed(userId, Math.max(1, Number(page) || 1), Math.min(Number(limit) || 10, 100));
   }
 
   @Get('explore')
   getExplore(@Query('page') page?: string, @Query('limit') limit?: string) {
-    return this.posts.getExplore(Number(page) || 1, Number(limit) || 20);
+    return this.posts.getExplore(Math.max(1, Number(page) || 1), Math.min(Number(limit) || 20, 100));
   }
 
   @UseGuards(OptionalJwtAuthGuard)
@@ -60,6 +60,6 @@ export class PostsController {
     @Query('limit') limit?: string,
     @CurrentUser('id') viewerId?: string,
   ) {
-    return this.posts.getUserPosts(userId, Number(page) || 1, Number(limit) || 12, viewerId);
+    return this.posts.getUserPosts(userId, Math.max(1, Number(page) || 1), Math.min(Number(limit) || 12, 100), viewerId);
   }
 }

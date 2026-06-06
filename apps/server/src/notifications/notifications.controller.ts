@@ -10,7 +10,7 @@ export class NotificationsController {
 
   @Get()
   list(@CurrentUser('id') userId: string, @Query('page') page?: string) {
-    return this.notifications.getNotifications(userId, Number(page) || 1);
+    return this.notifications.getNotifications(userId, Math.max(1, Number(page) || 1));
   }
 
   @Patch(':id/read')

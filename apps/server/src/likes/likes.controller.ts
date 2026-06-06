@@ -21,7 +21,7 @@ export class LikesController {
 
   @Get()
   list(@Param('postId') postId: string, @Query('page') page?: string) {
-    return this.likes.getPostLikes(postId, Number(page) || 1);
+    return this.likes.getPostLikes(postId, Math.max(1, Number(page) || 1));
   }
 
   @UseGuards(JwtAuthGuard)

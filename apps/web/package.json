@@ -12,10 +12,11 @@
   "dependencies": {
     "@social/shared": "workspace:*",
     "lucide-react": "^0.468.0",
-"socket.io-client": "^4.8.0",
     "next": "^15.2.0",
+    "postcss": "^8.5.10",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "socket.io-client": "^4.8.0",
     "zustand": "^5.0.0"
   },
   "devDependencies": {

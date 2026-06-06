@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve, join } from 'path';
 import { cwd } from 'process';
@@ -24,6 +25,10 @@ import { OAuthModule } from './oauth/oauth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: join(cwd(), '.env') }),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 10,
+    }]),
     // Keep uploads on a configurable path so the VM can mount a persistent volume.
     ServeStaticModule.forRoot({
       rootPath: resolve(cwd(), process.env.UPLOADS_DIR ?? 'uploads'),
