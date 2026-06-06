@@ -60,6 +60,7 @@
   --color-success: #22C55E;
   --color-warning: #F59E0B;
 
+  --gradient-brand: linear-gradient(135deg, #FF2BA6, #8A2EFF, #00B7FF);
   --font-family-sans: Inter, system-ui, -apple-system, sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.8125rem;
@@ -76,6 +77,10 @@
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+.bg-gradient-brand {
+  background: linear-gradient(135deg, #FF2BA6, #8A2EFF, #00B7FF);
+}
 
 @keyframes progress {
   from { width: 0%; }

@@ -1,51 +1,21 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/stores/auth';
 import { api, UPLOADS_URL } from '@/lib/api';
 import { StoryViewer } from '@/components/story/StoryViewer';
 import { StoryCreator } from '@/components/story/StoryCreator';
 import { Avatar } from '@/components/ui/Avatar';
-import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { PostSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from '@/components/ui/Toast';
-import { linkifyCaption } from '@/lib/linkify';
 
-function MatIcon({
-  icon,
-  filled = false,
-  className = '',
-}: {
-  icon: string;
-  filled?: boolean;
-  className?: string;
-}) {
-  return (
-    <span
-      className={`material-symbols-outlined text-[22px] ${className}`}
-      style={{ fontVariationSettings: `'FILL' ${filled ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24` }}
-    >
-      {icon}
-    </span>
-  );
-}
-
-function timeAgo(dateStr: string): string {
-  const now = Date.now();
-  const date = new Date(dateStr).getTime();
-  const seconds = Math.floor((now - date) / 1000);
-  if (seconds < 60) return 'just now';
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(dateStr).toLocaleDateString();
-}
+import { PostCard } from '@/components/ui/PostCard';
+import { MatIcon } from '@/components/ui/Icon';
+import { timeAgo } from '@/lib/utils';
+import { useInfiniteScroll } from '@/lib/hooks/useInfiniteScroll';
 
 interface StoryUser {
   user: { id: string; username: string; avatarUrl: string | null };
@@ -89,7 +59,7 @@ export default function FeedPage() {
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
   const [submittingComments, setSubmittingComments] = useState<Set<string>>(new Set());
   const [followingUsers, setFollowingUsers] = useState<Set<string>>(new Set());
-  const sentinelRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useInfiniteScroll(hasMore, loadingMore, () => setPage((p) => p + 1));
 
   const loadFeed = useCallback(async (pageNum: number) => {
     if (pageNum === 1) setLoading(true);
@@ -165,20 +135,7 @@ export default function FeedPage() {
     loadFeed(page);
   }, [page, loadFeed]);
 
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingMore) {
-          setPage((p) => p + 1);
-        }
-      },
-      { threshold: 0.1 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [hasMore, loadingMore]);
+
 
   const toggleLike = async (postId: string) => {
     setAnimatingHearts((prev) => new Set(prev).add(postId));
@@ -300,7 +257,7 @@ export default function FeedPage() {
             >
               <div className="relative">
                 <div className="rounded-full bg-gradient-to-br from-accent via-brand to-primary p-[2px]">
-                  <div className="rounded-full bg-white p-[2px]">
+                  <div className="rounded-full bg-bg p-[2px]">
                     <Avatar
                       src={user.avatarUrl ? `${UPLOADS_URL}${user.avatarUrl}` : undefined}
                       alt={user.username}
@@ -310,10 +267,10 @@ export default function FeedPage() {
                   </div>
                 </div>
                 <div className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white shadow-md">
-                  <span className="material-symbols-outlined text-[14px]">add</span>
+                  <span className="material-symbols-outlined text-base">add</span>
                 </div>
               </div>
-              <span className="w-[68px] truncate text-center text-[11px] text-text-secondary font-medium">
+              <span className="w-[68px] truncate text-center text-xs text-text-secondary font-medium">
                 Your Story
               </span>
             </button>
@@ -331,11 +288,11 @@ export default function FeedPage() {
                 <div
                   className={`rounded-full p-[2px] ${
                     hasUnviewed
-                      ? 'bg-gradient-to-br from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888]'
+                      ? 'bg-gradient-brand'
                       : 'bg-border'
                   }`}
                 >
-                  <div className="rounded-full bg-white p-[2px]">
+                  <div className="rounded-full bg-bg p-[2px]">
                     <Avatar
                       src={su.user.avatarUrl ? `${UPLOADS_URL}${su.user.avatarUrl}` : undefined}
                       alt={su.user.username}
@@ -344,7 +301,7 @@ export default function FeedPage() {
                     />
                   </div>
                 </div>
-                <span className="w-[68px] truncate text-center text-[11px] text-text-secondary font-medium">
+                <span className="w-[68px] truncate text-center text-xs text-text-secondary font-medium">
                   {su.user.username}
                 </span>
               </button>
@@ -384,194 +341,23 @@ export default function FeedPage() {
           <>
             <div className="space-y-4">
               {posts.map((post, index) => (
-                <div
+                <PostCard
                   key={post.id}
-                    className="rounded-xl border border-border bg-bg animate-fade-in-up overflow-hidden"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  {/* Post Header */}
-                  <div className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <Link href={`/profile/${post.user.id}`}>
-                        <Avatar
-                          src={
-                            post.user.avatarUrl ? `${UPLOADS_URL}${post.user.avatarUrl}` : undefined
-                          }
-                          alt={post.user.username}
-                          size="sm"
-                          fallback={post.user.username[0]?.toUpperCase()}
-                        />
-                      </Link>
-                      <div>
-                        <Link
-                          href={`/profile/${post.user.id}`}
-                          className="text-[13px] font-semibold text-text hover:underline leading-[18px]"
-                        >
-                          {post.user.username}
-                        </Link>
-                        <p className="text-[10px] text-text-secondary uppercase tracking-wide leading-[14px]">
-                          {timeAgo(post.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-                    <button className="text-text-secondary hover:text-text transition-colors">
-                      <MatIcon icon="more_horiz" />
-                    </button>
-                  </div>
-
-                  {/* Post Image (double-tap to like) */}
-                  <Link href={`/posts/${post.id}`}>
-                    <div className="relative aspect-square bg-bg-secondary">
-                      <div
-                        className="absolute inset-0 bg-cover bg-center"
-                        style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}
-                      />
-                    </div>
-                  </Link>
-
-                  {/* Post Actions */}
-                  <div className="px-4 pt-3 pb-1">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        {/* Like */}
-                        <button
-                          onClick={() => toggleLike(post.id)}
-                          className="transition-all duration-150 active:scale-125"
-                        >
-                          <span
-                            className={`material-symbols-outlined text-[26px] transition-all duration-150 ${
-                              animatingHearts.has(post.id) ? 'animate-heart-beat' : ''
-                            } ${likedPosts.has(post.id) ? 'text-[#ED4956]' : 'text-text'}`}
-                            style={{
-                              fontVariationSettings: `'FILL' ${likedPosts.has(post.id) ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24`,
-                            }}
-                          >
-                            {likedPosts.has(post.id) ? 'favorite' : 'favorite'}
-                          </span>
-                        </button>
-
-                        {/* Comment */}
-                        <Link
-                          href={`/posts/${post.id}`}
-                          className="transition-all duration-150 hover:scale-110"
-                        >
-                          <span
-                            className="material-symbols-outlined text-[26px] text-text"
-                            style={{
-                              fontVariationSettings: `'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24`,
-                            }}
-                          >
-                            chat_bubble
-                          </span>
-                        </Link>
-
-                        {/* Share */}
-                        <button className="transition-all duration-150 hover:scale-110">
-                          <span
-                            className="material-symbols-outlined text-[26px] text-text"
-                            style={{
-                              fontVariationSettings: `'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24`,
-                            }}
-                          >
-                            send
-                          </span>
-                        </button>
-                      </div>
-
-                      {/* Bookmark */}
-                      <button
-                        onClick={() => toggleSave(post.id)}
-                        className="transition-all duration-150 hover:scale-110"
-                      >
-                        <span
-                          className="material-symbols-outlined text-[26px]"
-                          style={{
-                            fontVariationSettings: `'FILL' ${savedPosts.has(post.id) ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24`,
-                          }}
-                        >
-                          bookmark
-                        </span>
-                      </button>
-                    </div>
-
-                    {/* Like Count */}
-                    <p className="mt-1 text-[13px] font-semibold text-text">
-                      {post._count.likes.toLocaleString()} likes
-                    </p>
-
-                    {/* Caption */}
-                    {post.caption && (
-                      <p className="mt-0.5 text-[13px] leading-[18px]">
-                        <Link
-                          href={`/profile/${post.user.id}`}
-                          className="font-semibold text-text hover:underline"
-                        >
-                          {post.user.username}
-                        </Link>{' '}
-                        <span className="text-text">{linkifyCaption(post.caption)}</span>
-                      </p>
-                    )}
-
-                    {/* View Comments */}
-                    {post._count.comments > 0 && (
-                      <Link
-                        href={`/posts/${post.id}`}
-                        className="mt-0.5 block text-[12px] text-text-secondary hover:underline"
-                      >
-                        View all {post._count.comments} comments
-                      </Link>
-                    )}
-
-                    {/* Time Ago */}
-                    <p className="mt-0.5 text-[10px] text-text-secondary uppercase tracking-wide">
-                      {timeAgo(post.createdAt)}
-                    </p>
-                  </div>
-
-                  {/* Comment Input */}
-                  {user && (
-                    <form
-                      onSubmit={(e) => submitComment(post.id, e)}
-                      className="flex items-center border-t border-border px-4 py-2.5"
-                    >
-                      <button
-                        type="button"
-                        className="mr-2 text-text-secondary hover:text-text transition-colors"
-                      >
-                        <span
-                          className="material-symbols-outlined text-[22px]"
-                          style={{
-                            fontVariationSettings: `'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24`,
-                          }}
-                        >
-                          mood
-                        </span>
-                      </button>
-                      <input
-                        type="text"
-                        placeholder="Add a comment..."
-                        value={commentInputs[post.id] || ''}
-                        onChange={(e) =>
-                          setCommentInputs((prev) => ({
-                            ...prev,
-                            [post.id]: e.target.value,
-                          }))
-                        }
-                        maxLength={500}
-                        className="flex-1 border-0 bg-transparent text-[13px] outline-none placeholder:text-text-secondary"
-                      />
-                      <button
-                        type="submit"
-                        disabled={
-                          !commentInputs[post.id]?.trim() || submittingComments.has(post.id)
-                        }
-                        className="text-[13px] font-semibold text-primary disabled:opacity-40 hover:text-primary-dark transition-colors"
-                      >
-                        {submittingComments.has(post.id) ? '...' : 'Post'}
-                      </button>
-                    </form>
-                  )}
-                </div>
+                  post={post}
+                  index={index}
+                  liked={likedPosts.has(post.id)}
+                  saved={savedPosts.has(post.id)}
+                  isAnimatingHeart={animatingHearts.has(post.id)}
+                  commentValue={commentInputs[post.id] || ''}
+                  isSubmittingComment={submittingComments.has(post.id)}
+                  currentUserId={user?.id}
+                  onToggleLike={toggleLike}
+                  onToggleSave={toggleSave}
+                  onSubmitComment={submitComment}
+                  onCommentChange={(postId, value) =>
+                    setCommentInputs((prev) => ({ ...prev, [postId]: value }))
+                  }
+                />
               ))}
             </div>
 
@@ -599,15 +385,15 @@ export default function FeedPage() {
                   fallback={user.username[0]?.toUpperCase()}
                 />
                 <div className="min-w-0">
-                  <p className="text-[13px] font-semibold text-text leading-[18px] truncate">
+                  <p className="text-sm font-semibold text-text leading-[18px] truncate">
                     {user.username}
                   </p>
-                  <p className="text-[11px] text-text-secondary leading-[16px] truncate">
+                  <p className="text-xs text-text-secondary leading-[16px] truncate">
                     {user.displayName || user.email}
                   </p>
                 </div>
               </Link>
-              <button className="text-[11px] font-semibold text-primary hover:text-primary-dark transition-colors shrink-0">
+              <button className="text-xs font-semibold text-primary hover:text-primary-dark transition-colors shrink-0">
                 Switch
               </button>
             </div>
@@ -617,8 +403,8 @@ export default function FeedPage() {
           {suggestedUsers.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <p className="text-[13px] font-semibold text-text-secondary">Suggestions For You</p>
-                <button className="text-[11px] font-semibold text-text hover:opacity-60 transition-opacity">
+                <p className="text-sm font-semibold text-text-secondary">Suggestions For You</p>
+                <button className="text-xs font-semibold text-text hover:opacity-60 transition-opacity">
                   See All
                 </button>
               </div>
@@ -640,10 +426,10 @@ export default function FeedPage() {
                           fallback={suggested.username[0]?.toUpperCase()}
                         />
                         <div className="min-w-0">
-                          <p className="text-[13px] font-semibold text-text leading-[18px] truncate">
+                          <p className="text-sm font-semibold text-text leading-[18px] truncate">
                             {suggested.username}
                           </p>
-                          <p className="text-[11px] text-text-secondary leading-[16px] truncate">
+                          <p className="text-xs text-text-secondary leading-[16px] truncate">
                             {suggested.displayName || 'Suggested for you'}
                           </p>
                         </div>
@@ -651,7 +437,7 @@ export default function FeedPage() {
                       <button
                         onClick={() => followSuggestion(suggested.id)}
                         disabled={isFollowing}
-                        className={`text-[11px] font-semibold shrink-0 transition-colors ${
+                        className={`text-xs font-semibold shrink-0 transition-colors ${
                           isFollowing
                             ? 'text-text-secondary'
                             : 'text-primary hover:text-primary-dark'
@@ -668,13 +454,13 @@ export default function FeedPage() {
 
           {/* Footer Links */}
           <div className="mt-8">
-            <p className="text-[11px] text-text-secondary leading-[16px]">
+            <p className="text-xs text-text-secondary leading-[16px]">
               About · Help · Press · API · Jobs · Privacy · Terms
             </p>
-            <p className="mt-3 text-[11px] text-text-secondary">
+            <p className="mt-3 text-xs text-text-secondary">
               Locations · Language · Blink Verified
             </p>
-            <p className="mt-5 text-[11px] text-text-secondary">© 2026 Blink Social</p>
+            <p className="mt-5 text-xs text-text-secondary">© 2026 Blink Social</p>
           </div>
         </div>
       </aside>

@@ -1,21 +1,12 @@
 'use client';
 
-import { useEffect, useState, useRef, useMemo } from 'react';
-import Link from 'next/link';
-import { api, UPLOADS_URL } from '@/lib/api';
+import { useEffect, useState, useMemo } from 'react';
+import { api } from '@/lib/api';
 import { GridSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
-
-function MatIcon({ icon, filled = false, className = '' }: { icon: string; filled?: boolean; className?: string }) {
-  return (
-    <span
-      className={`material-symbols-outlined text-[22px] ${className}`}
-      style={{ fontVariationSettings: `'FILL' ${filled ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24` }}
-    >
-      {icon}
-    </span>
-  );
-}
+import { MatIcon } from '@/components/ui/Icon';
+import { useInfiniteScroll } from '@/lib/hooks/useInfiniteScroll';
+import { PostGridCard } from '@/components/ui/PostGridCard';
 
 interface Post {
   id: string;
@@ -51,7 +42,7 @@ export default function ExplorePage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [activeCategory, setActiveCategory] = useState('For You');
-  const sentinelRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useInfiniteScroll(hasMore, loadingMore, () => setPage((p) => p + 1));
 
   const loadPosts = async (pageNum: number) => {
     if (pageNum === 1) setLoading(true);
@@ -76,20 +67,6 @@ export default function ExplorePage() {
     loadPosts(page);
   }, [page]);
 
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingMore) {
-          setPage((p) => p + 1);
-        }
-      },
-      { threshold: 0.1 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [hasMore, loadingMore]);
 
   // Create varied layout pattern
   const gridItems: GridItem[] = useMemo(() => {
@@ -144,7 +121,7 @@ export default function ExplorePage() {
           <input
             type="text"
             placeholder="Search"
-            className="w-full rounded-lg bg-bg-secondary border-0 py-2.5 pl-10 pr-4 text-[13px] outline-none placeholder:text-text-secondary"
+            className="w-full rounded-lg bg-bg-secondary border-0 py-2.5 pl-10 pr-4 text-sm outline-none placeholder:text-text-secondary"
           />
         </div>
       </div>
@@ -157,7 +134,7 @@ export default function ExplorePage() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`shrink-0 rounded-lg px-4 py-1.5 text-[13px] font-medium transition-all duration-150 ${
+              className={`shrink-0 rounded-lg px-4 py-1.5 text-sm font-medium transition-all duration-150 ${
                 isActive
                   ? 'bg-primary text-white shadow-sm'
                   : 'bg-bg-secondary text-text-secondary hover:bg-bg-tertiary hover:text-text border border-border'
@@ -175,76 +152,13 @@ export default function ExplorePage() {
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[3px] md:gap-1">
-            {gridItems.map((item, index) => {
-              const { post, size } = item;
-              const isTallOrFeatured = size === 'tall' || size === 'featured';
-
-              return (
-                <Link
-                  key={`${post.id}-${index}`}
-                  href={`/posts/${post.id}`}
-                  className={`group relative bg-bg-secondary overflow-hidden transition-all duration-200 hover:scale-[1.01] ${
-                    size === 'featured'
-                      ? 'col-span-2 row-span-2'
-                      : size === 'tall'
-                        ? 'col-span-1 row-span-2'
-                        : size === 'medium'
-                          ? 'col-span-2 row-span-1 md:col-span-2 md:row-span-1'
-                          : 'col-span-1 row-span-1'
-                  }`}
-                  style={{ animationDelay: `${index * 20}ms` }}
-                >
-                  <div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}
-                  />
-
-                  {/* Media type indicators */}
-                  {index % 5 === 0 && (
-                    <div className="absolute top-2 right-2 z-10">
-                      <span
-                        className="material-symbols-outlined text-white text-[20px] drop-shadow-md"
-                        style={{ fontVariationSettings: `'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20` }}
-                      >
-                        play_circle
-                      </span>
-                    </div>
-                  )}
-                  {index % 7 === 0 && (
-                    <div className="absolute top-2 right-2 z-10">
-                      <span
-                        className="material-symbols-outlined text-white text-[20px] drop-shadow-md"
-                        style={{ fontVariationSettings: `'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20` }}
-                      >
-                        collections
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center gap-4 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <span className="flex items-center gap-1.5 text-white text-[13px] font-semibold">
-                      <span
-                        className="material-symbols-outlined text-[18px]"
-                        style={{ fontVariationSettings: `'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20` }}
-                      >
-                        favorite
-                      </span>
-                      {post._count.likes}
-                    </span>
-                    <span className="flex items-center gap-1.5 text-white text-[13px] font-semibold">
-                      <span
-                        className="material-symbols-outlined text-[18px]"
-                        style={{ fontVariationSettings: `'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20` }}
-                      >
-                        chat_bubble
-                      </span>
-                      {post._count.comments}
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
+            {gridItems.map((item, index) => (
+              <PostGridCard
+                key={`${item.post.id}-${index}`}
+                post={item.post}
+                index={index}
+              />
+            ))}
           </div>
 
           <div ref={sentinelRef} className="h-4" />

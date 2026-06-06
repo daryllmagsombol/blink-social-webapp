@@ -5,25 +5,16 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api, UPLOADS_URL } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
-import { Avatar } from '@/components/ui/Avatar';
+import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Toggle } from '@/components/ui/Toggle';
 import { ProfileSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from '@/components/ui/Toast';
+import { Tabs } from '@/components/ui/Tabs';
 import { MessageCircle, Shield, ShieldOff, Lock, Unlock, Trash2 } from 'lucide-react';
-
-function MatIcon({ icon, filled = false, className = '' }: { icon: string; filled?: boolean; className?: string }) {
-  return (
-    <span
-      className={`material-symbols-outlined text-[22px] ${className}`}
-      style={{ fontVariationSettings: `'FILL' ${filled ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24` }}
-    >
-      {icon}
-    </span>
-  );
-}
+import { MatIcon } from '@/components/ui/Icon';
 
 interface ProfileUser {
   id: string;
@@ -150,105 +141,60 @@ export default function UserProfilePage() {
 
   return (
     <div className="mx-auto max-w-[935px] px-4 py-8 pb-20 animate-fade-in">
-      {/* Profile Header */}
-      <div className="flex flex-col md:flex-row md:items-center gap-8 mb-10">
-        {/* Avatar with gradient ring */}
-        <div className="flex justify-center md:block">
-          <div className="relative mx-auto w-fit">
-            <div className="rounded-full bg-gradient-to-br from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] p-[3px]">
-              <div className="rounded-full bg-white p-[3px]">
-                <Avatar
-                  src={profile.avatarUrl ? `${UPLOADS_URL}${profile.avatarUrl}` : undefined}
-                  alt={profile.username}
-                  size="xl"
-                  className="h-[86px] w-[86px]"
-                  fallback={profile.username[0]?.toUpperCase()}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+      <ProfileHeader user={profile} stats={{ postsCount: profile.postsCount, followersCount: profile.followersCount, followingCount: profile.followingCount }}>
+        {profile.isPrivate && !isOwn && (
+          <Badge variant="warning" size="sm" className="flex items-center gap-1">
+            <Lock className="h-3 w-3" />
+            Private
+          </Badge>
+        )}
+        {!isOwn && currentUser && (
+          <>
+            <Button
+              onClick={toggleFollow}
+              variant={isFollowing ? 'secondary' : 'primary'}
+              size="sm"
+              className={`text-sm font-semibold px-5 py-1.5 rounded-lg ${
+                isFollowing ? 'border-border' : 'bg-primary text-white'
+              }`}
+            >
+              {isFollowing ? 'Following' : 'Follow'}
+            </Button>
+            <Button
+              onClick={() => router.push(`/messages/${id}`)}
+              variant="secondary"
+              size="sm"
+              className="text-sm font-semibold px-4 py-1.5 rounded-lg border-border"
+            >
+              <MessageCircle className="h-4 w-4 mr-1" />
+              Message
+            </Button>
+            <button
+              onClick={toggleBlock}
+              className="p-1.5 text-text-secondary hover:text-text transition-colors"
+            >
+              <MatIcon icon="more_horiz" />
+            </button>
+          </>
+        )}
+        {isOwn && (
+          <>
+            <Button
+              onClick={() => toast('Edit profile coming soon', 'info')}
+              variant="secondary"
+              size="sm"
+              className="text-sm font-semibold px-4 py-1.5 rounded-lg border-border"
+            >
+              Edit profile
+            </Button>
+            <button className="p-1.5 text-text-secondary hover:text-text transition-colors">
+              <MatIcon icon="settings" />
+            </button>
+          </>
+        )}
+      </ProfileHeader>
 
-        <div className="flex-1 min-w-0 text-center md:text-left">
-          <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
-            <h1 className="text-[20px] font-light text-text">{profile.username}</h1>
-            {profile.isPrivate && !isOwn && (
-              <Badge variant="warning" size="sm" className="flex items-center gap-1">
-                <Lock className="h-3 w-3" />
-                Private
-              </Badge>
-            )}
-            {!isOwn && currentUser && (
-              <div className="flex items-center justify-center md:justify-start gap-2">
-                <Button
-                  onClick={toggleFollow}
-                  variant={isFollowing ? 'secondary' : 'primary'}
-                  size="sm"
-                  className={`text-[13px] font-semibold px-5 py-1.5 rounded-lg ${
-                    isFollowing
-                      ? 'border-border'
-                      : 'bg-primary text-white'
-                  }`}
-                >
-                  {isFollowing ? 'Following' : 'Follow'}
-                </Button>
-                <Button
-                  onClick={() => router.push(`/messages/${id}`)}
-                  variant="secondary"
-                  size="sm"
-                  className="text-[13px] font-semibold px-4 py-1.5 rounded-lg border-border"
-                >
-                  <MessageCircle className="h-4 w-4 mr-1" />
-                  Message
-                </Button>
-                <button
-                  onClick={toggleBlock}
-                  className="p-1.5 text-text-secondary hover:text-text transition-colors"
-                >
-                  <MatIcon icon="more_horiz" />
-                </button>
-              </div>
-            )}
-            {isOwn && (
-              <div className="flex items-center justify-center md:justify-start gap-2">
-                <Button
-                  onClick={() => toast('Edit profile coming soon', 'info')}
-                  variant="secondary"
-                  size="sm"
-                  className="text-[13px] font-semibold px-4 py-1.5 rounded-lg border-border"
-                >
-                  Edit profile
-                </Button>
-                <button className="p-1.5 text-text-secondary hover:text-text transition-colors">
-                  <MatIcon icon="settings" />
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Stats Row */}
-          <div className="flex items-center justify-center md:justify-start gap-6 md:gap-10 mt-4">
-            <span className="text-[14px] text-text">
-              <strong className="font-semibold">{profile.postsCount}</strong>{' '}
-              <span className="text-text-secondary">posts</span>
-            </span>
-            <Link href={`/profile/${id}/followers`} className="text-[14px] text-text hover:opacity-70">
-              <strong className="font-semibold">{profile.followersCount}</strong>{' '}
-              <span className="text-text-secondary">followers</span>
-            </Link>
-            <Link href={`/profile/${id}/following`} className="text-[14px] text-text hover:opacity-70">
-              <strong className="font-semibold">{profile.followingCount}</strong>{' '}
-              <span className="text-text-secondary">following</span>
-            </Link>
-          </div>
-
-          {/* Bio */}
-          {profile.displayName && (
-            <p className="text-[13px] font-semibold mt-3 text-text">{profile.displayName}</p>
-          )}
-          {profile.bio && <p className="text-[13px] mt-0.5 text-text">{profile.bio}</p>}
-
-          {/* Owner Settings */}
+      {/* Owner Settings */}
           {isOwn && (
             <div className="mt-5 pt-4 border-t border-border space-y-3">
               <Toggle
@@ -293,35 +239,18 @@ export default function UserProfilePage() {
               )}
             </div>
           )}
-        </div>
-      </div>
 
       {/* Tabs */}
       <div className="border-t border-border">
-        <div className="flex items-center justify-center gap-16">
-          <button
-            onClick={() => setTab('posts')}
-            className={`flex items-center gap-1.5 py-3 text-[12px] font-semibold tracking-[0.05em] uppercase border-t ${
-              tab === 'posts'
-                ? 'border-text text-text -mt-px'
-                : 'border-transparent text-text-secondary hover:text-text'
-            } transition-colors`}
-          >
-            <MatIcon icon="grid_on" filled={tab === 'posts'} className="text-[14px]" />
-            POSTS
-          </button>
-          <button
-            onClick={() => setTab('tagged')}
-            className={`flex items-center gap-1.5 py-3 text-[12px] font-semibold tracking-[0.05em] uppercase border-t ${
-              tab === 'tagged'
-                ? 'border-text text-text -mt-px'
-                : 'border-transparent text-text-secondary hover:text-text'
-            } transition-colors`}
-          >
-            <MatIcon icon="bookmark" filled={tab === 'tagged'} className="text-[14px]" />
-            TAGGED
-          </button>
-        </div>
+        <Tabs
+          tabs={[
+            { label: 'Posts', value: 'posts' },
+            { label: 'Tagged', value: 'tagged' },
+          ]}
+          value={tab}
+          onChange={(v) => setTab(v as 'posts' | 'tagged')}
+          variant="underline"
+        />
       </div>
 
       {/* Posts Grid or Private Account */}
@@ -352,7 +281,7 @@ export default function UserProfilePage() {
                   style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center gap-6 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <span className="flex items-center gap-1.5 text-white text-[14px] font-semibold">
+                  <span className="flex items-center gap-1.5 text-white text-base font-semibold">
                     <span
                       className="material-symbols-outlined text-[18px]"
                       style={{ fontVariationSettings: `'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20` }}
@@ -361,7 +290,7 @@ export default function UserProfilePage() {
                     </span>
                     {post._count.likes}
                   </span>
-                  <span className="flex items-center gap-1.5 text-white text-[14px] font-semibold">
+                  <span className="flex items-center gap-1.5 text-white text-base font-semibold">
                     <span
                       className="material-symbols-outlined text-[18px]"
                       style={{ fontVariationSettings: `'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20` }}

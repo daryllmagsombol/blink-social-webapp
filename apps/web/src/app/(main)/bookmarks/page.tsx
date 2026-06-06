@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import Link from 'next/link';
-import { api, UPLOADS_URL } from '@/lib/api';
+import { useEffect, useState } from 'react';
+import { api } from '@/lib/api';
 import { GridSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from '@/components/ui/Toast';
-import { Heart } from 'lucide-react';
+import { useInfiniteScroll } from '@/lib/hooks/useInfiniteScroll';
+import { PostGridCard } from '@/components/ui/PostGridCard';
+
 
 interface Post {
   id: string;
@@ -22,7 +23,7 @@ export default function BookmarksPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-  const sentinelRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useInfiniteScroll(hasMore, loadingMore, () => setPage((p) => p + 1));
   const [init, setInit] = useState(false);
 
   const loadBookmarks = async (pageNum: number) => {
@@ -50,20 +51,6 @@ export default function BookmarksPage() {
     loadBookmarks(page);
   }, [page]);
 
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingMore) {
-          setPage((p) => p + 1);
-        }
-      },
-      { threshold: 0.1 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [hasMore, loadingMore]);
 
   if (loading) {
     return (
@@ -84,15 +71,12 @@ export default function BookmarksPage() {
         <>
           <div className="grid grid-cols-3 gap-1">
             {posts.map((post, index) => (
-              <Link key={post.id} href={`/posts/${post.id}`} className="group relative aspect-square bg-bg-secondary overflow-hidden transition-all duration-150 hover:scale-[1.02]" style={{ animationDelay: `${index * 30}ms` }}>
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-white text-sm font-semibold flex items-center gap-1"><Heart className="h-3.5 w-3.5" /> {post._count.likes}</span>
-                </div>
-              </Link>
+              <PostGridCard
+                key={post.id}
+                post={post}
+                index={index}
+                showComments={false}
+              />
             ))}
           </div>
           <div ref={sentinelRef} className="h-4" />

@@ -7,6 +7,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { NotificationSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { timeAgo } from '@/lib/utils';
 
 interface Notification {
   id: string;
@@ -90,23 +91,13 @@ export default function NotificationsPage() {
                   <span className="font-semibold">{n.actor.username}</span>{' '}
                   {typeText(n)}
                 </p>
-                <p className="text-xs text-text-secondary">{formatTime(n.createdAt)}</p>
+                <p className="text-xs text-text-secondary">{timeAgo(n.createdAt)}</p>
               </div>
-              {!n.read && <div className="h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_6px_rgba(138,43,226,0.5)] shrink-0" />}
+              {!n.read && <div className="h-2.5 w-2.5 rounded-full bg-primary shadow-sm ring-2 ring-primary/30 shrink-0" />}
             </Link>
           ))}
         </div>
       )}
     </div>
   );
-}
-
-function formatTime(date: string) {
-  const d = new Date(date);
-  const now = new Date();
-  const diff = now.getTime() - d.getTime();
-  if (diff < 60000) return 'just now';
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-  return d.toLocaleDateString();
 }

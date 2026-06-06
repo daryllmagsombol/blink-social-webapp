@@ -13,31 +13,8 @@ import { PostSkeleton } from '@/components/ui/Skeleton';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { toast } from '@/components/ui/Toast';
 import { linkifyCaption } from '@/lib/linkify';
-
-function MatIcon({ icon, filled = false, className = '' }: { icon: string; filled?: boolean; className?: string }) {
-  return (
-    <span
-      className={`material-symbols-outlined text-[22px] ${className}`}
-      style={{ fontVariationSettings: `'FILL' ${filled ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24` }}
-    >
-      {icon}
-    </span>
-  );
-}
-
-function timeAgo(dateStr: string): string {
-  const now = Date.now();
-  const date = new Date(dateStr).getTime();
-  const seconds = Math.floor((now - date) / 1000);
-  if (seconds < 60) return 'just now';
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(dateStr).toLocaleDateString();
-}
+import { MatIcon } from '@/components/ui/Icon';
+import { timeAgo } from '@/lib/utils';
 
 interface Post {
   id: string;
@@ -262,7 +239,7 @@ export default function PostDetailPage() {
               </Link>
               <Link
                 href={`/profile/${post.user.id}`}
-                className="text-[13px] font-semibold text-text hover:underline"
+                className="text-sm font-semibold text-text hover:underline"
               >
                 {post.user.username}
               </Link>
@@ -307,7 +284,7 @@ export default function PostDetailPage() {
                 />
               </Link>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] leading-[18px]">
+                <p className="text-sm leading-[18px]">
                   <Link
                     href={`/profile/${post.user.id}`}
                     className="font-semibold text-text hover:underline"
@@ -317,7 +294,7 @@ export default function PostDetailPage() {
                   <span className="text-text">{linkifyCaption(post.caption || '')}</span>
                 </p>
                 {post.caption && (
-                  <p className="text-[10px] text-text-secondary uppercase tracking-wide mt-1">
+                  <p className="text-xs text-text-secondary uppercase tracking-wide mt-1">
                     {timeAgo(post.createdAt)}
                   </p>
                 )}
@@ -364,7 +341,7 @@ export default function PostDetailPage() {
             {/* Comments */}
             <div className="px-4 pb-3 space-y-3">
               {comments.length === 0 ? (
-                <p className="text-[13px] text-text-secondary py-3">No comments yet. Add one below!</p>
+                <p className="text-sm text-text-secondary py-3">No comments yet. Add one below!</p>
               ) : (
                 comments.map((c) => (
                   <div key={c.id} className="flex gap-3">
@@ -384,7 +361,7 @@ export default function PostDetailPage() {
                             value={editCommentContent}
                             onChange={(e) => setEditCommentContent(e.target.value)}
                             maxLength={500}
-                            className="w-full border border-border rounded-lg px-3 py-1.5 text-[13px] outline-none"
+                            className="w-full border border-border rounded-lg px-3 py-1.5 text-sm outline-none"
                             autoFocus
                           />
                           <div className="flex gap-2">
@@ -405,7 +382,7 @@ export default function PostDetailPage() {
                         </div>
                       ) : (
                         <>
-                          <p className="text-[13px] leading-[18px]">
+                          <p className="text-sm leading-[18px]">
                             <Link
                               href={`/profile/${c.user.id}`}
                               className="font-semibold text-text hover:underline"
@@ -415,13 +392,13 @@ export default function PostDetailPage() {
                             <span className="text-text">{c.content}</span>
                           </p>
                           <div className="flex items-center gap-3 mt-0.5">
-                            <span className="text-[10px] text-text-secondary uppercase tracking-wide">
+                            <span className="text-xs text-text-secondary uppercase tracking-wide">
                               {timeAgo(c.createdAt)}
                             </span>
                             {currentUser?.id === c.user.id && (
                               <button
                                 onClick={() => startEditComment(c.id, c.content)}
-                                className="text-[10px] text-text-secondary hover:text-text"
+                                className="text-xs text-text-secondary hover:text-text"
                               >
                                 Edit
                               </button>
@@ -447,7 +424,7 @@ export default function PostDetailPage() {
                   <span
                     className={`material-symbols-outlined text-[26px] transition-all duration-150 ${
                       animatingHeart ? 'animate-heart-beat' : ''
-                    } ${liked ? 'text-[#ED4956]' : 'text-text'}`}
+                    } ${liked ? 'text-accent' : 'text-text'}`}
                     style={{
                       fontVariationSettings: `'FILL' ${liked ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24`,
                     }}
@@ -487,10 +464,10 @@ export default function PostDetailPage() {
               </button>
             </div>
 
-            <p className="mt-1 text-[13px] font-semibold text-text">
+            <p className="mt-1 text-sm font-semibold text-text">
               {post._count.likes.toLocaleString()} likes
             </p>
-            <p className="mt-0.5 text-[10px] text-text-secondary uppercase tracking-wide">
+            <p className="mt-0.5 text-xs text-text-secondary uppercase tracking-wide">
               {timeAgo(post.createdAt)}
             </p>
           </div>
@@ -515,12 +492,12 @@ export default function PostDetailPage() {
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 maxLength={500}
-                className="flex-1 border-0 bg-transparent text-[13px] outline-none placeholder:text-text-secondary"
+                className="flex-1 border-0 bg-transparent text-sm outline-none placeholder:text-text-secondary"
               />
               <button
                 type="submit"
                 disabled={!newComment.trim() || submitting}
-                className="text-[13px] font-semibold text-primary disabled:opacity-40 hover:text-primary-dark transition-colors"
+                className="text-sm font-semibold text-primary disabled:opacity-40 hover:text-primary-dark transition-colors"
               >
                 {submitting ? '...' : 'Post'}
               </button>
