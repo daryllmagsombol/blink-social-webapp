@@ -1,24 +1,29 @@
 'use client';
 
-import { useState, FormEvent, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/stores/auth';
 import { API_URL } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { registerSchema, type RegisterFormData } from '@/lib/validations/auth';
 
 export default function RegisterPage() {
-  const [form, setForm] = useState({
-    username: '',
-    email: '',
-    password: '',
-    displayName: '',
-  });
-  const [error, setError] = useState('');
+  const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register, isAuthenticated } = useAuth();
+  const { register: registerUser, isAuthenticated } = useAuth();
   const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+  });
 
   // Parallax state
   const phoneRef = useRef<HTMLDivElement>(null);
@@ -29,28 +34,23 @@ export default function RegisterPage() {
     if (isAuthenticated) router.push('/feed');
   }, [isAuthenticated, router]);
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError('');
+  async function onSubmit(data: RegisterFormData) {
+    setApiError('');
     setLoading(true);
 
     try {
-      await register({
-        username: form.username,
-        email: form.email,
-        password: form.password,
-        displayName: form.displayName || undefined,
+      await registerUser({
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        displayName: data.displayName || undefined,
       });
       router.push('/feed');
     } catch (err: any) {
-      setError(err.message);
+      setApiError(err.message);
     } finally {
       setLoading(false);
     }
-  }
-
-  function update(field: string, value: string) {
-    setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   function handleHeroMouseMove(e: React.MouseEvent<HTMLDivElement>) {
@@ -244,47 +244,42 @@ export default function RegisterPage() {
                   </h1>
                 </div>
 
-                {error && (
+                {apiError && (
                   <div className="mb-4 rounded-lg bg-danger/10 p-3 text-center text-sm text-danger">
-                    {error}
+                    {apiError}
                   </div>
                 )}
 
                 {/* Register Form */}
-                <form onSubmit={handleSubmit} className="space-y-3">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
                   <Input
                     type="text"
                     placeholder="Username"
-                    value={form.username}
-                    onChange={(e) => update('username', e.target.value)}
-                    required
-                    minLength={3}
+                    error={errors.username?.message}
                     autoFocus
                     className="bg-bg-secondary text-sm"
+                    {...register('username')}
                   />
                   <Input
                     type="email"
                     placeholder="Email"
-                    value={form.email}
-                    onChange={(e) => update('email', e.target.value)}
-                    required
+                    error={errors.email?.message}
                     className="bg-bg-secondary text-sm"
+                    {...register('email')}
                   />
                   <Input
                     type="password"
                     placeholder="Password"
-                    value={form.password}
-                    onChange={(e) => update('password', e.target.value)}
-                    required
-                    minLength={6}
+                    error={errors.password?.message}
                     className="bg-bg-secondary text-sm"
+                    {...register('password')}
                   />
                   <Input
                     type="text"
                     placeholder="Full name (optional)"
-                    value={form.displayName}
-                    onChange={(e) => update('displayName', e.target.value)}
+                    error={errors.displayName?.message}
                     className="bg-bg-secondary text-sm"
+                    {...register('displayName')}
                   />
                   <Button
                     type="submit"

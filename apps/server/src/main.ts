@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
+import session from 'express-session';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,6 +22,21 @@ async function bootstrap() {
   });
 
   app.use(helmet());
+
+  // Required for Passport OAuth state parameter (Google, etc.)
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET || 'blink-dev-session-secret',
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 1000 * 60 * 10, // 10 min — only needed during OAuth handshake
+        sameSite: 'lax',
+      },
+    }),
+  );
 
   app.enableShutdownHooks();
 

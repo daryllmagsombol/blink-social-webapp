@@ -1,30 +1,40 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { resetPasswordSchema, type ResetPasswordFormData } from '@/lib/validations/auth';
 
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [apiError, setApiError] = useState('');
   const [done, setDone] = useState(false);
 
-  async function handleSubmit(e: FormEvent) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+  });
+
+  async function onSubmit(data: ResetPasswordFormData) {
     if (!token) return;
-    setError('');
+    setApiError('');
     setLoading(true);
 
     try {
-      await api.post('/auth/reset-password', { token, password }, { skipAuth: true });
+      await api.post('/auth/reset-password', { token, password: data.password }, { skipAuth: true });
       setDone(true);
     } catch (err: any) {
-      setError(err.message);
+      setApiError(err.message);
     } finally {
       setLoading(false);
     }
@@ -58,8 +68,8 @@ export default function ResetPasswordPage() {
           <div className="p-8">
             <h2 className="mb-6 text-center text-2xl font-bold text-brand">Set New Password</h2>
 
-            {error && (
-              <div className="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger">{error}</div>
+            {apiError && (
+              <div className="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger">{apiError}</div>
             )}
 
             {done ? (
@@ -70,15 +80,13 @@ export default function ResetPasswordPage() {
                 </Link>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
                 <Input
                   type="password"
                   placeholder="New password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
+                  error={errors.password?.message}
                   autoFocus
+                  {...register('password')}
                 />
                 <Button type="submit" loading={loading} className="w-full" size="lg">
                   Reset password

@@ -1,27 +1,36 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { forgotPasswordSchema, type ForgotPasswordFormData } from '@/lib/validations/auth';
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [apiError, setApiError] = useState('');
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError('');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(forgotPasswordSchema),
+  });
+
+  async function onSubmit(data: ForgotPasswordFormData) {
+    setApiError('');
     setLoading(true);
 
     try {
-      await api.post('/auth/forgot-password', { email }, { skipAuth: true });
+      await api.post('/auth/forgot-password', { email: data.email }, { skipAuth: true });
       setSent(true);
     } catch (err: any) {
-      setError(err.message);
+      setApiError(err.message);
     } finally {
       setLoading(false);
     }
@@ -43,8 +52,8 @@ export default function ForgotPasswordPage() {
               Enter your email and we&apos;ll send you a reset link.
             </p>
 
-            {error && (
-              <div className="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger">{error}</div>
+            {apiError && (
+              <div className="mb-4 rounded-lg bg-danger/10 p-3 text-sm text-danger">{apiError}</div>
             )}
 
             {sent ? (
@@ -57,14 +66,13 @@ export default function ForgotPasswordPage() {
                 </Link>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
                 <Input
                   type="email"
                   placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+                  error={errors.email?.message}
                   autoFocus
+                  {...register('email')}
                 />
                 <Button type="submit" loading={loading} className="w-full" size="lg">
                   Send reset link

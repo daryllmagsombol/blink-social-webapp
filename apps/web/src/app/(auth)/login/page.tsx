@@ -1,20 +1,29 @@
 'use client';
 
-import { useState, FormEvent, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/stores/auth';
 import { API_URL } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { loginSchema, type LoginFormData } from '@/lib/validations/auth';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
 
   // Parallax state
   const phoneRef = useRef<HTMLDivElement>(null);
@@ -25,16 +34,15 @@ export default function LoginPage() {
     if (isAuthenticated) router.push('/feed');
   }, [isAuthenticated, router]);
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError('');
+  async function onSubmit(data: LoginFormData) {
+    setApiError('');
     setLoading(true);
 
     try {
-      await login(email, password);
+      await login(data.email, data.password);
       router.push('/feed');
     } catch (err: any) {
-      setError(err.message);
+      setApiError(err.message);
     } finally {
       setLoading(false);
     }
@@ -231,30 +239,28 @@ export default function LoginPage() {
                   </h1>
                 </div>
 
-                {error && (
+                {apiError && (
                   <div className="mb-4 rounded-lg bg-danger/10 p-3 text-center text-sm text-danger">
-                    {error}
+                    {apiError}
                   </div>
                 )}
 
                 {/* Login Form */}
-                <form onSubmit={handleSubmit} className="space-y-3">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-3" noValidate>
                   <Input
                     type="text"
                     placeholder="Username or email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
+                    error={errors.email?.message}
                     autoFocus
                     className="bg-bg-secondary text-sm"
+                    {...register('email')}
                   />
                   <Input
                     type="password"
                     placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
+                    error={errors.password?.message}
                     className="bg-bg-secondary text-sm"
+                    {...register('password')}
                   />
                   <Button
                     type="submit"

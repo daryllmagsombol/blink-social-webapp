@@ -69,7 +69,7 @@ export function PostCard({
             >
               {post.user.username}
             </Link>
-            <p className="text-xs text-text-secondary uppercase tracking-wide leading-[14px]">
+            <p className="text-xs text-text-secondary tracking-wide leading-[14px]">
               {timeAgo(post.createdAt)}
             </p>
           </div>
@@ -183,7 +183,7 @@ export function PostCard({
         )}
 
         {/* Time Ago */}
-        <p className="mt-0.5 text-xs text-text-secondary uppercase tracking-wide">
+        <p className="mt-0.5 text-xs text-text-secondary tracking-wide">
           {timeAgo(post.createdAt)}
         </p>
       </div>

@@ -62,7 +62,9 @@ export default function PostDetailPage() {
       api.get<Post>(`/posts/${id}`),
       api.get<{ data: Comment[] }>(`/posts/${id}/comments`),
       currentUser ? api.get<{ liked: boolean }>(`/posts/${id}/likes/check`) : Promise.resolve(null),
-      currentUser ? api.get<{ saved: boolean }>(`/posts/${id}/bookmark/check`) : Promise.resolve(null),
+      currentUser
+        ? api.get<{ saved: boolean }>(`/posts/${id}/bookmark/check`)
+        : Promise.resolve(null),
     ])
       .then(([postRes, commentsRes, likeRes, bookmarkRes]) => {
         setPost(postRes);
@@ -81,11 +83,11 @@ export default function PostDetailPage() {
       if (liked) {
         await api.delete(`/posts/${id}/likes`);
         setLiked(false);
-        setPost((p) => p ? { ...p, _count: { ...p._count, likes: p._count.likes - 1 } } : p);
+        setPost((p) => (p ? { ...p, _count: { ...p._count, likes: p._count.likes - 1 } } : p));
       } else {
         await api.post(`/posts/${id}/likes`);
         setLiked(true);
-        setPost((p) => p ? { ...p, _count: { ...p._count, likes: p._count.likes + 1 } } : p);
+        setPost((p) => (p ? { ...p, _count: { ...p._count, likes: p._count.likes + 1 } } : p));
       }
     } catch {}
   };
@@ -112,7 +114,7 @@ export default function PostDetailPage() {
       const comment = await api.post<Comment>(`/posts/${id}/comments`, { content: newComment });
       setComments((prev) => [comment, ...prev]);
       setNewComment('');
-      setPost((p) => p ? { ...p, _count: { ...p._count, comments: p._count.comments + 1 } } : p);
+      setPost((p) => (p ? { ...p, _count: { ...p._count, comments: p._count.comments + 1 } } : p));
     } catch {}
     setSubmitting(false);
   };
@@ -160,10 +162,9 @@ export default function PostDetailPage() {
   const saveComment = async (commentId: string) => {
     if (!editCommentContent.trim()) return;
     try {
-      const updated = await api.patch<Comment>(
-        `/posts/${id}/comments/${commentId}`,
-        { content: editCommentContent },
-      );
+      const updated = await api.patch<Comment>(`/posts/${id}/comments/${commentId}`, {
+        content: editCommentContent,
+      });
       setComments((prev) => prev.map((c) => (c.id === commentId ? updated : c)));
       setEditingCommentId(null);
       toast('Comment updated', 'success');
@@ -254,16 +255,21 @@ export default function PostDetailPage() {
                 align="right"
               >
                 {currentUser?.id === post.userId ? (
-                  <DropdownItem onClick={deletePost} danger>Delete</DropdownItem>
+                  <DropdownItem onClick={deletePost} danger>
+                    Delete
+                  </DropdownItem>
                 ) : (
-                  <DropdownItem onClick={() => {
-                    const reason = prompt('Reason for reporting this post:');
-                    if (reason && reason.trim()) {
-                      api.post('/reports', { reason: reason.trim(), postId: id })
-                        .then(() => toast('Report submitted', 'success'))
-                        .catch(() => toast('Failed to submit report', 'error'));
-                    }
-                  }}>
+                  <DropdownItem
+                    onClick={() => {
+                      const reason = prompt('Reason for reporting this post:');
+                      if (reason && reason.trim()) {
+                        api
+                          .post('/reports', { reason: reason.trim(), postId: id })
+                          .then(() => toast('Report submitted', 'success'))
+                          .catch(() => toast('Failed to submit report', 'error'));
+                      }
+                    }}
+                  >
                     Report
                   </DropdownItem>
                 )}
@@ -294,14 +300,17 @@ export default function PostDetailPage() {
                   <span className="text-text">{linkifyCaption(post.caption || '')}</span>
                 </p>
                 {post.caption && (
-                  <p className="text-xs text-text-secondary uppercase tracking-wide mt-1">
+                  <p className="text-xs text-text-secondary tracking-wide mt-1">
                     {timeAgo(post.createdAt)}
                   </p>
                 )}
               </div>
               {currentUser?.id === post.userId && (
                 <button
-                  onClick={() => { setEditingCaption(true); setEditCaptionText(post.caption || ''); }}
+                  onClick={() => {
+                    setEditingCaption(true);
+                    setEditCaptionText(post.caption || '');
+                  }}
                   className="text-text-secondary hover:text-text transition-colors shrink-0 self-start"
                 >
                   <MatIcon icon="edit" className="text-[16px]" />
@@ -328,7 +337,10 @@ export default function PostDetailPage() {
                     Save
                   </Button>
                   <Button
-                    onClick={() => { setEditingCaption(false); setEditCaptionText(post.caption || ''); }}
+                    onClick={() => {
+                      setEditingCaption(false);
+                      setEditCaptionText(post.caption || '');
+                    }}
                     variant="secondary"
                     size="sm"
                   >
@@ -392,7 +404,7 @@ export default function PostDetailPage() {
                             <span className="text-text">{c.content}</span>
                           </p>
                           <div className="flex items-center gap-3 mt-0.5">
-                            <span className="text-xs text-text-secondary uppercase tracking-wide">
+                            <span className="text-xs text-text-secondary tracking-wide">
                               {timeAgo(c.createdAt)}
                             </span>
                             {currentUser?.id === c.user.id && (
@@ -449,10 +461,7 @@ export default function PostDetailPage() {
                   </span>
                 </button>
               </div>
-              <button
-                onClick={toggleSave}
-                className="transition-all duration-150 hover:scale-110"
-              >
+              <button onClick={toggleSave} className="transition-all duration-150 hover:scale-110">
                 <span
                   className="material-symbols-outlined text-[26px]"
                   style={{
@@ -467,14 +476,17 @@ export default function PostDetailPage() {
             <p className="mt-1 text-sm font-semibold text-text">
               {post._count.likes.toLocaleString()} likes
             </p>
-            <p className="mt-0.5 text-xs text-text-secondary uppercase tracking-wide">
+            <p className="mt-0.5 text-xs text-text-secondary tracking-wide">
               {timeAgo(post.createdAt)}
             </p>
           </div>
 
           {/* Comment Input */}
           {currentUser && (
-            <form onSubmit={addComment} className="flex items-center border-t border-border px-4 py-2.5">
+            <form
+              onSubmit={addComment}
+              className="flex items-center border-t border-border px-4 py-2.5"
+            >
               <button
                 type="button"
                 className="mr-2 text-text-secondary hover:text-text transition-colors"
