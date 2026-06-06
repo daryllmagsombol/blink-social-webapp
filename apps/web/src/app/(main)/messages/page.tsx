@@ -10,6 +10,7 @@ import { Skeleton, MessageSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { MatIcon } from '@/components/ui/Icon';
+import { NewUserSearch } from '@/components/chat/NewUserSearch';
 import { timeAgo } from '@/lib/utils';
 
 // ─── Types ───────────────────────────────────────────────
@@ -155,7 +156,10 @@ function ChatPanel({
   const [otherUser, setOtherUser] = useState<OtherUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [chatSearchOpen, setChatSearchOpen] = useState(false);
+  const [chatSearchQuery, setChatSearchQuery] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatSearchInputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -222,11 +226,17 @@ function ChatPanel({
     ? `${UPLOADS_URL}${otherUser.avatarUrl}`
     : undefined;
 
-  const groupedMessages = messages.map((msg, index) => ({
+  const filteredMessages = chatSearchQuery.trim()
+    ? messages.filter((msg) =>
+        msg.content.toLowerCase().includes(chatSearchQuery.toLowerCase()),
+      )
+    : messages;
+
+  const groupedMessages = filteredMessages.map((msg, index) => ({
     message: msg,
     isMine: msg.senderId === currentUserId,
-    showDateDivider: shouldShowDateDivider(messages, index),
-    showAvatar: shouldShowAvatar(messages, index, currentUserId),
+    showDateDivider: shouldShowDateDivider(filteredMessages, index),
+    showAvatar: shouldShowAvatar(filteredMessages, index, currentUserId),
   }));
 
   // --- Loading ---
@@ -334,8 +344,64 @@ function ChatPanel({
           >
             <MatIcon icon="info" />
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              setChatSearchOpen((v) => !v);
+              if (!chatSearchOpen) {
+                // Focus input after render
+                setTimeout(() => chatSearchInputRef.current?.focus(), 100);
+              } else {
+                setChatSearchQuery('');
+              }
+            }}
+            aria-label="Search conversation"
+            className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+              chatSearchOpen
+                ? 'bg-primary text-white'
+                : 'text-text-secondary hover:bg-bg-secondary'
+            }`}
+          >
+            <MatIcon icon="search" />
+          </button>
         </div>
       </div>
+
+      {/* ─── Chat Search Bar ─── */}
+      {chatSearchOpen && (
+        <div className="shrink-0 border-b border-border bg-bg px-3 py-2">
+          <div className="relative">
+            <MatIcon
+              icon="search"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none"
+            />
+            <input
+              ref={chatSearchInputRef}
+              type="text"
+              value={chatSearchQuery}
+              onChange={(e) => setChatSearchQuery(e.target.value)}
+              placeholder="Search in conversation..."
+              className="w-full rounded-lg border border-border bg-bg-secondary py-1.5 pl-9 pr-8 text-sm text-text outline-none placeholder:text-text-secondary transition-all duration-150 focus:border-primary focus:ring-1 focus:ring-primary"
+            />
+            {chatSearchQuery && (
+              <button
+                type="button"
+                onClick={() => setChatSearchQuery('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text"
+              >
+                <MatIcon icon="close" className="text-[16px]" />
+              </button>
+            )}
+          </div>
+          {chatSearchQuery.trim() && (
+            <p className="mt-1 text-xs text-text-secondary">
+              {filteredMessages.length === 0
+                ? 'No matches found.'
+                : `${filteredMessages.length} match${filteredMessages.length === 1 ? '' : 'es'} found.`}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* ─── Messages ─── */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1 scroll-smooth">
@@ -348,6 +414,16 @@ function ChatPanel({
             <p className="mt-1 text-sm text-text-secondary">Say hi! 👋</p>
             <p className="mt-1 text-xs text-text-secondary">
               Your conversation will appear here.
+            </p>
+          </div>
+        ) : chatSearchOpen && chatSearchQuery.trim() && filteredMessages.length === 0 ? (
+          <div className="flex h-full flex-col items-center justify-center text-center">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-bg-secondary">
+              <MatIcon icon="search_off" className="text-xl text-text-secondary" />
+            </div>
+            <p className="font-medium text-text">No matches</p>
+            <p className="mt-1 text-sm text-text-secondary">
+              Try a different search term.
             </p>
           </div>
         ) : (
@@ -490,6 +566,7 @@ export default function MessagesPage() {
   const [error, setError] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(initialUserId);
+  const [newMessageOpen, setNewMessageOpen] = useState(false);
 
   // Clean up the ?user= query param from the URL after reading it once,
   // so page refreshes don't always reselect the same conversation.
@@ -516,9 +593,14 @@ export default function MessagesPage() {
 
   const filteredConvos = useMemo(
     () =>
-      convos.filter((c) =>
-        c.user.username.toLowerCase().includes(search.toLowerCase()),
-      ),
+      convos.filter((c) => {
+        if (!search.trim()) return true;
+        const q = search.toLowerCase();
+        return (
+          c.user.username.toLowerCase().includes(q) ||
+          c.lastMessage.content.toLowerCase().includes(q)
+        );
+      }),
     [convos, search],
   );
 
@@ -528,6 +610,10 @@ export default function MessagesPage() {
 
   const handleBack = () => {
     setSelectedUserId(null);
+  };
+
+  const handleNewConversation = (userId: string) => {
+    setSelectedUserId(userId);
   };
 
   return (
@@ -546,6 +632,7 @@ export default function MessagesPage() {
           <h1 className="text-xl font-bold text-text">Messages</h1>
           <button
             type="button"
+            onClick={() => setNewMessageOpen(true)}
             aria-label="New message"
             className="flex h-9 w-9 items-center justify-center rounded-full text-text-secondary hover:bg-bg-secondary transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
@@ -687,6 +774,13 @@ export default function MessagesPage() {
 
       {/* Mobile bottom nav spacer inside left panel */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 h-[60px] pointer-events-none" />
+
+      {/* New message modal */}
+      <NewUserSearch
+        open={newMessageOpen}
+        onClose={() => setNewMessageOpen(false)}
+        onSelectUser={handleNewConversation}
+      />
     </div>
   );
 }
