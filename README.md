@@ -94,6 +94,10 @@ pnpm dev
 
 📚 See [DESIGN-SYSTEM.md](./DESIGN-SYSTEM.md) for full component API reference.
 
+## ☁️ Deployment
+
+🚀 See [Deployment.md](./Deployment.md) for the production deployment plan — Azure VM, Docker Compose, nginx, and CI/CD setup.
+
 ## 🗄 Prisma shortcuts
 
 ```bash
