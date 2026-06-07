@@ -81,10 +81,12 @@ export function PostCard({
 
       {/* Post Image */}
       <Link href={`/posts/${post.id}`}>
-        <div className="relative aspect-square bg-bg-secondary">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}
+        <div className="relative bg-bg-secondary">
+          <img
+            src={`${UPLOADS_URL}${post.imageUrl}`}
+            alt="Post image"
+            className="w-full max-h-[600px] object-cover"
+            loading="lazy"
           />
         </div>
       </Link>

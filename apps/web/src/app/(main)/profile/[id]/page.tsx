@@ -276,9 +276,11 @@ export default function UserProfilePage() {
                 className="group relative aspect-square bg-bg-secondary overflow-hidden"
                 style={{ animationDelay: `${index * 30}ms` }}
               >
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}
+                <img
+                  src={`${UPLOADS_URL}${post.imageUrl}`}
+                  alt="Post"
+                  className="absolute inset-0 h-full w-full object-cover"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 flex items-center justify-center gap-6 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   <span className="flex items-center gap-1.5 text-white text-base font-semibold">

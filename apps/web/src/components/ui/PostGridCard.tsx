@@ -25,9 +25,11 @@ export function PostGridCard({
       className="group relative aspect-square bg-bg-secondary overflow-hidden transition-all duration-150 hover:scale-[1.02]"
       style={{ animationDelay: `${index * 30}ms` }}
     >
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}
+      <img
+        src={`${UPLOADS_URL}${post.imageUrl}`}
+        alt="Post"
+        className="absolute inset-0 h-full w-full object-cover"
+        loading="lazy"
       />
       <div className="absolute inset-0 flex items-center justify-center gap-4 md:gap-6 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
         <span className="flex items-center gap-1.5 text-white text-sm font-semibold">

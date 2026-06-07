@@ -204,9 +204,11 @@ export default function PostDetailPage() {
           className="relative md:flex-1 bg-black flex items-center justify-center cursor-pointer select-none"
           onClick={handleImageClick}
         >
-          <div
-            className="w-full aspect-square md:aspect-auto md:h-full min-h-[400px] bg-cover bg-center"
-            style={{ backgroundImage: `url(${UPLOADS_URL}${post.imageUrl})` }}
+          <img
+            src={`${UPLOADS_URL}${post.imageUrl}`}
+            alt="Post"
+            className="w-full md:h-full min-h-[400px] object-cover"
+            loading="lazy"
           />
           {/* Floating heart on double-tap */}
           {showFloatingHeart && (

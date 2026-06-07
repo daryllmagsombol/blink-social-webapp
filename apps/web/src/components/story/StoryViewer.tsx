@@ -96,7 +96,7 @@ export function StoryViewer({
         <img
           src={`${UPLOADS_URL}${story.imageUrl}`}
           alt="story"
-          className="h-full w-full object-cover"
+          className="h-full w-full aspect-[9/16] object-cover"
         />
 
         <div className="absolute inset-y-0 left-0 z-10 w-1/3" onClick={goPrev} />
