@@ -1,51 +1,51 @@
-# Blink Social Design System
+# 🎨 Blink Social Design System
 
-## Brand Identity
+## 🎯 Brand Identity
 
 Blink Social owns **purple** as its primary brand color, with **blue** for CTAs and **pink** for accents — distinct from Instagram (sunset gradient), TikTok (cyan + pink), and Discord (blurple).
 
-| Color | Hex | Role |
-|-------|-----|------|
-| Purple | `#8A2EFF` | Brand / logo / wordmark |
-| Blue | `#00B7FF` | Primary CTA / buttons / links |
-| Pink | `#FF2BA6` | Accent / likes / badges / highlights |
+| Color  | Hex       | Role                            |
+| ------ | --------- | ------------------------------- |
+| 🟣 Purple | `#8A2EFF` | Brand / logo / wordmark        |
+| 🔵 Blue   | `#00B7FF` | Primary CTA / buttons / links  |
+| 🩷 Pink   | `#FF2BA6` | Accent / likes / badges / highlights |
 
 ---
 
-## Color Tokens
+## 🎨 Color Tokens
 
-### Light Mode
+### ☀️ Light Mode
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `bg` | `#FFFFFF` | Page background |
-| `bg-secondary` | `#F7F8FC` | Card / sidebar / input background |
-| `bg-tertiary` | `#F0F2F8` | Hover states |
-| `text` | `#0F1226` | Primary text |
-| `text-secondary` | `#8B8FA3` | Secondary text / placeholders |
-| `border` | `#E2E5ED` | Borders / dividers |
-| `brand` | `#8A2EFF` | Brand color |
-| `primary` | `#00B7FF` | CTA buttons / links / active nav |
-| `accent` | `#FF2BA6` | Likes / unread dots / highlights |
-| `danger` | `#ED4956` | Errors / destructive actions |
-| `success` | `#22C55E` | Success states |
-| `warning` | `#F59E0B` | Warning states |
+| Token           | Value      | Usage                              |
+| --------------- | ---------- | ---------------------------------- |
+| `bg`            | `#FFFFFF`  | Page background                    |
+| `bg-secondary`  | `#F7F8FC`  | Card / sidebar / input background  |
+| `bg-tertiary`   | `#F0F2F8`  | Hover states                       |
+| `text`          | `#0F1226`  | Primary text                       |
+| `text-secondary`| `#8B8FA3`  | Secondary text / placeholders      |
+| `border`        | `#E2E5ED`  | Borders / dividers                 |
+| `brand`         | `#8A2EFF`  | Brand color                        |
+| `primary`       | `#00B7FF`  | CTA buttons / links / active nav   |
+| `accent`        | `#FF2BA6`  | Likes / unread dots / highlights   |
+| `danger`        | `#ED4956`  | Errors / destructive actions       |
+| `success`       | `#22C55E`  | Success states                     |
+| `warning`       | `#F59E0B`  | Warning states                     |
 
-### Dark Mode
+### 🌙 Dark Mode
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `bg` | `#0F1226` | Page background |
-| `bg-secondary` | `#1A1E35` | Card / sidebar / input background |
-| `bg-tertiary` | `#252A45` | Hover states |
-| `text` | `#F7F8FC` | Primary text |
-| `text-secondary` | `#8B8FA3` | Secondary text / placeholders |
-| `border` | `rgba(255,255,255,0.08)` | Borders / dividers |
-| `brand` | `#A24BFF` | Brand color (brighter for dark BG) |
-| `primary` | `#4FD3FF` | CTA buttons / links (brighter for dark BG) |
-| `accent` | `#FF4FC0` | Accent (brighter for dark BG) |
+| Token           | Value                      | Usage                                  |
+| --------------- | -------------------------- | -------------------------------------- |
+| `bg`            | `#0F1226`                  | Page background                        |
+| `bg-secondary`  | `#1A1E35`                  | Card / sidebar / input background      |
+| `bg-tertiary`   | `#252A45`                  | Hover states                           |
+| `text`          | `#F7F8FC`                  | Primary text                           |
+| `text-secondary`| `#8B8FA3`                  | Secondary text / placeholders          |
+| `border`        | `rgba(255,255,255,0.08)`   | Borders / dividers                     |
+| `brand`         | `#A24BFF`                  | Brand color (brighter for dark BG)     |
+| `primary`       | `#4FD3FF`                  | CTA buttons / links (brighter for dark)|
+| `accent`        | `#FF4FC0`                  | Accent (brighter for dark BG)          |
 
-### Gradients
+### 🌈 Gradients
 
 ```css
 --gradient-brand: linear-gradient(135deg, #FF2BA6, #8A2EFF, #00B7FF);
@@ -53,53 +53,53 @@ Blink Social owns **purple** as its primary brand color, with **blue** for CTAs 
 
 ---
 
-## Typography
+## 🔤 Typography
 
-| Token | Size | Usage |
-|-------|------|-------|
-| `text-xs` | 12px | Labels, timestamps |
-| `text-sm` | 13px | Body text, descriptions |
-| `text-base` | 14px | Default body |
-| `text-lg` | 16px | Card titles |
-| `text-xl` | 20px | Section headings |
-| `text-2xl` | 24px | Page titles |
-| `text-3xl` | 32px | Hero / brand headers |
+| Token      | Size  | Usage                      |
+| ---------- | ----- | -------------------------- |
+| `text-xs`  | 12px  | Labels, timestamps         |
+| `text-sm`  | 13px  | Body text, descriptions    |
+| `text-base`| 14px  | Default body               |
+| `text-lg`  | 16px  | Card titles                |
+| `text-xl`  | 20px  | Section headings           |
+| `text-2xl` | 24px  | Page titles                |
+| `text-3xl` | 32px  | Hero / brand headers       |
 
-Font family: `Inter, system-ui, -apple-system, sans-serif`
-
----
-
-## Spacing
-
-4px base grid — all spacing uses Tailwind's spacing scale (`p-1` = 4px, `p-2` = 8px, `p-4` = 16px, etc.)
+🔤 Font family: `Inter, system-ui, -apple-system, sans-serif`
 
 ---
 
-## Border Radius
+## 📐 Spacing
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `rounded-sm` | 4px | Small elements |
-| `rounded` / `rounded-md` | 8px | Cards, inputs, buttons |
-| `rounded-lg` | 12px | Modals, large containers |
-| `rounded-xl` | 16px | Featured containers |
-| `rounded-full` | 9999px | Avatars, pills, badges |
+📏 **4px base grid** — all spacing uses Tailwind's spacing scale (`p-1` = 4px, `p-2` = 8px, `p-4` = 16px, etc.)
 
 ---
 
-## Shadows
+## 🔘 Border Radius
 
-| Class | Usage |
-|-------|-------|
-| `shadow-sm` | Subtle elevation |
+| Token                     | Value  | Usage                         |
+| ------------------------- | ------ | ----------------------------- |
+| `rounded-sm`              | 4px    | Small elements                |
+| `rounded` / `rounded-md`  | 8px    | Cards, inputs, buttons        |
+| `rounded-lg`              | 12px   | Modals, large containers      |
+| `rounded-xl`              | 16px   | Featured containers           |
+| `rounded-full`            | 9999px | Avatars, pills, badges        |
+
+---
+
+## 🌓 Shadows
+
+| Class              | Usage                |
+| ------------------ | -------------------- |
+| `shadow-sm`        | Subtle elevation     |
 | `shadow` / `shadow-md` | Cards, dropdowns |
-| `shadow-lg` | Modals, toasts |
+| `shadow-lg`        | Modals, toasts       |
 
 ---
 
-## Components
+## 🧩 Components
 
-### Button
+### 🔘 Button
 
 An all-purpose button with loading state and icon support.
 
@@ -107,12 +107,12 @@ An all-purpose button with loading state and icon support.
 import { Button } from '@/components/ui/Button';
 
 // Variants
-<Button variant="primary">    // Blue CTA (default)
-<Button variant="secondary">  // Outline
-<Button variant="ghost">      // Ghost
-<Button variant="danger">     // Red destructive
-<Button variant="brand">      // Purple brand
-<Button variant="accent">     // Pink accent
+<Button variant="primary">    // 🔵 Blue CTA (default)
+<Button variant="secondary">  // ◻️ Outline
+<Button variant="ghost">      // 👻 Ghost
+<Button variant="danger">     // 🔴 Red destructive
+<Button variant="brand">      // 🟣 Purple brand
+<Button variant="accent">     // 🩷 Pink accent
 
 // Sizes
 <Button size="sm">
@@ -120,9 +120,9 @@ import { Button } from '@/components/ui/Button';
 <Button size="lg">
 
 // States
-<Button loading>              // Shows spinner, disables
+<Button loading>              // ⏳ Shows spinner, disables
 <Button disabled>
-<Button icon={<Star />}>      // Icon slot (replaced by spinner when loading)
+<Button icon={<Star />}>      // ⭐ Icon slot (replaced by spinner when loading)
 
 // Full width
 <Button className="w-full">
@@ -132,7 +132,7 @@ Props: `variant`, `size`, `loading`, `icon`, `className`, plus all native `<butt
 
 ---
 
-### Input
+### ⌨️ Input
 
 Form input with label, helper text, and error state.
 
@@ -145,8 +145,8 @@ import { Input } from '@/components/ui/Input';
   placeholder="you@example.com"
   value={email}
   onChange={...}
-  error="Invalid email"        // Shows red border + error message
-  helperText="We'll never share your email"  // Shown when no error
+  error="Invalid email"        // 🚫 Shows red border + error message
+  helperText="We'll never share your email"  // ℹ️ Shown when no error
 />
 ```
 
@@ -154,7 +154,7 @@ Props: `label`, `helperText`, `error`, plus all native `<input>` attributes.
 
 ---
 
-### Textarea
+### 📝 Textarea
 
 Multi-line text input.
 
@@ -173,7 +173,7 @@ Props: `label`, `error`, plus all native `<textarea>` attributes.
 
 ---
 
-### Avatar
+### 👤 Avatar
 
 User avatar with image fallback to initials and optional online indicator.
 
@@ -184,33 +184,34 @@ import { Avatar } from '@/components/ui/Avatar';
   src="/uploads/avatar.jpg"   // Falls back to initials on error
   alt="John Doe"              // Used to generate initials
   size="md"                   // xs / sm / md / lg / xl
-  online                      // Shows green dot
+  online                      // 🟢 Shows green dot
+  gradientBorder              // 🌈 Story-style gradient ring
   fallback="JD"               // Override initials
 />
 ```
 
 ---
 
-### Badge
+### 🏷 Badge
 
 Inline label / pill for counts and statuses.
 
 ```tsx
 import { Badge } from '@/components/ui/Badge';
 
-<Badge variant="primary">3</Badge>    // Blue
-<Badge variant="accent">!</Badge>     // Pink
-<Badge variant="success">Live</Badge> // Green
-<Badge variant="warning">Pending</Badge>
-<Badge variant="danger">Error</Badge>
-<Badge variant="default">Draft</Badge> // Neutral
+<Badge variant="primary">3</Badge>    // 🔵 Blue
+<Badge variant="accent">!</Badge>     // 🩷 Pink
+<Badge variant="success">Live</Badge> // 🟢 Green
+<Badge variant="warning">Pending</Badge> // 🟡 Yellow
+<Badge variant="danger">Error</Badge>    // 🔴 Red
+<Badge variant="default">Draft</Badge>   // ⚪ Neutral
 
 <Badge size="sm">New</Badge>
 ```
 
 ---
 
-### Spinner
+### ⏳ Spinner
 
 Loading indicator.
 
@@ -218,12 +219,12 @@ Loading indicator.
 import { Spinner } from '@/components/ui/Spinner';
 
 <Spinner size="md" />    // sm / md / lg
-<Spinner className="text-primary" />  // Custom color
+<Spinner className="text-primary" />  // 🎨 Custom color
 ```
 
 ---
 
-### Toggle
+### 🔄 Toggle
 
 Switch toggle for settings.
 
@@ -240,7 +241,7 @@ import { Toggle } from '@/components/ui/Toggle';
 
 ---
 
-### Card
+### 🃏 Card
 
 Content container.
 
@@ -248,7 +249,7 @@ Content container.
 import { Card } from '@/components/ui/Card';
 
 <Card variant="default">       // Bordered (default)
-<Card variant="interactive">   // Hover effect, cursor pointer
+<Card variant="interactive">   // 👆 Hover effect, cursor pointer
 <Card variant="elevated">      // Shadow + subtle border
 
 <Card onClick={handleClick}>   // Renders as <button>
@@ -256,7 +257,7 @@ import { Card } from '@/components/ui/Card';
 
 ---
 
-### Modal
+### 🪟 Modal
 
 Dialog overlay with backdrop blur, Escape-to-close, and click-outside-to-close.
 
@@ -276,7 +277,7 @@ import { Modal } from '@/components/ui/Modal';
 
 ---
 
-### Tabs
+### 📑 Tabs
 
 Tab navigation with two style variants.
 
@@ -293,13 +294,13 @@ const tabs: Tab[] = [
   tabs={tabs}
   value={activeTab}
   onChange={setActiveTab}
-  variant="underline"          // underline / pill
+  variant="underline"          // ➖ underline / 💊 pill
 />
 ```
 
 ---
 
-### DropdownMenu
+### 📋 DropdownMenu
 
 Click-triggered menu with items.
 
@@ -314,7 +315,7 @@ import { DropdownMenu, DropdownItem } from '@/components/ui/DropdownMenu';
 
 ---
 
-### Tooltip
+### 💬 Tooltip
 
 Hover tooltip with configurable delay and position.
 
@@ -330,7 +331,7 @@ Positions: `top` (default), `bottom`, `left`, `right`.
 
 ---
 
-### Skeleton
+### 💀 Skeleton
 
 Loading placeholders with preset compositions.
 
@@ -347,7 +348,7 @@ import { Skeleton, PostSkeleton, ProfileSkeleton, GridSkeleton, MessageSkeleton,
 
 ---
 
-### EmptyState
+### 📭 EmptyState
 
 Empty / no-data state with optional action.
 
@@ -358,14 +359,14 @@ import { EmptyState } from '@/components/ui/EmptyState';
   icon="📸"
   title="No posts yet"
   description="Follow users to see their posts."
-  action={{ label: 'Explore', href: '/explore' }}    // Link variant
-  action={{ label: 'Retry', onClick: handleRetry }}   // Button variant
+  action={{ label: 'Explore', href: '/explore' }}    // 🔗 Link variant
+  action={{ label: 'Retry', onClick: handleRetry }}   // 🔄 Button variant
 />
 ```
 
 ---
 
-### ErrorDisplay
+### ⚠️ ErrorDisplay
 
 Error state with optional retry button.
 
@@ -375,13 +376,13 @@ import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 <ErrorDisplay
   message="Failed to load feed"
   onRetry={loadFeed}
-  icon={<CustomIcon />}   // Default "!"
+  icon={<CustomIcon />}   // Default "❗"
 />
 ```
 
 ---
 
-### Toast
+### 🍞 Toast
 
 Imperative notifications.
 
@@ -391,13 +392,13 @@ import { toast } from '@/components/ui/Toast';
 toast('Post created!', 'success');  // success / error / info / brand
 ```
 
-Place `<ToastContainer />` once in the root layout (already done).
+Place `<ToastContainer />` once in the root layout (✅ already done).
 
 ---
 
-### ThemeProvider
+### 🌗 ThemeProvider
 
-Dark mode context provider. Wrap at app root (already done in `layout.tsx`).
+Dark mode context provider. Wrap at app root (✅ already done in `layout.tsx`).
 
 ```tsx
 import { ThemeProvider, useTheme } from '@/components/ui/ThemeProvider';
@@ -409,19 +410,19 @@ const { theme, toggleTheme, setTheme } = useTheme();
 </button>
 ```
 
-Persistence: Saves to `localStorage`, falls back to `prefers-color-scheme`.
+💾 Persistence: Saves to `localStorage`, falls back to `prefers-color-scheme`.
 
 ---
 
-## Usage Guidelines
+## 📝 Usage Guidelines
 
-### Class Naming
+### 🏷 Class Naming
 
 - Use semantic tokens: `bg-bg`, `text-text`, `border-border`, `bg-primary`, `text-brand`
-- Dark mode is automatic via CSS variables — no `dark:` prefix needed for core tokens
+- 🚫 Dark mode is automatic via CSS variables — **no** `dark:` prefix needed for core tokens
 - Use `dark:` prefix for one-off overrides: `dark:shadow-blue-500/20`
 
-### Component Composition
+### 🧱 Component Composition
 
 ```tsx
 <Card className="p-4">
@@ -435,13 +436,13 @@ Persistence: Saves to `localStorage`, falls back to `prefers-color-scheme`.
 </Card>
 ```
 
-### Dark Mode Support
+### 🌙 Dark Mode Support
 
-All components are dark mode aware automatically. The ThemeProvider toggles a `.dark` class on `<html>`, and CSS variables update all semantic color tokens. No per-component dark mode code needed.
+All components are dark mode aware automatically. The ThemeProvider toggles a `.dark` class on `<html>`, and CSS variables update all semantic color tokens. **No per-component dark mode code needed.**
 
 ---
 
-## File Structure
+## 📁 File Structure
 
 ```
 apps/web/src/
@@ -466,5 +467,5 @@ apps/web/src/
 ├── lib/
 │   └── utils.ts            # cn() helper
 └── app/
-    └── globals.css          # Theme tokens
+    └── globals.css          # 🎨 Theme tokens
 ```
