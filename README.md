@@ -1,17 +1,17 @@
-# Blink Social
+# 🔮 Blink Social
 
-Instagram-like social media platform built with NestJS, Next.js, PostgreSQL, and Prisma.
+📸 Instagram-like social media platform built with **NestJS**, **Next.js**, **PostgreSQL**, and **Prisma**.
 
-## Stack
+## 🛠 Stack
 
-| Layer    | Tech                                           |
-| -------- | ---------------------------------------------- |
-| Frontend | Next.js 15, React 19, Tailwind CSS v4, Zustand |
-| Backend  | NestJS 11, Passport JWT, Socket.IO             |
-| Database | PostgreSQL 16, Prisma ORM                      |
-| Monorepo | Turborepo + pnpm                               |
+| Layer       | Tech                                           |
+| ----------- | ---------------------------------------------- |
+| 🎨 Frontend | Next.js 15, React 19, Tailwind CSS v4, Zustand |
+| ⚙️ Backend  | NestJS 11, Passport JWT, Socket.IO             |
+| 🗄 Database | PostgreSQL 16, Prisma ORM                      |
+| 📦 Monorepo | Turborepo + pnpm                               |
 
-## Structure
+## 📁 Structure
 
 ```
 blink-social/
@@ -25,7 +25,7 @@ blink-social/
 └── docker-compose.yml # PostgreSQL 16
 ```
 
-## Quick start
+## 🚀 Quick start
 
 ```bash
 # Install
@@ -41,10 +41,10 @@ pnpm db:push
 pnpm dev
 ```
 
-- API: `http://localhost:4000`
-- Web: `http://localhost:3000`
+🌐 **API** → `http://localhost:4000`
+🖥 **Web** → `http://localhost:3000`
 
-## Features
+## ✨ Features
 
 | Feature                                  | Status  | Phase |
 | ---------------------------------------- | ------- | ----- |
@@ -71,36 +71,36 @@ pnpm dev
 | Design system (brand tokens, dark mode)  | ✅ Done | 10    |
 | Reusable UI components (18 components)   | ✅ Done | 10    |
 
-## Architecture
+## 🏗 Architecture
 
-Backend is a NestJS modular monolith. Each feature is a self-contained module (auth, users, posts, likes, comments, follows, stories, messages, chat, notifications, uploads, search). All REST endpoints prefixed with `/api`. Auth uses JWT access (15m) + refresh (7d) tokens, auto-refreshed on 401.
+⚡ Backend is a **NestJS modular monolith**. Each feature is a self-contained module (auth, users, posts, likes, comments, follows, stories, messages, chat, notifications, uploads, search). All REST endpoints prefixed with `/api`. Auth uses JWT access (15m) + refresh (7d) tokens, auto-refreshed on 401.
 
-Frontend uses Next.js 15 App Router with `(auth)` and `(main)` route groups. Data fetched via custom `fetch` wrapper (`lib/api.ts`) with token injection and auto-refresh. Auth state managed with Zustand. Real-time chat via Socket.IO.
+🖼 Frontend uses **Next.js 15 App Router** with `(auth)` and `(main)` route groups. Data fetched via custom `fetch` wrapper (`lib/api.ts`) with token injection and auto-refresh. Auth state managed with Zustand. Real-time chat via Socket.IO.
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for full technical breakdown.
+📖 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full technical breakdown.
 
-## Phase Progress
+## 📋 Phase Progress
 
-See [PHASES.md](./PHASES.md) for detailed task tracking across all 9 phases.
+📊 See [PHASES.md](./PHASES.md) for detailed task tracking across all 9 phases.
 
-## Design System
+## 🎨 Design System
 
-Brand identity: **Purple** (`#8A2EFF`) primary, **Blue** (`#00B7FF`) CTA, **Pink** (`#FF2BA6`) accent — distinct from Instagram, TikTok, and Discord.
+🎯 Brand identity: **Purple** (`#8A2EFF`) primary, **Blue** (`#00B7FF`) CTA, **Pink** (`#FF2BA6`) accent — distinct from Instagram, TikTok, and Discord.
 
-- Dark mode toggle (persisted to localStorage, respects `prefers-color-scheme`)
-- 18 reusable UI components (Button, Input, Avatar, Modal, Tabs, DropdownMenu, etc.)
-- Semantic color tokens (light + dark) via CSS variables
-- Typography, spacing, border-radius, and shadow scales
+- 🌙 Dark mode toggle (persisted to localStorage, respects `prefers-color-scheme`)
+- 🧩 18 reusable UI components (Button, Input, Avatar, Modal, Tabs, DropdownMenu, etc.)
+- 🎨 Semantic color tokens (light + dark) via CSS variables
+- 📐 Typography, spacing, border-radius, and shadow scales
 
-See [DESIGN-SYSTEM.md](./DESIGN-SYSTEM.md) for full component API reference.
+📚 See [DESIGN-SYSTEM.md](./DESIGN-SYSTEM.md) for full component API reference.
 
-## Prisma shortcuts
+## 🗄 Prisma shortcuts
 
 ```bash
-pnpm db:generate   # Regenerate Prisma client
-pnpm db:push       # Push schema to DB
-pnpm db:migrate    # Run migrations
-pnpm db:studio     # Open Prisma Studio
+pnpm db:generate   # 🔄 Regenerate Prisma client
+pnpm db:push       # 📤 Push schema to DB
+pnpm db:migrate    # 🚚 Run migrations
+pnpm db:studio     # 🖥 Open Prisma Studio
 ```
 
 ---
