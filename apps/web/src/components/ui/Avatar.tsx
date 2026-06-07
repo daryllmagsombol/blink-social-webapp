@@ -9,6 +9,7 @@ interface AvatarProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   fallback?: string;
   online?: boolean;
+  gradientBorder?: boolean;
   className?: string;
 }
 
@@ -28,7 +29,57 @@ const dotSizes = {
   xl: 'h-3.5 w-3.5',
 };
 
-export function Avatar({ src, alt, size = 'md', fallback, online, className }: AvatarProps) {
+function AvatarContent({
+  src,
+  alt,
+  size,
+  initials,
+  error,
+  onError,
+}: {
+  src?: string;
+  alt: string;
+  size: NonNullable<AvatarProps['size']>;
+  initials: string;
+  error: boolean;
+  onError?: () => void;
+}) {
+  if (!src || error) {
+    return (
+      <div
+        className={cn(
+          'flex items-center justify-center rounded-full bg-brand/20 font-bold text-brand',
+          sizeStyles[size],
+        )}
+      >
+        {initials}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      onError={onError}
+      className={cn('rounded-full object-cover', sizeStyles[size])}
+    />
+  );
+}
+
+function OnlineDot({ size }: { size: NonNullable<AvatarProps['size']> }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        'absolute bottom-0 right-0 rounded-full border-2 border-bg bg-success',
+        dotSizes[size],
+      )}
+    />
+  );
+}
+
+export function Avatar({ src, alt, size = 'md', fallback, online, gradientBorder, className }: AvatarProps) {
   const [error, setError] = useState(false);
   const initials =
     fallback ||
@@ -39,47 +90,32 @@ export function Avatar({ src, alt, size = 'md', fallback, online, className }: A
       .toUpperCase()
       .slice(0, 2);
 
-  if (!src || error) {
+  const content = (
+    <AvatarContent
+      src={src}
+      alt={alt}
+      size={size}
+      initials={initials}
+      error={error}
+      onError={() => setError(true)}
+    />
+  );
+
+  if (gradientBorder) {
     return (
       <div className={cn('relative shrink-0', className)} role="img" aria-label={alt}>
-        <div
-          className={cn(
-            'flex items-center justify-center rounded-full bg-brand/20 font-bold text-brand',
-            sizeStyles[size],
-          )}
-        >
-          {initials}
+        <div className="rounded-full bg-gradient-to-tr from-amber-400 via-pink-500 to-purple-600 p-[2.5px]">
+          {content}
         </div>
-        {online && (
-          <span
-            aria-hidden="true"
-            className={cn(
-              'absolute bottom-0 right-0 rounded-full border-2 border-bg bg-success',
-              dotSizes[size],
-            )}
-          />
-        )}
+        {online && <OnlineDot size={size} />}
       </div>
     );
   }
 
   return (
-    <div className={cn('relative shrink-0', className)}>
-      <img
-        src={src}
-        alt={alt}
-        onError={() => setError(true)}
-        className={cn('rounded-full object-cover', sizeStyles[size])}
-      />
-      {online && (
-        <span
-          aria-hidden="true"
-          className={cn(
-            'absolute bottom-0 right-0 rounded-full border-2 border-bg bg-success',
-            dotSizes[size],
-          )}
-        />
-      )}
+    <div className={cn('relative shrink-0', className)} role="img" aria-label={alt}>
+      {content}
+      {online && <OnlineDot size={size} />}
     </div>
   );
 }

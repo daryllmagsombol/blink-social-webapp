@@ -30,12 +30,11 @@ export function ProfileHeader({ user, stats, isOwn = false, children }: ProfileH
       <div className="flex justify-center md:block">
         <div className="relative mx-auto w-fit">
           <div className="rounded-full bg-gradient-brand p-[3px]">
-            <div className="rounded-full bg-bg p-[3px]">
+            <div className="rounded-full bg-bg p-[2.5px]">
               <Avatar
                 src={user.avatarUrl ? `${UPLOADS_URL}${user.avatarUrl}` : undefined}
                 alt={user.username}
                 size="xl"
-                className="h-[86px] w-[86px]"
                 fallback={user.username[0]?.toUpperCase()}
               />
             </div>
