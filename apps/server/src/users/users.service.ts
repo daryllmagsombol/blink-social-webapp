@@ -89,6 +89,41 @@ export class UsersService {
     return { success: true };
   }
 
+  async findSuggestions(userId: string, limit: number = 5) {
+    // Get IDs the current user is already following
+    const following = await this.prisma.follow.findMany({
+      where: { followerId: userId },
+      select: { followingId: true },
+    });
+
+    // Get IDs of blocked users (both directions)
+    const blocked = await this.prisma.block.findMany({
+      where: {
+        OR: [{ blockerId: userId }, { blockedId: userId }],
+      },
+      select: { blockerId: true, blockedId: true },
+    });
+
+    const excludeIds = [
+      userId,
+      ...following.map((f) => f.followingId),
+      ...blocked.flatMap((b) => [b.blockerId, b.blockedId]),
+    ];
+
+    return this.prisma.user.findMany({
+      where: { id: { notIn: excludeIds } },
+      select: {
+        id: true,
+        username: true,
+        displayName: true,
+        avatarUrl: true,
+        _count: { select: { followers: true } },
+      },
+      orderBy: { followers: { _count: 'desc' } },
+      take: limit,
+    });
+  }
+
   async updateAvatar(id: string, avatarUrl: string) {
     return this.prisma.user.update({
       where: { id },

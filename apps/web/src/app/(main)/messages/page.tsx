@@ -125,7 +125,7 @@ function shouldShowAvatar(
 
 function Placeholder() {
   return (
-    <div className="hidden lg:flex flex-1 flex-col items-center justify-center bg-bg text-center p-8">
+    <div className="hidden lg:flex flex-1 flex-col items-center justify-center bg-bg text-center p-8 min-h-0 overflow-hidden">
       <div className="max-w-xs space-y-4">
         <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-bg-secondary">
           <MatIcon icon="chat_bubble" className="text-4xl text-text-secondary" />
@@ -242,7 +242,7 @@ function ChatPanel({
   // --- Loading ---
   if (loading) {
     return (
-      <div className="flex flex-1 flex-col bg-bg">
+      <div className="flex flex-1 flex-col bg-bg min-h-0">
         <div className="flex items-center gap-2 border-b border-border px-4 py-3 shrink-0">
           <Skeleton className="h-8 w-8 rounded-full md:hidden" />
           <Skeleton variant="circular" className="h-10 w-10" />
@@ -285,14 +285,14 @@ function ChatPanel({
   // --- Error ---
   if (error) {
     return (
-      <div className="flex flex-1 items-center justify-center bg-bg p-4">
+      <div className="flex flex-1 items-center justify-center bg-bg p-4 min-h-0">
         <ErrorDisplay message="Could not load conversation" onRetry={load} />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-1 flex-col bg-bg">
+    <div className="flex flex-1 flex-col bg-bg min-h-0">
       {/* ─── Header ─── */}
       <div className="flex items-center gap-2 border-b border-border px-3 py-3 shrink-0">
         {/* Back — mobile only */}
@@ -617,13 +617,10 @@ export default function MessagesPage() {
   };
 
   return (
-    <div
-      className="flex bg-bg border-r border-border"
-      style={{ height: 'calc(100vh - 4rem)' }}
-    >
+    <div className="flex bg-bg border-r border-border h-[calc(100dvh-60px)] lg:h-[100dvh] overflow-hidden">
       {/* ─── Left Panel: Conversation List ─── */}
       <div
-        className={`flex flex-col w-full lg:w-96 lg:border-r border-border shrink-0 bg-bg ${
+        className={`flex flex-col w-full lg:w-96 lg:border-r border-border shrink-0 bg-bg min-h-0 overflow-hidden ${
           selectedUserId ? 'hidden lg:flex' : 'flex'
         }`}
       >
@@ -761,7 +758,7 @@ export default function MessagesPage() {
 
       {/* ─── Right Panel: Chat or Placeholder ─── */}
       {selectedUserId && user ? (
-        <div className={`flex-1 flex flex-col min-w-0 ${!selectedUserId ? 'hidden lg:flex' : 'flex'}`}>
+        <div className={`flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden ${!selectedUserId ? 'hidden lg:flex' : 'flex'}`}>
           <ChatPanel
             userId={selectedUserId}
             currentUserId={user.id}

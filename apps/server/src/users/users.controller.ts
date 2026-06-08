@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -7,6 +7,16 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 @Controller('users')
 export class UsersController {
   constructor(private users: UsersService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('suggestions')
+  async findSuggestions(
+    @CurrentUser('id') userId: string,
+    @Query('limit') limit?: string,
+  ) {
+    const data = await this.users.findSuggestions(userId, limit ? parseInt(limit, 10) : 5);
+    return { data };
+  }
 
   @Get(':id')
   findById(@Param('id') id: string) {
