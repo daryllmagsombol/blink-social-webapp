@@ -60,7 +60,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       <SidebarNav navItems={navItems} isActive={isActive} />
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-[244px] animate-fade-in min-h-screen pb-[60px] lg:pb-0">
+      <main className="flex-1 min-w-0 lg:ml-[244px] animate-fade-in min-h-screen pb-[60px] lg:pb-0">
         {children}
       </main>
 

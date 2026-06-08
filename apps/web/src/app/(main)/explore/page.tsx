@@ -104,9 +104,9 @@ export default function ExplorePage() {
 
   const sizeClasses: Record<GridItemSize, string> = {
     small: 'col-span-1 row-span-1',
-    medium: 'col-span-2 row-span-1',
-    tall: 'col-span-1 row-span-2',
-    featured: 'col-span-2 row-span-2',
+    medium: 'max-sm:col-span-1 sm:col-span-2 row-span-1',
+    tall: 'col-span-1 row-span-1 sm:row-span-2',
+    featured: 'max-sm:col-span-1 sm:col-span-2 row-span-1 sm:row-span-2',
   };
 
   return (
