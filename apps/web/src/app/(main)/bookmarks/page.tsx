@@ -54,7 +54,7 @@ export default function BookmarksPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-4xl py-8 px-4 pb-20">
+      <div className="mx-auto max-w-4xl py-8 px-4">
         <div className="mb-6 h-7 w-24 animate-pulse rounded bg-bg-secondary" />
         <GridSkeleton />
       </div>
@@ -62,7 +62,7 @@ export default function BookmarksPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl py-8 px-4 pb-20 animate-fade-in">
+    <div className="mx-auto max-w-4xl py-8 px-4 animate-fade-in">
       <h1 className="mb-6 text-xl font-bold">Saved</h1>
 
       {posts.length === 0 ? (

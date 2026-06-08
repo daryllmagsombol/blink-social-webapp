@@ -80,7 +80,7 @@ export default function ProfilePage() {
   const emptyAction = tab === 'posts' ? { label: 'Create your first post', href: '/create' as const } : undefined;
 
   return (
-    <div className="mx-auto max-w-[935px] px-4 py-8 pb-20 animate-fade-in">
+    <div className="mx-auto max-w-[935px] px-4 py-8 animate-fade-in">
       <ProfileHeader user={user} stats={stats}>
         <Button
           onClick={() => toast('Edit profile coming soon', 'info')}

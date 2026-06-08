@@ -140,7 +140,7 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div className="mx-auto max-w-[935px] px-4 py-8 pb-20 animate-fade-in">
+    <div className="mx-auto max-w-[935px] px-4 py-8 animate-fade-in">
       <ProfileHeader user={profile} stats={{ postsCount: profile.postsCount, followersCount: profile.followersCount, followingCount: profile.followingCount }}>
         {profile.isPrivate && !isOwn && (
           <Badge variant="warning" size="sm" className="flex items-center gap-1">

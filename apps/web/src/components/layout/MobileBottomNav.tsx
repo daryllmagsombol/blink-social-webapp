@@ -21,14 +21,14 @@ export function MobileBottomNav({ navItems, isActive }: MobileBottomNavProps) {
   const { user } = useAuth();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-border bg-bg px-2 pb-[env(safe-area-inset-bottom,0px)] pt-2 lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-border bg-bg px-2 pb-[env(safe-area-inset-bottom,0px)] lg:hidden landscape:hidden">
       {navItems.slice(0, 5).map((item) => {
         const active = isActive(item.href);
         return (
           <Link
             key={item.href}
             href={item.href}
-            className={`relative flex flex-col items-center gap-0.5 px-3 py-1 transition-all duration-150 ${
+            className={`flex min-h-[48px] min-w-[48px] flex-col items-center justify-center gap-0.5 px-3 py-1 transition-all duration-150 ${
               active ? 'text-primary' : 'text-text-secondary'
             }`}
           >
@@ -45,9 +45,7 @@ export function MobileBottomNav({ navItems, isActive }: MobileBottomNavProps) {
             ) : (
               <MatIcon icon={item.icon} filled={active} />
             )}
-            {active && (
-              <span className="absolute -top-1 left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-primary" />
-            )}
+            <span className="text-[10px] truncate max-w-[60px]">{item.label}</span>
           </Link>
         );
       })}

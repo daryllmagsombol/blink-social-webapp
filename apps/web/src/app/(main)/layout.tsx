@@ -60,15 +60,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       <SidebarNav navItems={navItems} isActive={isActive} />
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-[244px] animate-fade-in min-h-screen">
+      <main className="flex-1 lg:ml-[244px] animate-fade-in min-h-screen pb-[60px] lg:pb-0">
         {children}
       </main>
 
       {/* Mobile Bottom Nav */}
       <MobileBottomNav navItems={navItems} isActive={isActive} />
-
-      {/* Spacer for mobile bottom nav */}
-      <div className="h-[60px] lg:hidden" />
     </div>
   );
 }

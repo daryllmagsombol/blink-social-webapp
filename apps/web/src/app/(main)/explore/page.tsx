@@ -86,7 +86,7 @@ export default function ExplorePage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-[935px] py-4 px-4 pb-20">
+      <div className="mx-auto max-w-[935px] py-4 px-4">
         <div className="mb-6">
           <Skeleton className="h-10 w-full max-w-md mx-auto rounded-lg" />
         </div>
@@ -110,7 +110,7 @@ export default function ExplorePage() {
   };
 
   return (
-    <div className="mx-auto max-w-[935px] py-4 px-4 pb-20 animate-fade-in">
+    <div className="mx-auto max-w-[935px] py-4 px-4 animate-fade-in">
       {/* Search Bar */}
       <div className="mb-5">
         <div className="relative mx-auto max-w-md">

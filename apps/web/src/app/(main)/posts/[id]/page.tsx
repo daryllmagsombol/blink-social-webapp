@@ -180,7 +180,7 @@ export default function PostDetailPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-2xl py-8 px-4 pb-20">
+      <div className="mx-auto max-w-2xl py-8 px-4">
         <PostSkeleton />
       </div>
     );
@@ -195,7 +195,7 @@ export default function PostDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[935px] py-8 px-4 pb-20 animate-fade-in">
+    <div className="mx-auto max-w-[935px] py-8 px-4 animate-fade-in">
       {/* Desktop: Side-by-side layout */}
       <div className="flex flex-col md:flex-row rounded-xl border border-border bg-bg overflow-hidden">
         {/* Image Section */}

@@ -28,7 +28,7 @@ export default function FollowersPage() {
   }, [id]);
 
   return (
-    <div className="mx-auto max-w-xl py-8 px-4 pb-20 animate-fade-in">
+    <div className="mx-auto max-w-xl py-8 px-4 animate-fade-in">
       <h1 className="mb-6 text-xl font-bold">Followers</h1>
       {loading ? (
         <div className="space-y-3">

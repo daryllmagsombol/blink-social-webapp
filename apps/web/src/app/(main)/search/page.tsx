@@ -63,7 +63,7 @@ export default function SearchPage() {
   }, [query]);
 
   return (
-    <div className="mx-auto max-w-xl py-8 px-4 pb-20 animate-fade-in">
+    <div className="mx-auto max-w-xl py-8 px-4 animate-fade-in">
       <h1 className="mb-4 text-xl font-bold">Search</h1>
 
       <div className="relative">

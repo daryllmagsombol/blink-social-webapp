@@ -772,9 +772,6 @@ export default function MessagesPage() {
         <Placeholder />
       )}
 
-      {/* Mobile bottom nav spacer inside left panel */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-[60px] pointer-events-none" />
-
       {/* New message modal */}
       <NewUserSearch
         open={newMessageOpen}

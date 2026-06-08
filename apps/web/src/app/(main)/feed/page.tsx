@@ -224,7 +224,7 @@ export default function FeedPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-[630px] px-4 py-4 pb-32 lg:pb-4">
+      <div className="mx-auto max-w-[630px] px-4 py-4">
         <div className="mb-4">
           <div className="flex gap-3 overflow-x-auto pb-2">
             {Array.from({ length: 7 }).map((_, i) => (
@@ -246,7 +246,7 @@ export default function FeedPage() {
   return (
     <div className="flex justify-center">
       {/* Feed Column */}
-      <div className="w-full max-w-[630px] px-4 py-4 pb-32 lg:pb-4 lg:mr-[320px]">
+      <div className="w-full max-w-[630px] px-4 py-4 lg:mr-[320px]">
         {/* Stories Bar */}
         <div className="mb-5 flex gap-4 overflow-x-auto pb-2 no-scrollbar">
           {/* Add Story */}

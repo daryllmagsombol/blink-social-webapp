@@ -38,7 +38,7 @@ export default function NotificationsPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-xl py-8 px-4 pb-20">
+      <div className="mx-auto max-w-xl py-8 px-4">
         <div className="mb-6 h-7 w-32 animate-pulse rounded bg-bg-secondary" />
         <NotificationSkeleton />
       </div>
@@ -59,7 +59,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-xl py-8 px-4 pb-20 animate-fade-in">
+    <div className="mx-auto max-w-xl py-8 px-4 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold">Notifications</h1>
         {notifs.some((n) => !n.read) && (

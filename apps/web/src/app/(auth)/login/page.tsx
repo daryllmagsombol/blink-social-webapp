@@ -71,10 +71,7 @@ export default function LoginPage() {
       <header className="fixed left-0 right-0 top-0 z-50 border-b border-border bg-bg/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:px-6">
           {/* Brand */}
-          <Link
-            href="/"
-            className="text-xl font-extrabold tracking-tight text-text"
-          >
+          <Link href="/" className="text-xl font-extrabold tracking-tight text-text">
             <span className="bg-gradient-to-r from-primary via-brand to-accent bg-clip-text text-transparent">
               Blink
             </span>
@@ -110,9 +107,7 @@ export default function LoginPage() {
 
           {/* Desktop actions */}
           <div className="hidden items-center gap-3 md:flex">
-            <span className="text-sm font-semibold text-text-secondary">
-              Log In
-            </span>
+            <span className="text-sm font-semibold text-text-secondary">Log In</span>
             <Link href="/register">
               <span className="cursor-pointer rounded-full bg-primary px-5 py-1.5 text-sm font-semibold text-white transition-opacity hover:opacity-90">
                 Sign Up
@@ -129,8 +124,7 @@ export default function LoginPage() {
           <div
             className="relative hidden flex-1 flex-col items-center justify-center overflow-hidden md:flex"
             style={{
-              background:
-                'linear-gradient(135deg, #1b1c1c 0%, #002b4d 100%)',
+              background: 'linear-gradient(135deg, #1b1c1c 0%, #002b4d 100%)',
             }}
             onMouseMove={handleHeroMouseMove}
             onMouseLeave={handleHeroMouseLeave}
@@ -139,8 +133,7 @@ export default function LoginPage() {
             <div
               className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full opacity-20"
               style={{
-                background:
-                  'radial-gradient(circle, #00B7FF 0%, transparent 70%)',
+                background: 'radial-gradient(circle, #00B7FF 0%, transparent 70%)',
                 filter: 'blur(80px)',
                 transform: `translate(${heroMousePos.x * 0.01}px, ${heroMousePos.y * 0.01}px)`,
                 transition: 'transform 0.1s ease-out',
@@ -149,8 +142,7 @@ export default function LoginPage() {
             <div
               className="pointer-events-none absolute -bottom-40 -right-20 h-80 w-80 rounded-full opacity-20"
               style={{
-                background:
-                  'radial-gradient(circle, #8A2EFF 0%, transparent 70%)',
+                background: 'radial-gradient(circle, #8A2EFF 0%, transparent 70%)',
                 filter: 'blur(80px)',
                 transform: `translate(${heroMousePos.x * -0.015}px, ${heroMousePos.y * -0.015}px)`,
                 transition: 'transform 0.1s ease-out',
@@ -159,8 +151,7 @@ export default function LoginPage() {
             <div
               className="pointer-events-none absolute left-1/3 top-1/3 h-64 w-64 rounded-full opacity-10"
               style={{
-                background:
-                  'radial-gradient(circle, #FF2BA6 0%, transparent 70%)',
+                background: 'radial-gradient(circle, #FF2BA6 0%, transparent 70%)',
                 filter: 'blur(60px)',
                 transform: `translate(${heroMousePos.x * 0.008}px, ${heroMousePos.y * -0.008}px)`,
                 transition: 'transform 0.1s ease-out',
@@ -179,8 +170,7 @@ export default function LoginPage() {
                 className="h-[480px] w-[260px] overflow-hidden rounded-[32px] border-2 border-white/10 shadow-2xl transition-transform duration-75 ease-out"
                 style={{
                   background: '#0a0a0a',
-                  boxShadow:
-                    '0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)',
+                  boxShadow: '0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)',
                   transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
                 }}
               >
@@ -207,9 +197,7 @@ export default function LoginPage() {
                   </div>
                   <div className="mt-8">
                     <div className="text-2xl font-bold text-white">Blink</div>
-                    <div className="mt-1 text-xs text-white/40">
-                      Share your world
-                    </div>
+                    <div className="mt-1 text-xs text-white/40">Share your world</div>
                   </div>
                 </div>
               </div>
@@ -217,12 +205,10 @@ export default function LoginPage() {
 
             {/* Tagline */}
             <div className="relative z-10 mt-10 text-center">
-              <h2 className="text-2xl font-bold text-white">
-                Share your world in a blink.
-              </h2>
+              <h2 className="text-2xl font-bold text-white">Share your world in a blink.</h2>
               <p className="mt-2 max-w-sm text-sm text-white/60">
-                Connect with friends, share moments, and discover stories from
-                around the globe — all in an instant.
+                Connect with friends, share moments, and discover stories from around the globe —
+                all in an instant.
               </p>
             </div>
           </div>
@@ -234,9 +220,8 @@ export default function LoginPage() {
               <div className="rounded-xl border border-border bg-bg px-8 py-10 shadow-sm">
                 {/* Large Blink logo */}
                 <div className="mb-8 text-center">
-                  <h1 className="text-[42px] font-extrabold tracking-tight text-text">
-                    Blink
-                  </h1>
+                  <h1 className="text-[42px] font-extrabold tracking-tight text-text">Blink</h1>
+                  <p className="mt-1 text-sm text-text-secondary">Share your world in a blink.</p>
                 </div>
 
                 {apiError && (
@@ -262,12 +247,7 @@ export default function LoginPage() {
                     className="bg-bg-secondary text-sm"
                     {...register('password')}
                   />
-                  <Button
-                    type="submit"
-                    loading={loading}
-                    className="w-full"
-                    size="lg"
-                  >
+                  <Button type="submit" loading={loading} className="w-full" size="lg">
                     Log In
                   </Button>
                 </form>
@@ -315,11 +295,7 @@ export default function LoginPage() {
                     href={`${API_URL}/api/auth/github`}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-text px-4 py-2 text-sm font-semibold text-bg transition-all duration-150 hover:opacity-90 active:scale-[0.98]"
                   >
-                    <svg
-                      className="h-4 w-4 flex-shrink-0"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
+                    <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z" />
                     </svg>
                     Continue with GitHub
@@ -350,9 +326,7 @@ export default function LoginPage() {
 
               {/* App store badges */}
               <div className="pt-2 text-center">
-                <p className="mb-3 text-sm font-medium text-text-secondary">
-                  Get the app.
-                </p>
+                <p className="mb-3 text-sm font-medium text-text-secondary">Get the app.</p>
                 <div className="flex items-center justify-center gap-3">
                   {/* Google Play badge */}
                   <a
@@ -360,11 +334,7 @@ export default function LoginPage() {
                     className="flex items-center gap-2 rounded-lg bg-text px-4 py-2 text-bg transition-opacity hover:opacity-90"
                     aria-label="Get it on Google Play"
                   >
-                    <svg
-                      className="h-5 w-5 flex-shrink-0"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
+                    <svg className="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M17.523 12.62c-.02.267-.127.52-.33.69l-.016.013-8.328 6.228c-.295.222-.66.33-1.025.33-.218 0-.435-.045-.64-.134l6.74-6.74 1.6-1.6 1.6 1.6.03.03c.14.14.35.33.37.53v-.007zM5.838 5.18c.056-.15.126-.294.212-.43l7.648 7.648-2.418 2.42-6.636-6.638c-.23-.23-.34-.54-.34-.86 0-.325.113-.638.34-.868.096-.096.21-.172.34-.233l.674-.04z" />
                       <path d="M15.59 10.64l-5.063-5.064c-.28-.28-.66-.43-1.07-.43-.14 0-.28.02-.41.06-1.41.46-2.46 1.36-2.88 2.18-.17.33-.25.66-.22.98l6.28 6.28 1.36-1.36 1.36-1.36c.49-.48.64-1.22.64-1.81v-.001zm1.19-.159c-.63-.08-1.15.07-1.51.42l-1.36 1.36 2.73 2.73 1.38-1.38c.42-.42.48-.96.46-1.6-.04-.56-.33-.93-.55-1.13-.18-.17-.41-.3-.65-.4zM9.274 20.89c.29.12.61.18.94.18.36 0 .718-.09 1.035-.27l7.23-5.41c.19-.14.32-.33.38-.54-1.83.02-5.272.02-7.265.02l-2.32 2.32v3.7z" />
                     </svg>
@@ -380,11 +350,7 @@ export default function LoginPage() {
                     className="flex items-center gap-2 rounded-lg bg-text px-4 py-2 text-bg transition-opacity hover:opacity-90"
                     aria-label="Download on the App Store"
                   >
-                    <svg
-                      className="h-5 w-5 flex-shrink-0"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
+                    <svg className="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M14.94 3.52c.47-.56 1.08-1 1.78-1.26.13 1.04-.32 2.08-.88 2.82-.56.74-1.35 1.28-2.18 1.26-.18-.94.25-2.02.82-2.72.38-.45.87-.78 1.46-1.1zM15.84 5.8c.77-.01 1.48.28 2.06.78.84-.16 1.65-.46 2.38-.88.25-.15.5-.32.74-.5a8.87 8.87 0 0 1-1.64 1.94c.08.9.06 1.78-.2 2.6-.4 1.27-1.2 2.38-2.22 3.1-.6.43-1.28.7-1.98.82-.46.08-.93.06-1.38-.06a3.3 3.3 0 0 1-1.55-.78c-.38-.34-.68-.76-.88-1.22a3.6 3.6 0 0 1-.18-2.52c.25-.77.7-1.48 1.3-2.02.4-.36.86-.64 1.36-.82.28-.1.57-.16.86-.18.31-.02.62 0 .92.06.3.06.6.16.88.3.27.14.52.3.74.5.4-.16.82-.28 1.24-.34zM12 11.12a3.35 3.35 0 0 1 .7-1.52c.3-.38.68-.7 1.1-.94a4.22 4.22 0 0 0-.5-.64c-.4-.4-.88-.7-1.4-.88a3.31 3.31 0 0 0-2.2.12c-.6.24-1.12.64-1.5 1.12-.36.47-.6 1.03-.68 1.6a3.4 3.4 0 0 0 .08 1.54c.14.46.38.88.7 1.22.3.32.66.56 1.06.72.4.16.82.23 1.24.2.24-.02.48-.08.7-.16.22-.08.42-.2.6-.36a3.18 3.18 0 0 0 .9-1.18c.2-.46.28-.96.22-1.44a2.8 2.8 0 0 0-.32-.96h-.1z" />
                     </svg>
                     <div className="text-left leading-tight">
@@ -404,64 +370,34 @@ export default function LoginPage() {
         <div className="mx-auto max-w-4xl px-4 text-center">
           {/* Footer links */}
           <div className="mb-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-text-secondary">
-            <Link
-              href="/meta"
-              className="hover:text-text"
-            >
+            <Link href="/meta" className="hover:text-text">
               Meta
             </Link>
-            <Link
-              href="/about"
-              className="hover:text-text"
-            >
+            <Link href="/about" className="hover:text-text">
               About
             </Link>
-            <Link
-              href="/blog"
-              className="hover:text-text"
-            >
+            <Link href="/blog" className="hover:text-text">
               Blog
             </Link>
-            <Link
-              href="/jobs"
-              className="hover:text-text"
-            >
+            <Link href="/jobs" className="hover:text-text">
               Jobs
             </Link>
-            <Link
-              href="/help"
-              className="hover:text-text"
-            >
+            <Link href="/help" className="hover:text-text">
               Help
             </Link>
-            <Link
-              href="/api"
-              className="hover:text-text"
-            >
+            <Link href="/api" className="hover:text-text">
               API
             </Link>
-            <Link
-              href="/privacy"
-              className="hover:text-text"
-            >
+            <Link href="/privacy" className="hover:text-text">
               Privacy
             </Link>
-            <Link
-              href="/terms"
-              className="hover:text-text"
-            >
+            <Link href="/terms" className="hover:text-text">
               Terms
             </Link>
-            <Link
-              href="/locations"
-              className="hover:text-text"
-            >
+            <Link href="/locations" className="hover:text-text">
               Locations
             </Link>
-            <Link
-              href="/blink-lite"
-              className="hover:text-text"
-            >
+            <Link href="/blink-lite" className="hover:text-text">
               Blink Lite
             </Link>
           </div>

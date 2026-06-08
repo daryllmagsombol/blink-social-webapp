@@ -74,7 +74,7 @@ export function PostCard({
             </p>
           </div>
         </div>
-        <button className="text-text-secondary hover:text-text transition-colors">
+        <button className="flex h-12 w-12 items-center justify-center text-text-secondary hover:text-text transition-colors">
           <MatIcon icon="more_horiz" />
         </button>
       </div>
@@ -98,7 +98,7 @@ export function PostCard({
             {/* Like */}
             <button
               onClick={() => onToggleLike(post.id)}
-              className="transition-all duration-150 active:scale-125"
+              className="flex h-12 w-12 items-center justify-center transition-all duration-150 active:scale-125"
             >
               <span
                 className={`material-symbols-outlined text-[26px] transition-all duration-150 ${
@@ -115,7 +115,7 @@ export function PostCard({
             {/* Comment */}
             <Link
               href={`/posts/${post.id}`}
-              className="transition-all duration-150 hover:scale-110"
+              className="flex h-12 w-12 items-center justify-center transition-all duration-150 hover:scale-110"
             >
               <span
                 className="material-symbols-outlined text-[26px] text-text"
@@ -128,7 +128,7 @@ export function PostCard({
             </Link>
 
             {/* Share */}
-            <button className="transition-all duration-150 hover:scale-110">
+            <button className="flex h-12 w-12 items-center justify-center transition-all duration-150 hover:scale-110">
               <span
                 className="material-symbols-outlined text-[26px] text-text"
                 style={{
@@ -140,11 +140,11 @@ export function PostCard({
             </button>
           </div>
 
-          {/* Bookmark */}
-          <button
-            onClick={() => onToggleSave(post.id)}
-            className="transition-all duration-150 hover:scale-110"
-          >
+            {/* Bookmark */}
+            <button
+              onClick={() => onToggleSave(post.id)}
+              className="flex h-12 w-12 items-center justify-center transition-all duration-150 hover:scale-110"
+            >
             <span
               className="material-symbols-outlined text-[26px]"
               style={{
@@ -198,7 +198,7 @@ export function PostCard({
         >
           <button
             type="button"
-            className="mr-2 text-text-secondary hover:text-text transition-colors"
+            className="flex h-12 w-12 items-center justify-center text-text-secondary hover:text-text transition-colors"
           >
             <span
               className="material-symbols-outlined text-[22px]"
@@ -220,7 +220,7 @@ export function PostCard({
           <button
             type="submit"
             disabled={!commentValue?.trim() || isSubmittingComment}
-            className="text-sm font-semibold text-primary disabled:opacity-40 hover:text-primary-dark transition-colors"
+            className="flex min-h-11 items-center px-3 text-sm font-semibold text-primary disabled:opacity-40 hover:text-primary-dark transition-colors"
           >
             {isSubmittingComment ? '...' : 'Post'}
           </button>
