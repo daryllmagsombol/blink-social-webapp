@@ -32,9 +32,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException();
     }
 
-    if (!user.emailVerified) {
-      throw new UnauthorizedException('Email not verified');
-    }
+    // Note: email verification is not enforced here because the email
+    // delivery system is not yet implemented. When email sending is added,
+    // uncomment this check and ensure new registrations send verification.
+    // if (!user.emailVerified) {
+    //   throw new UnauthorizedException('Email not verified');
+    // }
 
     return user;
   }
