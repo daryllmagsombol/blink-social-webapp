@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -6,8 +6,28 @@ export class CommentsService {
   constructor(private prisma: PrismaService) {}
 
   async create(userId: string, postId: string, content: string) {
-    const post = await this.prisma.post.findUnique({ where: { id: postId } });
+    const post = await this.prisma.post.findUnique({
+      where: { id: postId },
+      include: { user: { select: { id: true, isPrivate: true } } },
+    });
     if (!post) throw new NotFoundException('Post not found');
+
+    const block = await this.prisma.block.findFirst({
+      where: {
+        OR: [
+          { blockerId: userId, blockedId: post.userId },
+          { blockerId: post.userId, blockedId: userId },
+        ],
+      },
+    });
+    if (block) throw new ForbiddenException('Cannot comment on this post');
+
+    if (post.user.isPrivate && post.user.id !== userId) {
+      const follow = await this.prisma.follow.findUnique({
+        where: { followerId_followingId: { followerId: userId, followingId: post.user.id } },
+      });
+      if (!follow) throw new ForbiddenException('Cannot comment on this post');
+    }
 
     const comment = await this.prisma.comment.create({
       data: { userId, postId, content },

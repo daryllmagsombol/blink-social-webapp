@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ChatGateway } from './chat.gateway';
 import { MessagesModule } from '../messages/messages.module';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { MessagesModule } from '../messages/messages.module';
       }),
     }),
     MessagesModule,
+    PrismaModule,
   ],
   providers: [ChatGateway],
 })

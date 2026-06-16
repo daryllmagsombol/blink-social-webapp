@@ -37,6 +37,7 @@ export class SearchService {
           username: true,
           displayName: true,
           avatarUrl: true,
+          isPrivate: true,
           _count: { select: { followers: true } },
         },
         take: 20,
@@ -44,11 +45,41 @@ export class SearchService {
     }
 
     if (type === 'all' || type === 'posts') {
+      let privateUserIdFilter: string[] | undefined;
+
+      if (userId) {
+        const following = await this.prisma.follow.findMany({
+          where: { followerId: userId, status: 'ACCEPTED' },
+          select: { followingId: true },
+        });
+        const followingIds = following.map((f) => f.followingId);
+
+        const privateUsers = await this.prisma.user.findMany({
+          where: {
+            isPrivate: true,
+            NOT: { id: { in: [userId, ...followingIds] } },
+          },
+          select: { id: true },
+        });
+        privateUserIdFilter = privateUsers.map((u) => u.id);
+      } else {
+        const privateUsers = await this.prisma.user.findMany({
+          where: { isPrivate: true },
+          select: { id: true },
+        });
+        privateUserIdFilter = privateUsers.map((u) => u.id);
+      }
+
+      const queries: any[] = [{ caption: { contains: term, mode: 'insensitive' } }];
+      if (blockedIds.length > 0) {
+        queries.push({ NOT: { userId: { in: blockedIds } } });
+      }
+      if (privateUserIdFilter && privateUserIdFilter.length > 0) {
+        queries.push({ NOT: { userId: { in: privateUserIdFilter } } });
+      }
+
       results.posts = await this.prisma.post.findMany({
-        where: {
-          caption: { contains: term, mode: 'insensitive' },
-          NOT: blockedIds.length > 0 ? { userId: { in: blockedIds } } : undefined,
-        },
+        where: { AND: queries },
         orderBy: { createdAt: 'desc' },
         take: 20,
         include: {

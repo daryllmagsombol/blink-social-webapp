@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -13,13 +13,54 @@ export class FollowsService {
     const target = await this.prisma.user.findUnique({ where: { id: followingId } });
     if (!target) throw new NotFoundException('User not found');
 
+    const block = await this.prisma.block.findFirst({
+      where: {
+        OR: [
+          { blockerId: followerId, blockedId: followingId },
+          { blockerId: followingId, blockedId: followerId },
+        ],
+      },
+    });
+    if (block) throw new ForbiddenException('Cannot follow this user');
+
     const existing = await this.prisma.follow.findUnique({
       where: { followerId_followingId: { followerId, followingId } },
     });
 
-    if (existing) return { followed: true };
+    if (existing) return { followed: true, status: existing.status };
 
-    await this.prisma.follow.create({ data: { followerId, followingId } });
+    const status = target.isPrivate ? 'PENDING' : 'ACCEPTED';
+
+    await this.prisma.follow.create({
+      data: { followerId, followingId, status },
+    });
+
+    if (status === 'ACCEPTED') {
+      await this.prisma.notification.create({
+        data: {
+          type: 'FOLLOW',
+          userId: followingId,
+          actorId: followerId,
+        },
+      });
+    }
+
+    return { followed: true, status };
+  }
+
+  async acceptFollow(followerId: string, followingId: string) {
+    const follow = await this.prisma.follow.findUnique({
+      where: { followerId_followingId: { followerId, followingId } },
+    });
+
+    if (!follow || follow.status !== 'PENDING') {
+      throw new NotFoundException('No pending follow request');
+    }
+
+    await this.prisma.follow.update({
+      where: { followerId_followingId: { followerId, followingId } },
+      data: { status: 'ACCEPTED' },
+    });
 
     await this.prisma.notification.create({
       data: {
@@ -29,7 +70,35 @@ export class FollowsService {
       },
     });
 
-    return { followed: true };
+    return { accepted: true };
+  }
+
+  async rejectFollow(followerId: string, followingId: string) {
+    const follow = await this.prisma.follow.findUnique({
+      where: { followerId_followingId: { followerId, followingId } },
+    });
+
+    if (!follow || follow.status !== 'PENDING') {
+      throw new NotFoundException('No pending follow request');
+    }
+
+    await this.prisma.follow.delete({
+      where: { followerId_followingId: { followerId, followingId } },
+    });
+
+    return { rejected: true };
+  }
+
+  async getPendingRequests(userId: string) {
+    const requests = await this.prisma.follow.findMany({
+      where: { followingId: userId, status: 'PENDING' },
+      include: {
+        follower: { select: { id: true, username: true, avatarUrl: true, displayName: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return requests.map((r) => r.follower);
   }
 
   async unfollow(followerId: string, followingId: string) {
@@ -51,7 +120,7 @@ export class FollowsService {
 
     const [data, total] = await Promise.all([
       this.prisma.follow.findMany({
-        where: { followingId: userId },
+        where: { followingId: userId, status: 'ACCEPTED' },
         skip,
         take: limit,
         include: {
@@ -59,7 +128,7 @@ export class FollowsService {
         },
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.follow.count({ where: { followingId: userId } }),
+      this.prisma.follow.count({ where: { followingId: userId, status: 'ACCEPTED' } }),
     ]);
 
     return {
@@ -76,7 +145,7 @@ export class FollowsService {
 
     const [data, total] = await Promise.all([
       this.prisma.follow.findMany({
-        where: { followerId: userId },
+        where: { followerId: userId, status: 'ACCEPTED' },
         skip,
         take: limit,
         include: {
@@ -84,7 +153,7 @@ export class FollowsService {
         },
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.follow.count({ where: { followerId: userId } }),
+      this.prisma.follow.count({ where: { followerId: userId, status: 'ACCEPTED' } }),
     ]);
 
     return {
@@ -100,6 +169,6 @@ export class FollowsService {
     const follow = await this.prisma.follow.findUnique({
       where: { followerId_followingId: { followerId, followingId } },
     });
-    return { following: !!follow };
+    return { following: !!follow, status: follow?.status || null };
   }
 }

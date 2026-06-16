@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 
@@ -45,16 +45,25 @@ export class PostsService {
     });
   }
 
-  async findById(id: string) {
+  async findById(id: string, viewerId?: string) {
     const post = await this.prisma.post.findUnique({
       where: { id },
       include: {
-        user: { select: { id: true, username: true, avatarUrl: true } },
+        user: { select: { id: true, username: true, avatarUrl: true, isPrivate: true } },
         tags: { select: { name: true } },
         _count: { select: { likes: true, comments: true } },
       },
     });
     if (!post) throw new NotFoundException('Post not found');
+
+    if (post.user.isPrivate && post.user.id !== viewerId) {
+      if (!viewerId) throw new ForbiddenException('Post not available');
+      const follow = await this.prisma.follow.findUnique({
+        where: { followerId_followingId: { followerId: viewerId, followingId: post.user.id } },
+      });
+      if (!follow) throw new ForbiddenException('Post not available');
+    }
+
     return post;
   }
 
@@ -105,7 +114,7 @@ export class PostsService {
 
   async getFeed(userId: string, page = 1, limit = 10) {
     const following = await this.prisma.follow.findMany({
-      where: { followerId: userId },
+      where: { followerId: userId, status: 'ACCEPTED' },
       select: { followingId: true },
     });
     const followingIds = following.map((f) => f.followingId);
@@ -135,7 +144,10 @@ export class PostsService {
         },
       }),
       this.prisma.post.count({
-        where: { userId: { in: followingIds } },
+        where: {
+          userId: { in: followingIds },
+          NOT: blockedIds.length > 0 ? { userId: { in: blockedIds } } : undefined,
+        },
       }),
     ]);
 

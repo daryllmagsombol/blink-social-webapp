@@ -1,5 +1,6 @@
 import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { ReportsService } from './reports.service';
+import { CreateReportDto } from './dto/create-report.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
@@ -11,11 +12,8 @@ export class ReportsController {
   @Post()
   create(
     @CurrentUser('id') userId: string,
-    @Body('reason') reason: string,
-    @Body('targetUserId') targetUserId?: string,
-    @Body('postId') postId?: string,
-    @Body('commentId') commentId?: string,
+    @Body() dto: CreateReportDto,
   ) {
-    return this.reports.create(userId, reason, targetUserId, postId, commentId);
+    return this.reports.create(userId, dto.reason, dto.targetUserId, dto.postId, dto.commentId);
   }
 }

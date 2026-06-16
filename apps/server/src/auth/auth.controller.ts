@@ -2,6 +2,9 @@ import { Controller, Post, Body, UseGuards, Get, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { RefreshDto } from './dto/refresh.dto';
+import { EmailDto } from './dto/email.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
@@ -20,8 +23,8 @@ export class AuthController {
   }
 
   @Post('refresh')
-  refresh(@Body('refreshToken') refreshToken: string) {
-    return this.auth.refreshToken(refreshToken);
+  refresh(@Body() dto: RefreshDto) {
+    return this.auth.refreshToken(dto.refreshToken);
   }
 
   @Post('verify-email')
@@ -30,18 +33,18 @@ export class AuthController {
   }
 
   @Post('resend-verification')
-  resendVerification(@Body('email') email: string) {
-    return this.auth.resendVerification(email);
+  resendVerification(@Body() dto: EmailDto) {
+    return this.auth.resendVerification(dto.email);
   }
 
   @Post('forgot-password')
-  forgotPassword(@Body('email') email: string) {
-    return this.auth.forgotPassword(email);
+  forgotPassword(@Body() dto: EmailDto) {
+    return this.auth.forgotPassword(dto.email);
   }
 
   @Post('reset-password')
-  resetPassword(@Body('token') token: string, @Body('password') password: string) {
-    return this.auth.resetPassword(token, password);
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.auth.resetPassword(dto.token, dto.password);
   }
 
   @UseGuards(JwtAuthGuard)

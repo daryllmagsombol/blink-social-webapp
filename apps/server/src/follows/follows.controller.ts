@@ -19,6 +19,24 @@ export class FollowsController {
     return this.follows.unfollow(currentUserId, targetId);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('follow/requests')
+  getPending(@Param('userId') userId: string) {
+    return this.follows.getPendingRequests(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('follow/accept')
+  accept(@Param('userId') followerId: string, @CurrentUser('id') followingId: string) {
+    return this.follows.acceptFollow(followerId, followingId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('follow/reject')
+  reject(@Param('userId') followerId: string, @CurrentUser('id') followingId: string) {
+    return this.follows.rejectFollow(followerId, followingId);
+  }
+
   @Get('followers')
   getFollowers(@Param('userId') userId: string, @Query('page') page?: string) {
     return this.follows.getFollowers(userId, Math.max(1, Number(page) || 1));

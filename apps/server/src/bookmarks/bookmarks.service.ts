@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -6,6 +6,29 @@ export class BookmarksService {
   constructor(private prisma: PrismaService) {}
 
   async toggle(userId: string, postId: string) {
+    const post = await this.prisma.post.findUnique({
+      where: { id: postId },
+      include: { user: { select: { id: true, isPrivate: true } } },
+    });
+
+    if (post) {
+      const block = await this.prisma.block.findFirst({
+        where: {
+          OR: [
+            { blockerId: userId, blockedId: post.userId },
+            { blockerId: post.userId, blockedId: userId },
+          ],
+        },
+      });
+      if (block) throw new ForbiddenException('Cannot bookmark this post');
+
+      if (post.user.isPrivate && post.user.id !== userId) {
+        const follow = await this.prisma.follow.findUnique({
+          where: { followerId_followingId: { followerId: userId, followingId: post.user.id } },
+        });
+        if (!follow) throw new ForbiddenException('Cannot bookmark this post');
+      }
+    }
     const existing = await this.prisma.savedPost.findUnique({
       where: { userId_postId: { userId, postId } },
     });

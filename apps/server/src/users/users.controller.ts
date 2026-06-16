@@ -12,20 +12,22 @@ export class UsersController {
   @Get('suggestions')
   async findSuggestions(
     @CurrentUser('id') userId: string,
-    @Query('limit') limit?: string,
+    @Query('limit') limitStr?: string,
   ) {
-    const data = await this.users.findSuggestions(userId, limit ? parseInt(limit, 10) : 5);
+    const limit = parseInt(limitStr || '5', 10);
+    const take = isNaN(limit) ? 5 : limit;
+    const data = await this.users.findSuggestions(userId, take);
     return { data };
-  }
-
-  @Get(':id')
-  findById(@Param('id') id: string) {
-    return this.users.findById(id);
   }
 
   @Get('username/:username')
   findByUsername(@Param('username') username: string) {
     return this.users.findByUsername(username);
+  }
+
+  @Get(':id')
+  findById(@Param('id') id: string) {
+    return this.users.findById(id);
   }
 
   @UseGuards(JwtAuthGuard)

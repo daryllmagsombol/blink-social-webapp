@@ -40,6 +40,7 @@ export class AuthService {
       select: { id: true, username: true, email: true, displayName: true, avatarUrl: true, emailVerified: true },
     });
 
+    // TODO: Send verification email via email service
     console.log(`\n[EMAIL] Verification link for ${dto.email}: http://localhost:3000/verify-email?token=${verificationToken}\n`);
 
     return {
@@ -102,6 +103,7 @@ export class AuthService {
       data: { verificationToken },
     });
 
+    // TODO: Send verification email via email service
     console.log(`\n[EMAIL] Verification link for ${email}: http://localhost:3000/verify-email?token=${verificationToken}\n`);
     return { message: 'Verification email sent' };
   }
@@ -120,6 +122,7 @@ export class AuthService {
       data: { resetToken, resetTokenExpires },
     });
 
+    // TODO: Send password reset email via email service
     console.log(`\n[EMAIL] Password reset link for ${email}: http://localhost:3000/reset-password?token=${resetToken}\n`);
     return { message: 'If the email exists, a reset link has been sent' };
   }

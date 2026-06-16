@@ -16,9 +16,10 @@ export class PostsController {
     return this.posts.create(userId, dto);
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('posts/:id')
-  findById(@Param('id') id: string) {
-    return this.posts.findById(id);
+  findById(@Param('id') id: string, @CurrentUser('id') viewerId?: string) {
+    return this.posts.findById(id, viewerId);
   }
 
   @UseGuards(JwtAuthGuard)

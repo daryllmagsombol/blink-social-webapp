@@ -10,7 +10,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     config: ConfigService,
     private prisma: PrismaService,
   ) {
-    const backendUrl = (config.get<string>('BACKEND_URL') || config.getOrThrow<string>('APP_URL')).replace(/\/$/, '');
+    const backendUrl = config.getOrThrow<string>('BACKEND_URL').replace(/\/$/, '');
 
     super({
       clientID: config.getOrThrow<string>('GITHUB_CLIENT_ID'),

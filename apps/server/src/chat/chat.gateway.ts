@@ -9,6 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { MessagesService } from '../messages/messages.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @WebSocketGateway({
   path: '/api/socket.io',
@@ -27,12 +28,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private jwt: JwtService,
     private config: ConfigService,
     private messages: MessagesService,
+    private prisma: PrismaService,
   ) {}
 
   async handleConnection(client: Socket) {
     try {
-      const token = client.handshake.auth?.token || client.handshake.query?.token;
+      let token = client.handshake.auth?.token || client.handshake.query?.token;
       if (!token) { client.disconnect(); return; }
+
+      if (Array.isArray(token)) {
+        token = token[0];
+      }
 
       const payload = await this.jwt.verifyAsync(token, {
         secret: this.config.getOrThrow<string>('JWT_SECRET'),
@@ -66,6 +72,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleMessage(client: Socket, payload: { receiverId: string; content: string }) {
     const senderId = client.data.userId;
     if (!senderId || !payload.receiverId || !payload.content) return;
+
+    const block = await this.prisma.block.findFirst({
+      where: {
+        OR: [
+          { blockerId: senderId, blockedId: payload.receiverId },
+          { blockerId: payload.receiverId, blockedId: senderId },
+        ],
+      },
+    });
+
+    if (block) {
+      client.emit('error', { message: 'Cannot send message due to block' });
+      return;
+    }
 
     const message = await this.messages.send(senderId, payload.receiverId, payload.content);
 
