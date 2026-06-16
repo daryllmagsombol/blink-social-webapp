@@ -28,6 +28,7 @@ services:
       CORS_ORIGIN: ${BLINK_APP_URL}
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/blink_social?schema=public
       UPLOADS_DIR: /workspace/uploads
+      SESSION_SECRET: ${BLINK_SESSION_SECRET}
       GITHUB_CLIENT_ID: ${BLINK_GITHUB_CLIENT_ID}
       GITHUB_CLIENT_SECRET: ${BLINK_GITHUB_CLIENT_SECRET}
       GOOGLE_CLIENT_ID: ${BLINK_GOOGLE_CLIENT_ID}
