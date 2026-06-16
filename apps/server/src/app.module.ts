@@ -34,7 +34,7 @@ import { OAuthModule } from './oauth/oauth.module';
     ServeStaticModule.forRoot({
       rootPath: process.env.UPLOADS_DIR
         ? resolve(process.env.UPLOADS_DIR)
-        : resolve(__dirname, '..', '..', 'uploads'),
+        : resolve(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
       serveStaticOptions: { index: false },
     }),
