@@ -27,8 +27,9 @@ import { OAuthModule } from './oauth/oauth.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: join(cwd(), '.env') }),
     ThrottlerModule.forRoot([{
+      name: 'short',  // default — applied globally
       ttl: 60000,
-      limit: 10,
+      limit: 120,
     }]),
     // Keep uploads on a configurable path so the VM can mount a persistent volume.
     ServeStaticModule.forRoot({
