@@ -27,6 +27,8 @@ interface Post {
   userId: string;
   user: { id: string; username: string; avatarUrl: string | null };
   _count: { likes: number; comments: number };
+  isLiked?: boolean;
+  isBookmarked?: boolean;
 }
 
 export default function FeedPage() {
@@ -59,38 +61,8 @@ export default function FeedPage() {
       );
       setPosts((prev) => (pageNum === 1 ? res.data : [...prev, ...res.data]));
       setHasMore(res.hasMore);
-      const liked = new Set<string>();
-      await Promise.all(
-        res.data.map(async (p) => {
-          try {
-            const { liked: isLiked } = await api.get<{ liked: boolean }>(
-              `/posts/${p.id}/likes/check`,
-            );
-            if (isLiked) liked.add(p.id);
-          } catch {}
-        }),
-      );
-      setLikedPosts((prev) => {
-        const n = new Set(prev);
-        liked.forEach((id) => n.add(id));
-        return n;
-      });
-      const saved = new Set<string>();
-      await Promise.all(
-        res.data.map(async (p) => {
-          try {
-            const { saved: isSaved } = await api.get<{ saved: boolean }>(
-              `/posts/${p.id}/bookmark/check`,
-            );
-            if (isSaved) saved.add(p.id);
-          } catch {}
-        }),
-      );
-      setSavedPosts((prev) => {
-        const n = new Set(prev);
-        saved.forEach((id) => n.add(id));
-        return n;
-      });
+      setLikedPosts((prev) => new Set([...prev, ...res.data.filter((p) => p.isLiked).map((p) => p.id)]));
+      setSavedPosts((prev) => new Set([...prev, ...res.data.filter((p) => p.isBookmarked).map((p) => p.id)]));
     } catch {
       toast('Failed to load feed', 'error');
     } finally {

@@ -151,7 +151,28 @@ export class PostsService {
       }),
     ]);
 
-    return { data, total, page, limit, hasMore: skip + limit < total };
+    const postIds = data.map((p) => p.id);
+
+    const [likes, saves] = await Promise.all([
+      this.prisma.like.findMany({
+        where: { postId: { in: postIds }, userId },
+        select: { postId: true },
+      }),
+      this.prisma.savedPost.findMany({
+        where: { postId: { in: postIds }, userId },
+        select: { postId: true },
+      }),
+    ]);
+    const likedSet = new Set(likes.map((l) => l.postId));
+    const savedSet = new Set(saves.map((s) => s.postId));
+
+    const enriched = data.map((p) => ({
+      ...p,
+      isLiked: likedSet.has(p.id),
+      isBookmarked: savedSet.has(p.id),
+    }));
+
+    return { data: enriched, total, page, limit, hasMore: skip + limit < total };
   }
 
   async getExplore(page = 1, limit = 20) {
