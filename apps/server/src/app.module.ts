@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve, join } from 'path';
 import { cwd } from 'process';
@@ -31,7 +32,9 @@ import { OAuthModule } from './oauth/oauth.module';
     }]),
     // Keep uploads on a configurable path so the VM can mount a persistent volume.
     ServeStaticModule.forRoot({
-      rootPath: resolve(cwd(), process.env.UPLOADS_DIR ?? 'uploads'),
+      rootPath: process.env.UPLOADS_DIR
+        ? resolve(process.env.UPLOADS_DIR)
+        : resolve(__dirname, '..', '..', 'uploads'),
       serveRoot: '/uploads',
       serveStaticOptions: { index: false },
     }),
@@ -52,6 +55,9 @@ import { OAuthModule } from './oauth/oauth.module';
     BlocksModule,
     ReportsModule,
     OAuthModule,
+  ],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
 export class AppModule {}

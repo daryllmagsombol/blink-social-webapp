@@ -23,7 +23,7 @@ export class OAuthController {
   async googleCallback(@Req() req: any, @Res() res: any) {
     const tokens = await this.auth.generateTokens(req.user.id, req.user.email);
     res.redirect(
-      `${this.appUrl}/auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`,
+      `${this.appUrl}/auth/callback#accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`,
     );
   }
 
@@ -36,7 +36,7 @@ export class OAuthController {
   async githubCallback(@Req() req: any, @Res() res: any) {
     const tokens = await this.auth.generateTokens(req.user.id, req.user.email);
     res.redirect(
-      `${this.appUrl}/auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`,
+      `${this.appUrl}/auth/callback#accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`,
     );
   }
 }

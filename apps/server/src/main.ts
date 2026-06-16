@@ -7,14 +7,14 @@ import session from 'express-session';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const defaultOrigins = ['http://localhost:3000'];
-  const configuredOrigins = process.env.CORS_ORIGIN ?? process.env.FRONTEND_ORIGIN;
+  const configuredOrigins = process.env.FRONTEND_URL ?? process.env.FRONTEND_ORIGIN;
+  if (!configuredOrigins) {
+    throw new Error('FRONTEND_URL or FRONTEND_ORIGIN environment variable is required');
+  }
   const origins = configuredOrigins
-    ? configuredOrigins
-        .split(',')
-        .map((origin) => origin.trim())
-        .filter(Boolean)
-    : defaultOrigins;
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
   app.enableCors({
     origin: origins,
@@ -30,9 +30,13 @@ async function bootstrap() {
   );
 
   // Required for Passport OAuth state parameter (Google, etc.)
+  const sessionSecret = process.env.SESSION_SECRET;
+  if (!sessionSecret) {
+    throw new Error('SESSION_SECRET environment variable is required');
+  }
   app.use(
     session({
-      secret: process.env.SESSION_SECRET || 'blink-dev-session-secret',
+      secret: sessionSecret,
       resave: false,
       saveUninitialized: false,
       cookie: {
