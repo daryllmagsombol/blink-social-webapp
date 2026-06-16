@@ -19,8 +19,13 @@ export default function CreatePage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
+    const MAX_SIZE = 10 * 1024 * 1024;
     if (!f.type.startsWith('image/')) {
-      setError('Only image files allowed');
+      setError('Only image files (PNG, JPEG, WebP, etc.) are allowed');
+      return;
+    }
+    if (f.size > MAX_SIZE) {
+      setError('File is too large. Maximum size is 10 MB');
       return;
     }
     setFile(f);

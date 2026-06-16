@@ -45,5 +45,6 @@ jobs:
           set -euo pipefail
           cd "${DEPLOY_ROOT}/blink-social-media"
           git pull --ff-only
+          docker compose -f deploy/azure-vm/docker-compose.yml run --rm blink-api npx prisma migrate deploy
           docker compose -f deploy/azure-vm/docker-compose.yml up -d --build blink-api blink-web nginx
           EOF

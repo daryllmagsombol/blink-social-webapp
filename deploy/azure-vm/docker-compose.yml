@@ -53,31 +53,6 @@ services:
       blink-api:
         condition: service_started
 
-  transformlit-api:
-    build:
-      context: ../../../new-transformlit-webapp
-      dockerfile: apps/api/Dockerfile
-    restart: unless-stopped
-    environment:
-      PORT: 3005
-      CORS_ORIGIN: ${TRANSFORMLIT_APP_URL}
-      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/transformlit?schema=public
-      JWT_SECRET: ${TRANSFORMLIT_JWT_SECRET}
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  transformlit-web:
-    build:
-      context: ../../../new-transformlit-webapp
-      dockerfile: apps/web/Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: ${TRANSFORMLIT_WEB_API_URL}
-    restart: unless-stopped
-    depends_on:
-      transformlit-api:
-        condition: service_started
-
   nginx:
     image: nginx:1.27-alpine
     restart: unless-stopped
@@ -85,10 +60,6 @@ services:
       blink-web:
         condition: service_started
       blink-api:
-        condition: service_started
-      transformlit-web:
-        condition: service_started
-      transformlit-api:
         condition: service_started
     ports:
       - '80:80'

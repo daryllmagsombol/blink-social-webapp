@@ -16,7 +16,10 @@ function getTokens() {
 function setTokens(accessToken: string, refreshToken: string) {
   localStorage.setItem('accessToken', accessToken);
   localStorage.setItem('refreshToken', refreshToken);
-  document.cookie = `accessToken=${accessToken}; path=/; max-age=604800; SameSite=Lax`;
+  const isProduction = process.env.NODE_ENV === 'production';
+  document.cookie =
+    `accessToken=${accessToken}; path=/; max-age=604800` +
+    (isProduction ? '; Secure; SameSite=Strict' : '; SameSite=Lax');
 }
 
 function clearTokens() {
