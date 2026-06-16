@@ -1,4 +1,5 @@
 import { Controller, Post, Delete, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { LikesService } from './likes.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -24,6 +25,7 @@ export class LikesController {
     return this.likes.getPostLikes(postId, Math.max(1, Number(page) || 1));
   }
 
+  @SkipThrottle({ short: true })
   @UseGuards(JwtAuthGuard)
   @Get('check')
   check(@CurrentUser('id') userId: string, @Param('postId') postId: string) {

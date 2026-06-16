@@ -1,4 +1,5 @@
 import { Controller, Post, Delete, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { FollowsService } from './follows.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -47,6 +48,7 @@ export class FollowsController {
     return this.follows.getFollowing(userId, Math.max(1, Number(page) || 1));
   }
 
+  @SkipThrottle({ short: true })
   @UseGuards(JwtAuthGuard)
   @Get('follow/status')
   getFollowStatus(
