@@ -36,7 +36,7 @@ function getCspValue(): string {
     "style-src": "'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src": `'self' data: blob: ${apiOrigin}`,
     "font-src": "'self' https://fonts.gstatic.com",
-    "connect-src": `'self' ${apiOrigin}${isDev ? ' ws: wss:' : ''}`,
+    "connect-src": `'self' ${apiOrigin} ws: wss: https://static.cloudflareinsights.com`,
     "media-src": `'self' ${apiOrigin}`,
     "frame-src": "'none'",
     "object-src": "'none'",
@@ -44,11 +44,12 @@ function getCspValue(): string {
   };
 
   // In development, Next.js requires 'unsafe-eval' for Fast Refresh and
-  // 'unsafe-inline' for style injection. In production these are removed.
+  // 'unsafe-inline' for style injection. In production, 'unsafe-inline' must
+  // remain for Next.js inline hydration/routing scripts.
   if (isDev) {
     directives["script-src"] = "'self' 'unsafe-eval' 'unsafe-inline'";
   } else {
-    directives["script-src"] = "'self'";
+    directives["script-src"] = "'self' 'unsafe-inline' https://static.cloudflareinsights.com";
   }
 
   return Object.entries(directives)
