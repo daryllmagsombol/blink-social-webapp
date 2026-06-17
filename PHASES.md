@@ -143,6 +143,43 @@
 | 📝 `DESIGN-SYSTEM.md` documentation                        | ✅ Done |
 | 🖼 `<Image>` exclusion in middleware for `/images/`        | ✅ Done |
 
+## 🛡️ Phase 11: Security, Polish & UX Enhancements ✅
+
+🔒 Security hardening, form validation, user suggestions, performance optimization.
+
+| Task                                                           | Status |
+| -------------------------------------------------------------- | ------ |
+| 🚦 Rate limiting (ThrottlerGuard: 120/min global, strict auth) | ✅ Done |
+| 🔒 Content Security Policy (CSP) tightened                     | ✅ Done |
+| 🍪 Secure cookie configuration                                 | ✅ Done |
+| 🔑 OAuth token hashing (Google & GitHub tokens)                | ✅ Done |
+| 📝 Frontend form validation (React Hook Form + Zod)            | ✅ Done |
+| 👥 Suggested users on feed sidebar                             | ✅ Done |
+| 💬 Message search & conversation search                        | ✅ Done |
+| ⚡ Feed query optimization (include likes & bookmarks)         | ✅ Done |
+| 📐 ESLint config fixes + type safety                           | ✅ Done |
+| 🔧 Various UI/UX bug fixes (responsiveness, avatars, spacing)  | ✅ Done |
+
+## ☁️ Phase 12: Deployment & Infrastructure ✅
+
+🚀 Production deployment to Azure VM with Docker Compose and nginx.
+
+| Task                                                             | Status |
+| ---------------------------------------------------------------- | ------ |
+| 🏗 Azure VM provisioning (`Standard_B2s`, Ubuntu LTS)            | ✅ Done |
+| 🐳 Docker Compose setup (PostgreSQL, apps, nginx)                | ✅ Done |
+| 🌐 nginx reverse proxy with Cloudflare DNS                       | ✅ Done |
+| 🔐 Cloudflare SSL (Full/Strict)                                  | ✅ Done |
+| 🔑 `.env` + SESSION_SECRET configuration                         | ✅ Done |
+| 🔁 GitHub Actions CI/CD (SSH deploy on push to `main`)          | ✅ Done |
+| 📤 Uploads path resolution in production                         | ✅ Done |
+
 ## 🚀 What's next?
 
-📦 Publish, deploy, or iterate on new features!
+📦 Ideas for future iteration:
+- 🧪 End-to-end testing (Playwright / Cypress)
+- 📱 Push notifications (Web Push API)
+- 🎥 Video uploads for posts
+- 📊 Admin dashboard / moderation panel
+- 🌐 i18n / multi-language support
+- 📈 Analytics / insights for users
