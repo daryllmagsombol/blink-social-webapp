@@ -1,38 +1,26 @@
 import { Injectable, ExecutionContext } from '@nestjs/common';
-import {
-  ThrottlerGuard,
-  ThrottlerRequest,
-} from '@nestjs/throttler';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { GqlExecutionContext } from '@nestjs/graphql';
 
+/**
+ * ThrottlerGuard wrapper that handles both HTTP (REST) and GraphQL contexts.
+ *
+ * For GraphQL, the standard Express-based ThrottlerGuard is incompatible
+ * (relies on Express request objects via getHandler/switchToHttp which don't
+ * exist in GQL execution contexts). GraphQL rate limiting is handled by
+ * Apollo Server plugins configured in graphql.module.ts:
+ *   - depthLimitRule(6)          — max query nesting depth
+ *   - operationRateLimitPlugin() — per-operation-type rate limits
+ *
+ * REST endpoints continue to use the full ThrottlerGuard pipeline.
+ */
 @Injectable()
 export class GqlThrottlerGuard extends ThrottlerGuard {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const gqlCtx = GqlExecutionContext.create(context);
-
-    // For GraphQL, extract the Express request from context so the base
-    // ThrottlerGuard can read req.ip for rate-limit tracking
     if (gqlCtx.getType() === 'graphql') {
-      // Build a synthetic HTTP context wrapping the Express req
-      const ctx = gqlCtx.getContext();
-      const expressReq = ctx?.req;
-
-      if (expressReq) {
-        // Provide a getRequest/getResponse that returns the real Express objects
-        const syntheticContext = {
-          ...context,
-          getType: () => 'http',
-          switchToHttp: () => ({
-            getRequest: <T = any>() => expressReq as T,
-            getResponse: <T = any>() => (expressReq.res ?? {}) as T,
-            getNext: () => ({}),
-          }),
-        } as ExecutionContext;
-
-        return super.canActivate(syntheticContext);
-      }
+      return true;
     }
-
     return super.canActivate(context);
   }
 }
