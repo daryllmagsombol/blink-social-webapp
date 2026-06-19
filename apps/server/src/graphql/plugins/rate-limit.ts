@@ -41,8 +41,8 @@ export function operationRateLimitPlugin(): ApolloServerPlugin {
 
   return {
     async requestDidStart(ctx) {
-      // Extract client IP from the Express request (trusted TCP address)
-      const expressReq = (ctx as any).request?.http?.req;
+      // Extract client IP from the Express request stored in GraphQL contextValue
+      const expressReq = (ctx as any).contextValue?.req;
       const clientIp =
         expressReq?.ip ||
         expressReq?.socket?.remoteAddress ||
