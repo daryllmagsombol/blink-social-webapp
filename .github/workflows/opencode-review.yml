@@ -98,8 +98,15 @@ jobs:
             exit 0
           fi
 
-          if echo "$BODY" | grep -qiE '\b(bug|vulnerab|security (issue|concern)|must fix|needs (work|fix)|should not merge)\b'; then
-            echo "⚠️  Review found issues that need fixing"
+          # Check for patterns that indicate actionable problems
+          if echo "$BODY" | grep -qiE '\b(bug|vulnerab|exploit|bypass|incorrect|wrong|broken|memory leak|severity)\b'; then
+            echo "⚠️  Review found bugs/security issues"
+            echo "has_bugs=true" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+
+          if echo "$BODY" | grep -qiE '\b(must fix|needs (work|fix|to be)|should not merge|missing error)\b'; then
+            echo "⚠️  Review flagged items needing fixes"
             echo "has_bugs=true" >> "$GITHUB_OUTPUT"
             exit 1
           fi

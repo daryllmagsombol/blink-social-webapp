@@ -1,23 +1,18 @@
-import { GraphQLError } from 'graphql';
+import { GraphQLError, type ValidationContext } from 'graphql';
 
 const MAX_DEPTH = 6;
 
 /**
  * Custom validation rule that limits GraphQL query depth.
- * Prevents deeply nested queries from hammering the database.
+ * Resolves fragment spreads to prevent bypass via named fragments.
  */
 export function depthLimitRule(
   maxDepth: number = MAX_DEPTH,
-): (ctx: any) => any {
-  return function depthLimitValidationRule(context: any) {
+): (ctx: ValidationContext) => any {
+  return function depthLimitValidationRule(context: ValidationContext) {
     return {
-      Field(node: any) {
-        // We track depth in a simpler way: reject queries
-        // whose selection nesting exceeds the limit.
-        // This is checked once at validation time per query.
-      },
       OperationDefinition(node: any) {
-        const depth = getQueryDepth(node);
+        const depth = getQueryDepth(node, context);
         if (depth > maxDepth) {
           context.reportError(
             new GraphQLError(
@@ -31,21 +26,58 @@ export function depthLimitRule(
   };
 }
 
-function getQueryDepth(node: any): number {
+function getQueryDepth(node: any, context: ValidationContext): number {
   if (!node.selectionSet) return 0;
   let maxDepth = 0;
   for (const selection of node.selectionSet.selections) {
-    const depth = 1 + getFieldDepth(selection);
+    const depth = 1 + getSelectionDepth(selection, context);
     if (depth > maxDepth) maxDepth = depth;
   }
   return maxDepth;
 }
 
-function getFieldDepth(selection: any): number {
+function getSelectionDepth(selection: any, context: ValidationContext): number {
+  // Handle FragmentSpread — resolve the fragment definition to calculate its depth
+  if (selection.kind === 'FragmentSpread') {
+    const fragment = context.getFragment(selection.name.value);
+    if (fragment) {
+      // Cycle detection: track visited fragments to prevent infinite recursion
+      return getFragmentDepth(fragment, context, new Set());
+    }
+    return 0;
+  }
+
+  // InlineFragment
+  if (selection.kind === 'InlineFragment') {
+    return getFieldDepth(selection, context);
+  }
+
+  // Field
+  return getFieldDepth(selection, context);
+}
+
+function getFieldDepth(selection: any, context: ValidationContext): number {
   if (!selection.selectionSet) return 0;
   let maxDepth = 0;
   for (const subSelection of selection.selectionSet.selections) {
-    const depth = 1 + getFieldDepth(subSelection);
+    const depth = 1 + getSelectionDepth(subSelection, context);
+    if (depth > maxDepth) maxDepth = depth;
+  }
+  return maxDepth;
+}
+
+function getFragmentDepth(
+  fragment: any,
+  context: ValidationContext,
+  visited: Set<string>,
+): number {
+  if (visited.has(fragment.name.value)) return 0;
+  visited.add(fragment.name.value);
+
+  if (!fragment.selectionSet) return 0;
+  let maxDepth = 0;
+  for (const selection of fragment.selectionSet.selections) {
+    const depth = 1 + getSelectionDepth(selection, context);
     if (depth > maxDepth) maxDepth = depth;
   }
   return maxDepth;
