@@ -1,6 +1,5 @@
 import { Resolver, Query, Mutation, Subscription, Args, Context, Int } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
 import { MessagesService } from '../../messages/messages.service';
 import { PubSubProvider } from '../providers/pubsub.provider';
 import { GqlAuthGuard } from '../guards/gql-auth.guard';
@@ -65,7 +64,6 @@ export class MessagesResolver {
     return true;
   }
 
-  @SkipThrottle()
   @Subscription(() => MessageEventType, {
     filter: (payload, variables, context) => {
       const message = payload.newMessage;
@@ -84,7 +82,6 @@ export class MessagesResolver {
     return this.pubSub.instance.asyncIterableIterator(GRAPHQL_EVENTS.NEW_MESSAGE);
   }
 
-  @SkipThrottle()
   @Subscription(() => MessageReadEventType, {
     filter: (payload, variables, context) => {
       const { messageRead } = payload;

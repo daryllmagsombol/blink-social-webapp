@@ -179,9 +179,38 @@ export function useConversation(otherUserId: string, currentUserId: string) {
 
   const markAsRead = useCallback(
     (userId: string) => {
-      return markAsReadMutation({ variables: { userId } });
+      return markAsReadMutation({
+        variables: { userId },
+        update: (cache) => {
+          // Immediately mark received messages as read in the local cache
+          // so the reader sees the read state update without waiting for refetch
+          const cached = cache.readQuery<{ conversation: PageResult }>({
+            query: GET_CONVERSATION,
+            variables: { userId: otherUserId, page: 1 },
+          });
+
+          if (cached) {
+            cache.writeQuery({
+              query: GET_CONVERSATION,
+              variables: { userId: otherUserId, page: 1 },
+              data: {
+                conversation: {
+                  ...cached.conversation,
+                  data: cached.conversation.data.map((m) => {
+                    // Mark messages received from otherUserId as read
+                    if (m.senderId === otherUserId && m.receiver?.id === currentUserId) {
+                      return { ...m, read: true };
+                    }
+                    return m;
+                  }),
+                },
+              },
+            });
+          }
+        },
+      });
     },
-    [markAsReadMutation],
+    [markAsReadMutation, currentUserId, otherUserId],
   );
 
   const loadMore = useCallback(() => {
