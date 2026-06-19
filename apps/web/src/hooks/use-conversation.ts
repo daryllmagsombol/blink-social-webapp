@@ -57,7 +57,7 @@ export function useConversation(otherUserId: string, currentUserId: string) {
       });
 
       if (cached) {
-        // Check if message already exists (dedup)
+        // Check if message already exists (dedup) — mutation update may have already added it
         const exists = cached.conversation.data.some((m) => m.id === msg.id);
         if (!exists) {
           cache.writeQuery({
@@ -106,9 +106,37 @@ export function useConversation(otherUserId: string, currentUserId: string) {
             },
           },
         },
+        update: (cache, { data }) => {
+          if (!data?.sendMessage) return;
+          const newMsg = data.sendMessage;
+
+          const cached = cache.readQuery<{ conversation: PageResult }>({
+            query: GET_CONVERSATION,
+            variables: { userId: otherUserId, page: 1 },
+          });
+
+          if (cached) {
+            // Remove optimistic temp message and add real one
+            const deduped = cached.conversation.data.filter(
+              (m) => !m.id.startsWith('temp-') && m.id !== newMsg.id,
+            );
+
+            cache.writeQuery({
+              query: GET_CONVERSATION,
+              variables: { userId: otherUserId, page: 1 },
+              data: {
+                conversation: {
+                  ...cached.conversation,
+                  data: [...deduped, newMsg],
+                  total: cached.conversation.total + 1,
+                },
+              },
+            });
+          }
+        },
       });
     },
-    [sendMessageMutation, currentUserId],
+    [sendMessageMutation, currentUserId, otherUserId],
   );
 
   const markAsRead = useCallback(

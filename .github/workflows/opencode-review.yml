@@ -29,7 +29,6 @@ jobs:
             - Bugs and logic errors
             - Security vulnerabilities
             - Missing error handling
-            - Test coverage gaps
 
             Be conservative — only flag things you're 90%+ sure about.
             Skip style, formatting, and naming nits.

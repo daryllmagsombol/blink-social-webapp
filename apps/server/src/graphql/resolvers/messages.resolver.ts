@@ -1,5 +1,6 @@
 import { Resolver, Query, Mutation, Subscription, Args, Context, Int } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { MessagesService } from '../../messages/messages.service';
 import { PubSubProvider } from '../providers/pubsub.provider';
 import { GqlAuthGuard } from '../guards/gql-auth.guard';
@@ -8,6 +9,7 @@ import { MessageEventType, PaginatedMessageType } from '../types/message.type';
 import { ConversationType } from '../types/conversation.type';
 import { GRAPHQL_EVENTS } from '@social/shared';
 
+@SkipThrottle()
 @Resolver(() => MessageEventType)
 export class MessagesResolver {
   constructor(

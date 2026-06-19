@@ -214,11 +214,16 @@ function ChatPanel({
     ? `${UPLOADS_URL}${otherUser.avatarUrl}`
     : undefined;
 
-  // Filter out optimistic temp messages from display (kept until server responds)
-  const realMessages = useMemo(
-    () => messages.filter((m) => !m.id.startsWith('temp-')),
-    [messages],
-  );
+  // Filter out optimistic temp messages and deduplicate by ID
+  const realMessages = useMemo(() => {
+    const seen = new Set<string>();
+    return messages.filter((m) => {
+      if (m.id.startsWith('temp-')) return false;
+      if (seen.has(m.id)) return false;
+      seen.add(m.id);
+      return true;
+    });
+  }, [messages]);
 
   const filteredMessages = chatSearchQuery.trim()
     ? realMessages.filter((msg) =>
