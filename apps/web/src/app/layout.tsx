@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import { ToastContainer } from '@/components/ui/Toast';
+import { ApolloWrapper } from '@/providers/apollo-provider';
 
 export const metadata: Metadata = {
   title: 'Blink Social',
@@ -21,7 +22,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen bg-bg text-text antialiased">
         <ThemeProvider>
-          {children}
+          <ApolloWrapper>
+            {children}
+          </ApolloWrapper>
           <ToastContainer />
         </ThemeProvider>
       </body>

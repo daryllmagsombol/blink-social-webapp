@@ -5,6 +5,50 @@ import { PrismaService } from '../prisma/prisma.service';
 export class MessagesService {
   constructor(private prisma: PrismaService) {}
 
+  /**
+   * Find or create a conversation between two users.
+   * Uses a deterministic conversation ID derived from sorted user IDs to prevent
+   * duplicate conversations in concurrent send calls (TOCTOU race condition).
+   */
+  private async findOrCreateConversation(userId1: string, userId2: string) {
+    // Deterministic ID: sorted user IDs ensure idempotency
+    const sorted = [userId1, userId2].sort();
+    const conversationId = `conv_${sorted[0]}_${sorted[1]}`;
+
+    // Try find existing first (fast path)
+    const existing = await this.prisma.conversation.findUnique({
+      where: { id: conversationId },
+      include: { participants: true },
+    });
+
+    if (existing) return existing;
+
+    // Create atomically — if two concurrent calls race, one will get P2002
+    try {
+      return await this.prisma.conversation.create({
+        data: {
+          id: conversationId,
+          participants: {
+            create: [
+              { userId: userId1 },
+              { userId: userId2 },
+            ],
+          },
+        },
+        include: { participants: true },
+      });
+    } catch (err: any) {
+      // P2002 = unique constraint violation — another concurrent call created it first
+      if (err?.code === 'P2002') {
+        return this.prisma.conversation.findUniqueOrThrow({
+          where: { id: conversationId },
+          include: { participants: true },
+        });
+      }
+      throw err;
+    }
+  }
+
   async send(senderId: string, receiverId: string, content: string) {
     const block = await this.prisma.block.findFirst({
       where: {
@@ -17,8 +61,22 @@ export class MessagesService {
 
     if (block) throw new ForbiddenException('Cannot send message due to block');
 
+    // Ensure a conversation exists
+    const conversation = await this.findOrCreateConversation(senderId, receiverId);
+
+    // Update the conversation timestamp
+    await this.prisma.conversation.update({
+      where: { id: conversation.id },
+      data: { updatedAt: new Date() },
+    });
+
     return this.prisma.message.create({
-      data: { senderId, receiverId, content },
+      data: {
+        senderId,
+        receiverId,
+        content,
+        conversationId: conversation.id,
+      },
       include: {
         sender: { select: { id: true, username: true, avatarUrl: true } },
         receiver: { select: { id: true, username: true, avatarUrl: true } },
@@ -29,28 +87,33 @@ export class MessagesService {
   async getConversation(userId: string, otherUserId: string, page = 1, limit = 50) {
     const skip = (page - 1) * limit;
 
+    const conversation = await this.prisma.conversation.findFirst({
+      where: {
+        participants: {
+          every: {
+            userId: { in: [userId, otherUserId] },
+          },
+        },
+      },
+    });
+
+    if (!conversation) {
+      return { data: [], total: 0, page, limit, hasMore: false };
+    }
+
     const [data, total] = await Promise.all([
       this.prisma.message.findMany({
-        where: {
-          OR: [
-            { senderId: userId, receiverId: otherUserId },
-            { senderId: otherUserId, receiverId: userId },
-          ],
-        },
+        where: { conversationId: conversation.id },
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
         include: {
           sender: { select: { id: true, username: true, avatarUrl: true } },
+          receiver: { select: { id: true, username: true, avatarUrl: true } },
         },
       }),
       this.prisma.message.count({
-        where: {
-          OR: [
-            { senderId: userId, receiverId: otherUserId },
-            { senderId: otherUserId, receiverId: userId },
-          ],
-        },
+        where: { conversationId: conversation.id },
       }),
     ]);
 
@@ -71,28 +134,50 @@ export class MessagesService {
   }
 
   async getConversations(userId: string) {
-    const messages = await this.prisma.message.findMany({
+    // Get all conversations the user participates in, with last message and unread count
+    const conversations = await this.prisma.conversation.findMany({
       where: {
-        OR: [{ senderId: userId }, { receiverId: userId }],
+        participants: {
+          some: { userId },
+        },
       },
-      orderBy: { createdAt: 'desc' },
       include: {
-        sender: { select: { id: true, username: true, avatarUrl: true } },
-        receiver: { select: { id: true, username: true, avatarUrl: true } },
+        participants: {
+          include: {
+            user: {
+              select: { id: true, username: true, avatarUrl: true },
+            },
+          },
+        },
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            senderId: true,
+            read: true,
+            sender: { select: { id: true, username: true, avatarUrl: true } },
+            receiver: { select: { id: true, username: true, avatarUrl: true } },
+          },
+        },
       },
+      orderBy: { updatedAt: 'desc' },
     });
 
-    const otherUserIds = new Set<string>();
-    for (const m of messages) {
-      otherUserIds.add(m.senderId === userId ? m.receiverId : m.senderId);
-    }
+    // Collect other user IDs for unread count
+    const otherUserIds = conversations
+      .map((c) => c.participants.find((p) => p.userId !== userId)?.userId)
+      .filter(Boolean) as string[];
 
+    // Get unread counts per sender
     const unreadCounts = await this.prisma.message.groupBy({
       by: ['senderId'],
       where: {
         receiverId: userId,
         read: false,
-        senderId: { in: [...otherUserIds] },
+        senderId: { in: otherUserIds },
       },
       _count: { id: true },
     });
@@ -102,20 +187,29 @@ export class MessagesService {
       unreadMap.set(row.senderId, row._count.id);
     }
 
-    const convos: Record<string, { user: any; lastMessage: any; unread: number }> = {};
-    for (const m of messages) {
-      const otherId = m.senderId === userId ? m.receiverId : m.senderId;
-      if (!convos[otherId]) {
-        convos[otherId] = {
-          user: m.senderId === userId ? m.receiver : m.sender,
-          lastMessage: m,
-          unread: unreadMap.get(otherId) || 0,
-        };
-      }
-    }
+    return conversations.map((conversation) => {
+      const otherParticipant = conversation.participants.find(
+        (p) => p.userId !== userId,
+      );
+      const lastMessage = conversation.messages[0] || null;
 
-    return Object.values(convos).sort(
-      (a, b) => new Date(b.lastMessage.createdAt).getTime() - new Date(a.lastMessage.createdAt).getTime(),
-    );
+      return {
+        id: conversation.id,
+        otherUser: otherParticipant?.user || { id: '', username: 'Unknown', avatarUrl: null },
+        lastMessage: lastMessage
+          ? {
+              id: lastMessage.id,
+              content: lastMessage.content,
+              createdAt: lastMessage.createdAt,
+              senderId: lastMessage.senderId,
+              sender: lastMessage.sender,
+              receiver: lastMessage.receiver,
+              read: lastMessage.read,
+            }
+          : null,
+        unreadCount: unreadMap.get(otherParticipant?.userId || '') || 0,
+        updatedAt: conversation.updatedAt,
+      };
+    });
   }
 }

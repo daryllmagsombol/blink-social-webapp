@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { GqlThrottlerGuard } from './graphql/guards/gql-throttler.guard';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve, join } from 'path';
 import { cwd } from 'process';
@@ -22,6 +23,7 @@ import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { BlocksModule } from './blocks/blocks.module';
 import { ReportsModule } from './reports/reports.module';
 import { OAuthModule } from './oauth/oauth.module';
+import { GraphqlModule } from './graphql/graphql.module';
 
 @Module({
   imports: [
@@ -39,6 +41,7 @@ import { OAuthModule } from './oauth/oauth.module';
       serveRoot: '/uploads',
       serveStaticOptions: { index: false },
     }),
+    GraphqlModule,
     PrismaModule,
     AuthModule,
     UsersModule,
@@ -58,7 +61,7 @@ import { OAuthModule } from './oauth/oauth.module';
     OAuthModule,
   ],
   providers: [
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: GqlThrottlerGuard },
   ],
 })
 export class AppModule {}

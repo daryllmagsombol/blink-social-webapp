@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { api, setTokens, clearTokens, getTokens } from '@/lib/api';
+import { resetApolloClient } from '@/lib/apollo-client';
 
 interface User {
   id: string;
@@ -53,6 +54,7 @@ export const useAuth = create<AuthState>((set) => ({
 
   logout: () => {
     clearTokens();
+    resetApolloClient();
     set({ user: null, isAuthenticated: false, isLoading: false });
   },
 
