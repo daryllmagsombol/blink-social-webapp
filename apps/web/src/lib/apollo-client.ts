@@ -42,8 +42,9 @@ function createApolloClient() {
   });
 
   // HTTP link for queries and mutations
+  // Note: NestJS GraphQL module registers at /graphql — not affected by global /api prefix
   const httpLink = new HttpLink({
-    uri: `${API_URL}/api/graphql`,
+    uri: `${API_URL}/graphql`,
   });
 
   const httpLinkWithAuth = errorLink.concat(authLink.concat(httpLink));
@@ -53,7 +54,7 @@ function createApolloClient() {
   if (typeof window !== 'undefined') {
     wsLink = new GraphQLWsLink(
       createClient({
-        url: `${WS_URL}/api/graphql`,
+        url: `${WS_URL}/graphql`,
         connectionParams: () => {
           const { accessToken } = getTokens();
           return { token: accessToken };
