@@ -75,13 +75,20 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
         run: |
-          sleep 5
+          # Poll for the review — it may take a moment to appear via GitHub API
+          for i in $(seq 1 6); do
+            sleep 5
+            REVIEW=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}/reviews" \
+              --jq 'sort_by(.submitted_at) | last(.[])' 2>/dev/null || echo '{}')
+            STATE=$(echo "$REVIEW" | jq -r '.state // "PENDING"')
+            BODY=$(echo "$REVIEW" | jq -r '.body // ""')
 
-          REVIEW=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}/reviews" \
-            --jq 'sort_by(.submitted_at) | last(.[])' 2>/dev/null || echo '{}')
-
-          STATE=$(echo "$REVIEW" | jq -r '.state // "PENDING"')
-          BODY=$(echo "$REVIEW" | jq -r '.body // ""')
+            # Exit loop once we have a real review (not pending/empty)
+            if [ "$STATE" != "PENDING" ] && [ -n "$BODY" ]; then
+              break
+            fi
+            echo "Waiting for review to post... (attempt ${i}/6)"
+          done
 
           echo "Review state: ${STATE}"
 
@@ -111,10 +118,10 @@ jobs:
           echo "❌ TypeScript compilation failed"
           exit 1
 
-      - name: Review must be clean
-        if: needs.review.result == 'failure' && needs.review.outputs.has_bugs == 'true'
+      - name: Review must complete
+        if: needs.review.result == 'failure'
         run: |
-          echo "❌ AI review found bugs — fix them before merging"
+          echo "❌ AI review job failed — check logs (could be bugs found or API error)"
           exit 1
 
       - name: All clear
