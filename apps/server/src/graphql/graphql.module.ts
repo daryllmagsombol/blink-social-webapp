@@ -50,10 +50,12 @@ const JwtRegistration = JwtModule.registerAsync({
                 const payload = await jwt.verifyAsync(token, {
                   secret: config.getOrThrow<string>('JWT_SECRET'),
                 });
-                // Attach user to the extra request for the guard
-                (context.extra as any).request = {
-                  user: { id: payload.sub, ...payload },
-                };
+                // Attach user to the existing upgrade request so that:
+                // 1. GqlAuthGuard can read req.user
+                // 2. Plugins (rate limiting) can still access req.socket.remoteAddress
+                const upgradeReq = (context.extra as any).request || {};
+                upgradeReq.user = { id: payload.sub, ...payload };
+                (context.extra as any).request = upgradeReq;
               } catch {
                 throw new Error('Invalid token');
               }
