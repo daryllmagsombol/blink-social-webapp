@@ -5,11 +5,14 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 /**
  * ThrottlerGuard wrapper that handles both HTTP (REST) and GraphQL contexts.
  *
- * For GraphQL, skip the standard Express-based rate limiter. The base
- * ThrottlerGuard relies on Express request objects (req.ip, getHandler, etc.)
- * that aren't directly available in GraphQL execution contexts. Apollo Server
- * provides its own rate-limiting via query complexity/depth analysis, which
- * should be configured separately.
+ * For GraphQL, the standard Express-based ThrottlerGuard is incompatible
+ * (relies on Express request objects via getHandler/switchToHttp which don't
+ * exist in GQL execution contexts). GraphQL rate limiting is handled by
+ * Apollo Server plugins configured in graphql.module.ts:
+ *   - depthLimitRule(6)          — max query nesting depth
+ *   - operationRateLimitPlugin() — per-operation-type rate limits
+ *
+ * REST endpoints continue to use the full ThrottlerGuard pipeline.
  */
 @Injectable()
 export class GqlThrottlerGuard extends ThrottlerGuard {

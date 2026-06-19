@@ -7,6 +7,8 @@ import { join } from 'path';
 import { MessagesResolver } from './resolvers/messages.resolver';
 import { MessagesModule } from '../messages/messages.module';
 import { PubSubModule } from './providers/pubsub.module';
+import { depthLimitRule } from './plugins/depth-limit';
+import { operationRateLimitPlugin } from './plugins/rate-limit';
 
 // Shared JWT module registration — used by both GqlAuthGuard and the GraphQL factory
 const JwtRegistration = JwtModule.registerAsync({
@@ -28,6 +30,8 @@ const JwtRegistration = JwtModule.registerAsync({
         autoSchemaFile: join(process.cwd(), 'apps/server/src/graphql/generated/schema.gql'),
         sortSchema: true,
         introspection: config.get('NODE_ENV') !== 'production',
+        validationRules: [depthLimitRule(6)],
+        plugins: [operationRateLimitPlugin()],
         context: ({ req, extra }: { req?: any; extra?: any }) => {
           // For subscriptions, extra.request is the upgraded request
           if (extra?.request) {
