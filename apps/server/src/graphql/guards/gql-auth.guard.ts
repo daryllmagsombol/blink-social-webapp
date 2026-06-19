@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -25,7 +25,8 @@ export class GqlAuthGuard implements CanActivate {
         req.user = { id: payload.sub, ...payload };
         return true;
       } catch {
-        // Fall through to try other methods
+        // Token present but invalid — fail closed (do not fall through to alternative auth)
+        throw new UnauthorizedException('Invalid or expired token');
       }
     }
 

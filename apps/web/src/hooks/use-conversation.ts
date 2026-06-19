@@ -7,6 +7,7 @@ import {
   SEND_MESSAGE,
   MARK_AS_READ,
   ON_NEW_MESSAGE,
+  ON_MESSAGE_READ,
 } from '@/graphql/operations';
 
 interface ChatMessage {
@@ -49,6 +50,11 @@ export function useConversation(otherUserId: string, currentUserId: string) {
       if (!subData.data?.newMessage) return;
       const msg = subData.data.newMessage as ChatMessage;
 
+      // Guard: only write to cache if this message belongs to the currently viewed conversation
+      if (msg.senderId !== otherUserId && msg.receiver?.id !== otherUserId) {
+        return;
+      }
+
       // Update the conversation cache with the new message
       const cache = client.cache;
       const cached = cache.readQuery<{ conversation: PageResult }>({
@@ -72,6 +78,37 @@ export function useConversation(otherUserId: string, currentUserId: string) {
             },
           });
         }
+      }
+    },
+  });
+
+  // Subscribe to read receipts
+  useSubscription(ON_MESSAGE_READ, {
+    onData: ({ client, data: subData }) => {
+      if (!subData.data?.messageRead) return;
+      // Update the cache to mark sent messages as read
+      const cache = client.cache;
+      const cached = cache.readQuery<{ conversation: PageResult }>({
+        query: GET_CONVERSATION,
+        variables: { userId: otherUserId, page: 1 },
+      });
+
+      if (cached) {
+        cache.writeQuery({
+          query: GET_CONVERSATION,
+          variables: { userId: otherUserId, page: 1 },
+          data: {
+            conversation: {
+              ...cached.conversation,
+              data: cached.conversation.data.map((m) => {
+                if (m.senderId === currentUserId && !m.read) {
+                  return { ...m, read: true };
+                }
+                return m;
+              }),
+            },
+          },
+        });
       }
     },
   });

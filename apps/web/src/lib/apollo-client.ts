@@ -2,7 +2,7 @@
 
 import { ApolloClient, InMemoryCache, HttpLink, split } from '@apollo/client';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
-import { createClient } from 'graphql-ws';
+import { createClient, Client as WsClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
@@ -16,6 +16,9 @@ function getTokens() {
     accessToken: localStorage.getItem('accessToken'),
   };
 }
+
+// Hold a module-level reference to the WS client so we can close it on logout
+let wsClient: WsClient | null = null;
 
 function createApolloClient() {
   // Auth link — attaches token to HTTP requests
@@ -52,21 +55,29 @@ function createApolloClient() {
   // WebSocket link for subscriptions (browser only)
   let wsLink: GraphQLWsLink | null = null;
   if (typeof window !== 'undefined') {
-    wsLink = new GraphQLWsLink(
-      createClient({
-        url: `${WS_URL}/graphql`,
-        connectionParams: () => {
+    wsClient = createClient({
+      url: `${WS_URL}/graphql`,
+      connectionParams: () => {
+        const { accessToken } = getTokens();
+        return { token: accessToken };
+      },
+      shouldRetry: () => true,
+      retryAttempts: 5,
+      retryWait: (attempt) =>
+        new Promise((resolve) =>
+          setTimeout(resolve, Math.min(attempt * 1000, 5000)),
+        ),
+      on: {
+        closed: () => {
+          // If the token is gone (user logged out), don't reconnect
           const { accessToken } = getTokens();
-          return { token: accessToken };
+          if (!accessToken) {
+            wsClient = null;
+          }
         },
-        shouldRetry: () => true,
-        retryAttempts: 5,
-        retryWait: (attempt) =>
-          new Promise((resolve) =>
-            setTimeout(resolve, Math.min(attempt * 1000, 5000)),
-          ),
-      }),
-    );
+      },
+    });
+    wsLink = new GraphQLWsLink(wsClient);
   }
 
   // Split link — use WebSocket for subscriptions, HTTP for everything else
@@ -93,13 +104,17 @@ function createApolloClient() {
           fields: {
             conversation: {
               keyArgs: ['userId'],
-              merge(existing = { data: [] }, incoming) {
+              // Server returns oldest-first. Page 1 = newest messages, Page 2 = older messages.
+              // When fetchMore loads page 2, prepend older data before existing newer data.
+              merge(existing = { data: [] }, incoming, { args }) {
+                // If this is the initial fetch (page 1), replace
+                if (!args?.page || args.page === 1) {
+                  return incoming;
+                }
+                // For subsequent pages (older messages), prepend
                 return {
                   ...incoming,
-                  data: [
-                    ...(existing.data || []),
-                    ...(incoming.data || []),
-                  ],
+                  data: [...(incoming.data || []), ...(existing.data || [])],
                 };
               },
             },
@@ -137,6 +152,11 @@ export function getApolloClient() {
 }
 
 export function resetApolloClient() {
+  // Close the WebSocket connection so it doesn't remain authenticated after logout
+  if (wsClient) {
+    wsClient.dispose();
+    wsClient = null;
+  }
   if (apolloClient) {
     apolloClient.clearStore().catch(() => {});
     apolloClient = null;

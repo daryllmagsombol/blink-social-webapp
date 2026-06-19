@@ -7,34 +7,46 @@ export class MessagesService {
 
   /**
    * Find or create a conversation between two users.
+   * Uses a deterministic conversation ID derived from sorted user IDs to prevent
+   * duplicate conversations in concurrent send calls (TOCTOU race condition).
    */
   private async findOrCreateConversation(userId1: string, userId2: string) {
-    // Find existing conversation where both users are participants
-    const existing = await this.prisma.conversation.findFirst({
-      where: {
-        participants: {
-          every: {
-            userId: { in: [userId1, userId2] },
-          },
-        },
-      },
+    // Deterministic ID: sorted user IDs ensure idempotency
+    const sorted = [userId1, userId2].sort();
+    const conversationId = `conv_${sorted[0]}_${sorted[1]}`;
+
+    // Try find existing first (fast path)
+    const existing = await this.prisma.conversation.findUnique({
+      where: { id: conversationId },
       include: { participants: true },
     });
 
     if (existing) return existing;
 
-    // Create new conversation with both participants
-    return this.prisma.conversation.create({
-      data: {
-        participants: {
-          create: [
-            { userId: userId1 },
-            { userId: userId2 },
-          ],
+    // Create atomically — if two concurrent calls race, one will get P2002
+    try {
+      return await this.prisma.conversation.create({
+        data: {
+          id: conversationId,
+          participants: {
+            create: [
+              { userId: userId1 },
+              { userId: userId2 },
+            ],
+          },
         },
-      },
-      include: { participants: true },
-    });
+        include: { participants: true },
+      });
+    } catch (err: any) {
+      // P2002 = unique constraint violation — another concurrent call created it first
+      if (err?.code === 'P2002') {
+        return this.prisma.conversation.findUniqueOrThrow({
+          where: { id: conversationId },
+          include: { participants: true },
+        });
+      }
+      throw err;
+    }
   }
 
   async send(senderId: string, receiverId: string, content: string) {
