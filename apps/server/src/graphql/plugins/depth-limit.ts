@@ -29,38 +29,46 @@ export function depthLimitRule(
 function getQueryDepth(node: any, context: ValidationContext): number {
   if (!node.selectionSet) return 0;
   let maxDepth = 0;
+  const visited = new Set<string>();
   for (const selection of node.selectionSet.selections) {
-    const depth = 1 + getSelectionDepth(selection, context);
+    const depth = 1 + getSelectionDepth(selection, context, visited);
     if (depth > maxDepth) maxDepth = depth;
   }
   return maxDepth;
 }
 
-function getSelectionDepth(selection: any, context: ValidationContext): number {
+function getSelectionDepth(
+  selection: any,
+  context: ValidationContext,
+  visited: Set<string>,
+): number {
   // Handle FragmentSpread — resolve the fragment definition to calculate its depth
   if (selection.kind === 'FragmentSpread') {
     const fragment = context.getFragment(selection.name.value);
     if (fragment) {
-      // Cycle detection: track visited fragments to prevent infinite recursion
-      return getFragmentDepth(fragment, context, new Set());
+      return getFragmentDepth(fragment, context, visited);
     }
     return 0;
   }
 
   // InlineFragment
   if (selection.kind === 'InlineFragment') {
-    return getFieldDepth(selection, context);
+    return getFieldDepth(selection, context, visited);
   }
 
   // Field
-  return getFieldDepth(selection, context);
+  return getFieldDepth(selection, context, visited);
 }
 
-function getFieldDepth(selection: any, context: ValidationContext): number {
+function getFieldDepth(
+  selection: any,
+  context: ValidationContext,
+  visited: Set<string>,
+): number {
   if (!selection.selectionSet) return 0;
   let maxDepth = 0;
   for (const subSelection of selection.selectionSet.selections) {
-    const depth = 1 + getSelectionDepth(subSelection, context);
+    const depth = 1 + getSelectionDepth(subSelection, context, visited);
     if (depth > maxDepth) maxDepth = depth;
   }
   return maxDepth;
@@ -77,7 +85,7 @@ function getFragmentDepth(
   if (!fragment.selectionSet) return 0;
   let maxDepth = 0;
   for (const selection of fragment.selectionSet.selections) {
-    const depth = 1 + getSelectionDepth(selection, context);
+    const depth = 1 + getSelectionDepth(selection, context, visited);
     if (depth > maxDepth) maxDepth = depth;
   }
   return maxDepth;

@@ -24,8 +24,8 @@ export function operationRateLimitPlugin(): ApolloServerPlugin {
 
   return {
     async requestDidStart(ctx) {
-      // Classify operation type from the query string
-      const q = ctx.request.query ?? '';
+      // Classify operation type from the trimmed query string
+      const q = (ctx.request.query ?? '').trim();
       const operationType = q.startsWith('subscription')
         ? 'subscription'
         : q.startsWith('mutation')
