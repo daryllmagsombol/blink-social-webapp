@@ -1,10 +1,15 @@
 'use client';
 
-import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import {
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+  useCallback,
+} from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { api, UPLOADS_URL } from '@/lib/api';
 import { useAuth } from '@/stores/auth';
-import { getSocket, disconnectSocket } from '@/lib/socket';
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton, MessageSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -12,6 +17,8 @@ import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { MatIcon } from '@/components/ui/Icon';
 import { NewUserSearch } from '@/components/chat/NewUserSearch';
 import { timeAgo } from '@/lib/utils';
+import { useConversations } from '@/hooks/use-conversations';
+import { useConversation } from '@/hooks/use-conversation';
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -21,7 +28,9 @@ interface ChatMessage {
   createdAt: string;
   senderId: string;
   sender: { id: string; username: string; avatarUrl: string | null };
-  imageUrl?: string | null;
+  receiver?: { id: string; username: string; avatarUrl: string | null };
+  read?: boolean;
+  __typename?: string;
 }
 
 interface OtherUser {
@@ -29,13 +38,6 @@ interface OtherUser {
   username: string;
   avatarUrl: string | null;
   isOnline?: boolean;
-}
-
-interface Convo {
-  user: { id: string; username: string; avatarUrl: string | null };
-  lastMessage: { content: string; createdAt: string };
-  isOnline?: boolean;
-  unread?: number;
 }
 
 // ─── Helpers ─────────────────────────────────────────────
@@ -151,74 +153,60 @@ function ChatPanel({
   currentUserId: string;
   onBack: () => void;
 }) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const {
+    messages,
+    loading,
+    error: gqlError,
+    send: sendGql,
+    markAsRead,
+  } = useConversation(userId, currentUserId);
+
   const [input, setInput] = useState('');
   const [otherUser, setOtherUser] = useState<OtherUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [userLoading, setUserLoading] = useState(true);
   const [chatSearchOpen, setChatSearchOpen] = useState(false);
   const [chatSearchQuery, setChatSearchQuery] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatSearchInputRef = useRef<HTMLInputElement>(null);
 
-  const load = useCallback(() => {
-    setLoading(true);
-    setError(false);
-
-    Promise.all([
-      api.get<{ data: ChatMessage[] }>(`/messages/${userId}`),
-      api
-        .get<OtherUser>(`/users/${userId}`)
-        .catch(() => ({ id: userId, username: 'Unknown', avatarUrl: null })),
-    ])
-      .then(([msgRes, userRes]) => {
-        setMessages(msgRes.data);
-        setOtherUser(userRes);
-      })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
+  // Load other user info via REST (still using api for non-message user data)
+  useEffect(() => {
+    setUserLoading(true);
+    api
+      .get<OtherUser>(`/users/${userId}`)
+      .then(setOtherUser)
+      .catch(() =>
+        setOtherUser({ id: userId, username: 'Unknown', avatarUrl: null }),
+      )
+      .finally(() => setUserLoading(false));
   }, [userId]);
 
+  // Mark messages as read when viewing conversation
   useEffect(() => {
-    load();
+    markAsRead(userId);
+  }, [userId, markAsRead]);
 
-    const token = localStorage.getItem('accessToken');
-    if (!token) return;
-
-    const socket = getSocket(token);
-
-    socket.on('new_message', (msg: ChatMessage) => {
-      if (msg.senderId === userId || msg.senderId === currentUserId) {
-        setMessages((prev) => [...prev, msg]);
-      }
-    });
-
-    return () => {
-      socket.off('new_message');
-      disconnectSocket();
-    };
-  }, [userId, currentUserId, load]);
-
+  // Auto-scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const send = (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const token = localStorage.getItem('accessToken');
-    if (!token) return;
-
-    const socket = getSocket(token);
-    socket.emit('send_message', { receiverId: userId, content: input });
-    setInput('');
+    try {
+      await sendGql(userId, input);
+      setInput('');
+    } catch {
+      // Error handled by Apollo error link
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      send(e);
+      handleSend(e);
     }
   };
 
@@ -226,11 +214,17 @@ function ChatPanel({
     ? `${UPLOADS_URL}${otherUser.avatarUrl}`
     : undefined;
 
+  // Filter out optimistic temp messages from display (kept until server responds)
+  const realMessages = useMemo(
+    () => messages.filter((m) => !m.id.startsWith('temp-')),
+    [messages],
+  );
+
   const filteredMessages = chatSearchQuery.trim()
-    ? messages.filter((msg) =>
+    ? realMessages.filter((msg) =>
         msg.content.toLowerCase().includes(chatSearchQuery.toLowerCase()),
       )
-    : messages;
+    : realMessages;
 
   const groupedMessages = filteredMessages.map((msg, index) => ({
     message: msg,
@@ -240,7 +234,7 @@ function ChatPanel({
   }));
 
   // --- Loading ---
-  if (loading) {
+  if (loading || userLoading) {
     return (
       <div className="flex flex-1 flex-col bg-bg min-h-0">
         <div className="flex items-center gap-2 border-b border-border px-4 py-3 shrink-0">
@@ -283,10 +277,13 @@ function ChatPanel({
   }
 
   // --- Error ---
-  if (error) {
+  if (gqlError) {
     return (
       <div className="flex flex-1 items-center justify-center bg-bg p-4 min-h-0">
-        <ErrorDisplay message="Could not load conversation" onRetry={load} />
+        <ErrorDisplay
+          message="Could not load conversation"
+          onRetry={() => window.location.reload()}
+        />
       </div>
     );
   }
@@ -349,7 +346,6 @@ function ChatPanel({
             onClick={() => {
               setChatSearchOpen((v) => !v);
               if (!chatSearchOpen) {
-                // Focus input after render
                 setTimeout(() => chatSearchInputRef.current?.focus(), 100);
               } else {
                 setChatSearchQuery('');
@@ -405,13 +401,13 @@ function ChatPanel({
 
       {/* ─── Messages ─── */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1 scroll-smooth">
-        {messages.length === 0 ? (
+        {realMessages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
             <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-bg-secondary">
               <MatIcon icon="chat" className="text-2xl text-text-secondary" />
             </div>
             <p className="font-medium text-text">No messages yet</p>
-            <p className="mt-1 text-sm text-text-secondary">Say hi! 👋</p>
+            <p className="mt-1 text-sm text-text-secondary">Say hi! &#x1F44B;</p>
             <p className="mt-1 text-xs text-text-secondary">
               Your conversation will appear here.
             </p>
@@ -461,23 +457,6 @@ function ChatPanel({
                       isMine ? 'items-end' : 'items-start'
                     }`}
                   >
-                    {msg.imageUrl && (
-                      <div
-                        className={`mb-1 overflow-hidden rounded-2xl ${
-                          isMine ? 'rounded-br-none' : 'rounded-bl-none'
-                        } ${
-                          isMine ? 'bg-primary' : 'bg-bg-secondary'
-                        }`}
-                      >
-                        <img
-                          src={`${UPLOADS_URL}${msg.imageUrl}`}
-                          alt="Shared image"
-                          className="max-w-full max-h-72 object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    )}
-
                     {msg.content && (
                       <div
                         className={`relative px-3.5 py-2 text-sm leading-relaxed break-words ${
@@ -514,7 +493,7 @@ function ChatPanel({
 
       {/* ─── Input ─── */}
       <div className="shrink-0 border-t border-border bg-bg px-3 py-3 pb-safe">
-        <form onSubmit={send} className="flex items-center gap-2">
+        <form onSubmit={handleSend} className="flex items-center gap-2">
           <button
             type="button"
             aria-label="Add emoji"
@@ -561,15 +540,17 @@ export default function MessagesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialUserId = searchParams.get('user');
-  const [convos, setConvos] = useState<Convo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const {
+    conversations: convos,
+    loading,
+    error,
+    refetch: refetchConvos,
+  } = useConversations();
   const [search, setSearch] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(initialUserId);
   const [newMessageOpen, setNewMessageOpen] = useState(false);
 
-  // Clean up the ?user= query param from the URL after reading it once,
-  // so page refreshes don't always reselect the same conversation.
+  // Clean up the ?user= query param from the URL after reading it once
   const hasInitialParam = useRef(!!initialUserId);
   useEffect(() => {
     if (hasInitialParam.current) {
@@ -577,29 +558,14 @@ export default function MessagesPage() {
     }
   }, [router]);
 
-  const loadConvos = () => {
-    setLoading(true);
-    setError(false);
-    api
-      .get<Convo[]>('/messages/conversations')
-      .then(setConvos)
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    loadConvos();
-  }, []);
-
   const filteredConvos = useMemo(
     () =>
       convos.filter((c) => {
         if (!search.trim()) return true;
         const q = search.toLowerCase();
-        return (
-          c.user.username.toLowerCase().includes(q) ||
-          c.lastMessage.content.toLowerCase().includes(q)
-        );
+        const name = c.otherUser?.username?.toLowerCase() || '';
+        const lastMsg = c.lastMessage?.content?.toLowerCase() || '';
+        return name.includes(q) || lastMsg.includes(q);
       }),
     [convos, search],
   );
@@ -661,8 +627,8 @@ export default function MessagesPage() {
           ) : error ? (
             <div className="p-4">
               <ErrorDisplay
-                message="Could not load conversations"
-                onRetry={loadConvos}
+                message={error}
+                onRetry={refetchConvos}
               />
             </div>
           ) : filteredConvos.length === 0 ? (
@@ -684,40 +650,36 @@ export default function MessagesPage() {
           ) : (
             <>
               {filteredConvos.map((c, index) => {
-                const isActive = selectedUserId === c.user.id;
-                const hasUnread = (c.unread ?? 0) > 0;
+                const isActive = selectedUserId === c.otherUser?.id;
+                const hasUnread = (c.unreadCount ?? 0) > 0;
 
                 return (
                   <button
-                    key={c.user.id}
+                    key={c.id}
                     type="button"
-                    onClick={() => handleSelect(c.user.id)}
+                    onClick={() => handleSelect(c.otherUser?.id)}
                     className={`relative flex w-full items-center gap-3 px-4 py-3 text-left transition-all duration-150 animate-fade-in hover:bg-bg-secondary ${
                       isActive ? 'bg-bg-secondary' : ''
                     }`}
                     style={{ animationDelay: `${index * 40}ms` }}
                   >
-                    {/* Active left border */}
                     {isActive && (
                       <span className="absolute left-0 top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r-full bg-primary" />
                     )}
 
-                    {/* Avatar */}
                     <div className="relative shrink-0">
                       <Avatar
                         src={
-                          c.user.avatarUrl
-                            ? `${UPLOADS_URL}${c.user.avatarUrl}`
+                          c.otherUser?.avatarUrl
+                            ? `${UPLOADS_URL}${c.otherUser.avatarUrl}`
                             : undefined
                         }
-                        alt={c.user.username}
+                        alt={c.otherUser?.username || '?'}
                         size="md"
-                        fallback={c.user.username[0]?.toUpperCase()}
-                        online={c.isOnline}
+                        fallback={c.otherUser?.username?.[0]?.toUpperCase()}
                       />
                     </div>
 
-                    {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <span
@@ -727,10 +689,10 @@ export default function MessagesPage() {
                               : 'font-semibold text-text'
                           }`}
                         >
-                          {c.user.username}
+                          {c.otherUser?.username || 'Unknown'}
                         </span>
                         <span className="shrink-0 text-xs text-text-secondary">
-                          {timeAgo(c.lastMessage.createdAt)}
+                          {c.updatedAt ? timeAgo(c.updatedAt) : ''}
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-2 mt-0.5">
@@ -741,7 +703,7 @@ export default function MessagesPage() {
                               : 'text-text-secondary'
                           }`}
                         >
-                          {c.lastMessage.content}
+                          {c.lastMessage?.content || 'Start a conversation'}
                         </span>
                         {hasUnread && (
                           <span className="shrink-0 h-2.5 w-2.5 rounded-full bg-primary" />

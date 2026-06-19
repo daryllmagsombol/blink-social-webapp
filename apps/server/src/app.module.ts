@@ -22,6 +22,7 @@ import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { BlocksModule } from './blocks/blocks.module';
 import { ReportsModule } from './reports/reports.module';
 import { OAuthModule } from './oauth/oauth.module';
+import { GraphqlModule } from './graphql/graphql.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { OAuthModule } from './oauth/oauth.module';
       serveRoot: '/uploads',
       serveStaticOptions: { index: false },
     }),
+    GraphqlModule,
     PrismaModule,
     AuthModule,
     UsersModule,
