@@ -31,7 +31,18 @@ export function useConversations() {
     conversations: Conversation[];
   }>(GET_CONVERSATIONS);
 
-  const conversations = useMemo(() => data?.conversations ?? [], [data]);
+  const conversations = useMemo(() => {
+    const list = data?.conversations ?? [];
+    // Safety-net dedup by otherUser.id — server already dedups but this guards
+    // against any edge cases in Apollo cache or subscription interactions
+    const seen = new Set<string>();
+    return list.filter((c) => {
+      const otherId = c.otherUser?.id;
+      if (!otherId || seen.has(otherId)) return false;
+      seen.add(otherId);
+      return true;
+    });
+  }, [data]);
 
   return {
     conversations,

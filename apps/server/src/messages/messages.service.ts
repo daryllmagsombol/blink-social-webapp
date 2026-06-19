@@ -187,29 +187,37 @@ export class MessagesService {
       unreadMap.set(row.senderId, row._count.id);
     }
 
-    return conversations.map((conversation) => {
-      const otherParticipant = conversation.participants.find(
-        (p) => p.userId !== userId,
-      );
-      const lastMessage = conversation.messages[0] || null;
+    return conversations
+      .map((conversation) => {
+        const otherParticipant = conversation.participants.find(
+          (p) => p.userId !== userId,
+        );
+        const lastMessage = conversation.messages[0] || null;
 
-      return {
-        id: conversation.id,
-        otherUser: otherParticipant?.user || { id: '', username: 'Unknown', avatarUrl: null },
-        lastMessage: lastMessage
-          ? {
-              id: lastMessage.id,
-              content: lastMessage.content,
-              createdAt: lastMessage.createdAt,
-              senderId: lastMessage.senderId,
-              sender: lastMessage.sender,
-              receiver: lastMessage.receiver,
-              read: lastMessage.read,
-            }
-          : null,
-        unreadCount: unreadMap.get(otherParticipant?.userId || '') || 0,
-        updatedAt: conversation.updatedAt,
-      };
-    });
+        return {
+          id: conversation.id,
+          otherUser: otherParticipant?.user || { id: '', username: 'Unknown', avatarUrl: null },
+          lastMessage: lastMessage
+            ? {
+                id: lastMessage.id,
+                content: lastMessage.content,
+                createdAt: lastMessage.createdAt,
+                senderId: lastMessage.senderId,
+                sender: lastMessage.sender,
+                receiver: lastMessage.receiver,
+                read: lastMessage.read,
+              }
+            : null,
+          unreadCount: unreadMap.get(otherParticipant?.userId || '') || 0,
+          updatedAt: conversation.updatedAt,
+        };
+      })
+      // Dedup by otherUser.id — keep only the latest conversation per user pair.
+      // Prevents duplicate entries in the sidebar when stale conversations exist.
+      .filter((convo, index, arr) => {
+        const otherId = convo.otherUser?.id;
+        if (!otherId) return true;
+        return arr.findIndex((c) => c.otherUser?.id === otherId) === index;
+      });
   }
 }
