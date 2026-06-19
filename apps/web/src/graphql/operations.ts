@@ -110,6 +110,9 @@ export const ON_NEW_MESSAGE = gql`
 
 export const ON_MESSAGE_READ = gql`
   subscription OnMessageRead {
-    messageRead
+    messageRead {
+      userId
+      readBy
+    }
   }
 `;

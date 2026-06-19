@@ -85,7 +85,8 @@ export function useConversation(otherUserId: string, currentUserId: string) {
   // Subscribe to read receipts
   useSubscription(ON_MESSAGE_READ, {
     onData: ({ client, data: subData }) => {
-      if (!subData.data?.messageRead) return;
+      const event = subData.data?.messageRead;
+      if (!event || !event.userId) return;
       // Update the cache to mark sent messages as read
       const cache = client.cache;
       const cached = cache.readQuery<{ conversation: PageResult }>({

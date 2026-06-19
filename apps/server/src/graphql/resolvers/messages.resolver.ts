@@ -7,9 +7,9 @@ import { GqlAuthGuard } from '../guards/gql-auth.guard';
 import { GqlCurrentUser } from '../decorators/gql-current-user.decorator';
 import { MessageEventType, PaginatedMessageType } from '../types/message.type';
 import { ConversationType } from '../types/conversation.type';
+import { MessageReadEventType } from '../types/read-receipt.type';
 import { GRAPHQL_EVENTS } from '@social/shared';
 
-@SkipThrottle()
 @Resolver(() => MessageEventType)
 export class MessagesResolver {
   constructor(
@@ -43,7 +43,7 @@ export class MessagesResolver {
     const message = await this.messagesService.send(user.id, receiverId, content);
 
     // Publish to both sender and receiver via PubSub
-    this.pubSub.instance.publish(GRAPHQL_EVENTS.NEW_MESSAGE, {
+    await this.pubSub.instance.publish(GRAPHQL_EVENTS.NEW_MESSAGE, {
       newMessage: message,
     });
 
@@ -58,32 +58,45 @@ export class MessagesResolver {
   ) {
     await this.messagesService.markAsRead(user.id, otherUserId);
 
-    this.pubSub.instance.publish(GRAPHQL_EVENTS.MESSAGE_READ, {
+    await this.pubSub.instance.publish(GRAPHQL_EVENTS.MESSAGE_READ, {
       messageRead: { userId: otherUserId, readBy: user.id },
     });
 
     return true;
   }
 
+  @SkipThrottle()
   @Subscription(() => MessageEventType, {
     filter: (payload, variables, context) => {
       const message = payload.newMessage;
-      const userId = (context as any)?.req?.user?.id;
+      const ctx = context as any;
+      const user = ctx?.req?.user;
+      if (!user?.id) return false;
+
+      // Reject if the JWT used at connect time has expired
+      if (user.exp && Date.now() / 1000 > user.exp) return false;
+
       // Only deliver to sender or receiver
-      if (!userId) return false;
-      return message.senderId === userId || message.receiverId === userId;
+      return message.senderId === user.id || message.receiverId === user.id;
     },
   })
   newMessage() {
     return this.pubSub.instance.asyncIterableIterator(GRAPHQL_EVENTS.NEW_MESSAGE);
   }
 
-  @Subscription(() => Boolean, {
+  @SkipThrottle()
+  @Subscription(() => MessageReadEventType, {
     filter: (payload, variables, context) => {
       const { messageRead } = payload;
-      const userId = (context as any)?.req?.user?.id;
+      const ctx = context as any;
+      const user = ctx?.req?.user;
+      if (!user?.id) return false;
+
+      // Reject if the JWT used at connect time has expired
+      if (user.exp && Date.now() / 1000 > user.exp) return false;
+
       // Notify the sender that their message was read
-      return messageRead.userId === userId;
+      return messageRead.userId === user.id;
     },
   })
   messageRead() {
