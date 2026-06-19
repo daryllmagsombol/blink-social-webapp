@@ -8,17 +8,21 @@ import { MessagesResolver } from './resolvers/messages.resolver';
 import { MessagesModule } from '../messages/messages.module';
 import { PubSubModule } from './providers/pubsub.module';
 
+// Shared JWT module registration — used by both GqlAuthGuard and the GraphQL factory
+const JwtRegistration = JwtModule.registerAsync({
+  imports: [ConfigModule],
+  inject: [ConfigService],
+  useFactory: (config: ConfigService) => ({
+    secret: config.getOrThrow<string>('JWT_SECRET'),
+  }),
+});
+
 @Module({
   imports: [
+    JwtRegistration,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      imports: [ConfigModule, PubSubModule, JwtModule.registerAsync({
-        imports: [ConfigModule],
-        inject: [ConfigService],
-        useFactory: (config: ConfigService) => ({
-          secret: config.getOrThrow<string>('JWT_SECRET'),
-        }),
-      })],
+      imports: [ConfigModule, PubSubModule, JwtRegistration],
       inject: [ConfigService, JwtService],
       useFactory: (config: ConfigService, jwt: JwtService) => ({
         autoSchemaFile: join(process.cwd(), 'apps/server/src/graphql/generated/schema.gql'),
