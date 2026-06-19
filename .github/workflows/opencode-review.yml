@@ -1,11 +1,39 @@
-name: opencode-review
+name: PR Checks
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'turbo.json'
+
+# Cancel in-progress runs when new commits are pushed to the PR
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
+  # Fast static checks — blocks merge if failing
+  typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+
+  # AI code review — informational, posts findings as PR review
   review:
     if: github.event.pull_request.head.repo.fork == false
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       id-token: write
       contents: read
@@ -22,6 +50,8 @@ jobs:
         with:
           model: opencode/deepseek-v4-flash-free
           use_github_token: true
+          diff_context: 5
+          max_files: 80
           prompt: |
             Review this pull request.
 
