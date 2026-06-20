@@ -2,12 +2,6 @@ name: PR Checks
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - 'apps/**'
-      - 'packages/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'turbo.json'
 
 concurrency:
   group: pr-${{ github.event.pull_request.number }}
@@ -120,7 +114,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Typecheck must pass
-        if: needs.typecheck.result != 'success'
+        if: needs.typecheck.result != 'success' && needs.typecheck.result != 'skipped'
         run: |
           echo "❌ TypeScript compilation failed"
           exit 1
