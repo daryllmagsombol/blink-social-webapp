@@ -44,7 +44,7 @@ jobs:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          model: opencode/deepseek-v4-flash-free
+          model: opencode/deepseek-v4-flash
           use_github_token: true
           diff_context: 5
           max_files: 80
